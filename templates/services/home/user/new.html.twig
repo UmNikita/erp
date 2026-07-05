@@ -1,0 +1,56 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block content %}
+
+<div class="top">
+  <div class="title">
+    <h1>Добавить пользователя</h1>
+    <p>Создаём сотрудника. Доступы к сервисам выдаются отдельно в матрице.</p>
+  </div>
+</div>
+
+{{ form_start(form, {'attr': {'class': 'card'}}) }}
+
+    <div class="field">
+        <label>Имя</label>
+        {{ form_widget(form.name) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div class="field">
+        <label>Email</label>
+        {{ form_widget(form.email) }}
+        {{ form_errors(form.email) }}
+    </div>
+
+    <div class="field">
+        <label>Пароль</label>
+        {{ form_widget(form.password.first) }}
+        {{ form_errors(form.password.first) }}
+    </div>
+
+    <div class="field">
+        <label>Повторите пароль</label>
+        {{ form_widget(form.password.second) }}
+        {{ form_errors(form.password.second) }}
+    </div>
+
+    <div class="field">
+        <label>Роль</label>
+        {{ form_widget(form.role) }}
+        {{ form_errors(form.role) }}
+    </div>
+
+    <div class="field">
+        <label>Отдел</label>
+        {{ form_widget(form.department) }}
+        {{ form_errors(form.department) }}
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn" type="submit">Сохранить пользователя</button>
+        <a class="btn secondary" href="{{ path('app_home_users') }}">Отмена</a>
+    </div>
+{{ form_end(form) }}
+
+{% endblock %}

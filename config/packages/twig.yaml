@@ -1,5 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        user_service: '@App\Security\Service\UserService'
 
 when@test:
     twig:

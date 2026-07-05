@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Войти в REKLAM Hub{% endblock %}
+
+{% block body %}
+<main class="login-shell login-shell-clean">
+    <section class="login-side-clean">
+      <div class="login-brand">
+        <div class="login-logo">RH</div>
+        <div>
+          <div class="login-brand-name">REKLAM Hub</div>
+          <div class="login-brand-sub">корпоративная система</div>
+        </div>
+      </div>
+
+      <div class="login-hero login-hero-clean">
+        <span class="login-kicker">Закрытый доступ</span>
+        <h1>Рабочее пространство REKLAM</h1>
+        <p>
+          Войдите в систему, чтобы работать с доступными вам сервисами.
+          Состав сервисов и права доступа настраиваются администратором.
+        </p>
+      </div>
+    </section>
+
+    <section class="login-panel">
+      <form class="login-card" method="post" action="/login">
+        <div class="mobile-brand">
+          <div class="login-logo">RH</div>
+          <div>
+            <div class="login-brand-name">REKLAM Hub</div>
+            <div class="login-brand-sub">корпоративная система</div>
+          </div>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger" style="color:red; margin-bottom: 20px;">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <div class="login-card-head">
+          <h2>Вход</h2>
+          <p>Введите email и пароль от своего рабочего аккаунта.</p>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input name="email" type="email" autocomplete="email" value="{{ last_username }}" required>
+        </div>
+
+        <div class="field">
+          <label>Пароль</label>
+          <input name="password" type="password" autocomplete="current-password" required>
+        </div>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <button class="btn login-submit" type="submit">Войти</button>
+      </form>
+    </section>
+</main>
+{% endblock %}

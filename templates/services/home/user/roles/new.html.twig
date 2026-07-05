@@ -1,0 +1,26 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block content %}
+
+<div class="top">
+  <div class="title">
+    <h1>Добавить роль</h1>
+    <p>Создаём роль. Права для ролей настраиваются в матрице</p>
+  </div>
+</div>
+
+{{ form_start(form, {'attr': {'class': 'card'}}) }}
+
+    <div class="field">
+        <label>Имя</label>
+        {{ form_widget(form.name) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn" type="submit">Сохранить пользователя</button>
+        <a class="btn secondary" href="{{ path('app_home_users') }}">Отмена</a>
+    </div>
+{{ form_end(form) }}
+
+{% endblock %}

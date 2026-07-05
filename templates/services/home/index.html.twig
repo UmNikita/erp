@@ -1,0 +1,40 @@
+{% extends 'layout/index.html.twig' %}
+
+{% block content %}
+<div class="top">
+  <div class="title">
+    <h1>Главная REKLAM Hub</h1>
+    <p>Корпоративная система агентства. Здесь отображаются только реальные данные и доступные вам сервисы.</p>
+  </div>
+</div>
+
+<section class="hero compact-hero">
+  <h2>Рабочая панель REKLAM Hub</h2>
+  <p>
+    В системе доступны пользователи, права доступа, рабочие разделы агентства и история действий.
+    Здесь собраны основные инструменты для управления командой, заявками, контентом и клиентскими процессами.
+  </p>
+</section>
+
+<section class="grid compact-grid">
+  <div class="card metric">
+    <small>Пользователи в системе</small>
+    <strong>{{ userCount }}</strong>
+    <span class="badge">реальные данные</span>
+  </div>
+
+  <div class="card metric">
+    <small>Рабочие разделы</small>
+    <strong>10</strong>
+    <span class="badge">активно</span>
+  </div>
+</section>
+
+<h2 class="section-title">Последние действия</h2>
+<section class="card audit-card">
+  <div class="empty">
+    <h3>Пока нет действий</h3>
+    <p>Здесь появится реальная история действий пользователей.</p>
+  </div>
+</section>
+{% endblock %}

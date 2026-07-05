@@ -1,0 +1,9 @@
+<div class="side-section nav">
+    <p class="side-title">Главное</p>
+    <a class="{{ route == 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}">Главная</a>
+    
+    {% if is_granted(enum('App\\Security\\Enum\\Permission').ROOT_ACCESS.value) %}
+        <a class="{{ route == 'app_home_users' ? 'active' : '' }}" href="{{ path('app_home_users') }}">Команда и доступы</a>
+    {% endif %}
+    
+</div>

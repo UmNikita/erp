@@ -1,0 +1,15 @@
+{% set route = app.request.attributes.get('_route') %}
+
+<aside class="side">
+    <div class="brand">REKLAM <b>HUB</b></div>
+    <div class="side-sub">корпоративная система</div>
+
+    {% if route starts with 'app_home' %}
+        {% include 'layout/submenu/home.html.twig' %}
+    {% elseif route starts with 'app_crm' %}
+        {% include 'layout/submenu/crm.html.twig' %}
+    {% else %}
+        {% include 'layout/submenu/home.html.twig' %}
+    {% endif %}
+
+</aside>

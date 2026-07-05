@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}REKLAM Hub{% endblock %}
+
+{% block body %}
+<div class="app">
+  {% include 'layout/side-menu.html.twig' %}
+  {% include 'layout/submenu/index.html.twig' %}
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
