@@ -1,39 +1,5 @@
 {% extends 'layout/index.html.twig' %}
 
 {% block content %}
-<div class="top">
-  <div class="title">
-    <h1><pageTitle</h1>
-    <p>pageDescription</p>
-  </div>
-</div>
-
-<section class="grid compact-grid">
-    <div class="card metric">
-      <small>item.label</small>
-      <strong>item.value</strong>
-      <span class="badge">item.badge</span>
-    </div>
-</section>
-
-<h2 class="section-title">Разделы управления</h2>
-
-<section class="grid services-grid">
-      <a class="card service-card" href="item.href">
-        <div class="service-icon">include('partials/icon', { code: active })</div>
-        <h3>item.title</h3>
-        <p>item.text</p>
-      </a>
-      <div class="card service-card">
-        <div class="service-icon">include('partials/icon', { code: active })</div>
-        <h3>item.title</h3>
-        <p>item.text</p>
-      </div>
-</section>
-
-<section class="card empty">
-  <h2>emptyTitle</h2>
-  <p>emptyText</p>
-</section>
-
+{% include 'in_develop.html.twig' %}
 {% endblock %}

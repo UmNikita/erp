@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use App\Security\Enum\Permission;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -35,6 +36,18 @@ final class Version20260628184232 extends AbstractMigration
         $this->addSql('ALTER TABLE role_permission ADD CONSTRAINT FK_6F7DF886FED90CCA FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D649AE80F5DF FOREIGN KEY (department_id) REFERENCES department (id) NOT DEFERRABLE');
         $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D649D60322AC FOREIGN KEY (role_id) REFERENCES role (id) NOT DEFERRABLE');
+        
+        $permissions = array_map(
+            fn(Permission $permission) => $permission->value,
+            Permission::cases()
+        );
+
+        foreach ($permissions as $permission) {
+            $this->addSql(
+                'INSERT INTO permission (name) VALUES (?)',
+                [$permission]
+            );
+        }
     }
 
     public function down(Schema $schema): void
