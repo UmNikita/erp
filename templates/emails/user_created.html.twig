@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+  <title>Добро пожаловать в ReklamHUB</title>
+  <style>
+    html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    table, td { border-collapse: collapse !important; }
+    img { border: 0; outline: none; text-decoration: none; display: block; }
+    a { text-decoration: none; }
+    * { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    @media only screen and (max-width: 640px) {
+      .shell { width: 100% !important; }
+      .pad-x { padding-left: 22px !important; padding-right: 22px !important; }
+      .hero-title { font-size: 34px !important; line-height: 38px !important; }
+      .credential-label { display: block !important; width: 100% !important; padding-bottom: 6px !important; }
+      .credential-value { display: block !important; width: 100% !important; text-align: left !important; }
+      .chip { display: block !important; width: auto !important; margin-bottom: 8px !important; }
+      .mobile-stack { display: block !important; width: 100% !important; }
+      .button { display: block !important; width: auto !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f2e9; color:#162016; font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent; line-height:1px; font-size:1px;">
+    Ваш аккаунт ReklamHUB создан. Данные для первого входа находятся внутри письма.
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; background-color:#f5f2e9;">
+    <tr>
+      <td align="center" style="padding:28px 12px 40px;">
+        <table role="presentation" class="shell" width="640" cellpadding="0" cellspacing="0" border="0" style="width:640px; max-width:640px;">
+          <tr>
+            <td style="height:8px; background-color:#f3c83f; border-radius:24px 24px 0 0; font-size:0; line-height:0;">&nbsp;</td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:28px 42px 24px; background-color:#fffdf8; border-left:1px solid #ece9df; border-right:1px solid #ece9df;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td valign="middle" style="width:48px;">
+                    <div style="width:44px; height:44px; line-height:44px; text-align:center; border-radius:13px; background-color:#f3c83f; color:#162016; font-size:22px; font-weight:800; transform:rotate(-4deg);">R</div>
+                  </td>
+                  <td valign="middle" style="padding-left:12px;">
+                    <div style="font-size:22px; line-height:26px; font-weight:800; letter-spacing:-0.6px; color:#162016;">Reklam<span style="color:#2f67f6;">HUB</span></div>
+                    <div style="font-size:12px; line-height:18px; color:#637061; padding-top:2px;">Рабочая система команды</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:18px 42px 36px; background-color:#fffdf8; border-left:1px solid #ece9df; border-right:1px solid #ece9df;">
+              <div style="display:inline-block; padding:7px 12px; border-radius:999px; background-color:#eef2ff; color:#2f67f6; font-size:12px; line-height:16px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase;">Добро пожаловать</div>
+
+              <h1 class="hero-title" style="margin:20px 0 14px; font-size:44px; line-height:48px; letter-spacing:-1.8px; color:#162016; font-weight:800;">
+                Добро пожаловать<br>в Reklam<span style="color:#2f67f6;">HUB</span>, {{ user_name }}!
+              </h1>
+
+              <p style="margin:0; font-size:17px; line-height:27px; color:#637061;">
+                  Мы рады приветствовать вас в нашей системе. Вы были зарегистрированы для работы в ReklamHUB.
+
+                  {% if department_name %}
+                      Вы назначены в департамент
+                      <strong style="color:#162016;">«{{ department_name }}»</strong>
+                  {% endif %}
+
+                  {% if role_name %}
+                      {% if department_name %}
+                          с ролью
+                      {% else %}
+                          Вам назначена роль
+                      {% endif %}
+                      <strong style="color:#162016;">«{{ role_name }}»</strong>
+                  {% endif %}.
+              </p>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;">
+                <tr>
+
+                {% if department_name %}
+                   <td class="chip" style="padding:9px 13px; border-radius:999px; background-color:#edf4ef; color:#244a35; font-size:13px; line-height:18px; font-weight:700;">
+                        Департамент: {{ department_name }}
+                    </td>
+                {% endif %}
+                
+                <td style="width:8px; font-size:0;">&nbsp;</td>
+                
+                {% if role_name %}
+                    <td class="chip" style="padding:9px 13px; border-radius:999px; background-color:#fff6d8; color:#6a5410; font-size:13px; line-height:18px; font-weight:700;">
+                        Роль: {{ role_name }}
+                    </td>
+                {% endif %}
+                  
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:0 42px 36px; background-color:#fffdf8; border-left:1px solid #ece9df; border-right:1px solid #ece9df;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; background-color:#162016; border-radius:24px; overflow:hidden;">
+                <tr>
+                  <td style="padding:26px 26px 12px;">
+                    <div style="font-size:12px; line-height:16px; color:#aeb9ae; font-weight:700; letter-spacing:0.7px; text-transform:uppercase;">Данные для входа</div>
+                    <div style="margin-top:7px; font-size:22px; line-height:28px; color:#ffffff; font-weight:800;">Ваши данные для входа</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 26px 6px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+                      <tr>
+                        <td class="credential-label" style="padding:16px 0; border-top:1px solid #39453b; font-size:13px; line-height:20px; color:#aeb9ae; width:110px;">Логин</td>
+                        <td class="credential-value" align="right" style="padding:16px 0; border-top:1px solid #39453b; font-size:16px; line-height:22px; color:#ffffff; font-family:'Courier New',Courier,monospace; font-weight:700; word-break:break-all;">{{ userEmail }}</td>
+                      </tr>
+                      <tr>
+                        <td class="credential-label" style="padding:16px 0; border-top:1px solid #39453b; font-size:13px; line-height:20px; color:#aeb9ae; width:110px;">Пароль</td>
+                        <td class="credential-value" align="right" style="padding:16px 0; border-top:1px solid #39453b; font-size:16px; line-height:22px; color:#f3c83f; font-family:'Courier New',Courier,monospace; font-weight:700; word-break:break-all;">{{ password }}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:18px 26px 26px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td bgcolor="#2f67f6" style="border-radius:999px;">
+                          <a class="button" href="{{ link }}" target="_blank" style="display:inline-block; padding:14px 24px; border-radius:999px; background-color:#2f67f6; color:#ffffff; font-size:15px; line-height:20px; font-weight:800;">Войти в ReklamHUB →</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:0 42px 32px; background-color:#fffdf8; border-left:1px solid #ece9df; border-right:1px solid #ece9df;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; background-color:#fff6d8; border:1px solid #f3c83f; border-radius:18px;">
+                <tr>
+                  <td valign="top" style="width:42px; padding:18px 0 18px 18px;">
+                    <div style="width:30px; height:30px; line-height:30px; text-align:center; border-radius:9px; background-color:#f3c83f; color:#162016; font-size:16px; font-weight:800;">!</div>
+                  </td>
+                  <td style="padding:17px 18px 17px 12px; font-size:14px; line-height:22px; color:#5f511f;">
+                    Используйте эти данные для авторизации в системе. После первого входа рекомендуем изменить пароль в настройках профиля.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:0 42px 38px; background-color:#fffdf8; border-left:1px solid #ece9df; border-right:1px solid #ece9df;">
+              <p style="margin:0 0 12px; font-size:16px; line-height:25px; color:#637061;">Спасибо, что работаете с нами!</p>
+              <p style="margin:0; font-size:16px; line-height:25px; color:#162016; font-weight:700;">С уважением,<br>команда ReklamHUB</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="pad-x" style="padding:24px 42px; background-color:#244a35; border-radius:0 0 24px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="mobile-stack" style="font-size:12px; line-height:19px; color:#d7e1d9;">
+                    Это системное письмо ReklamHUB.<br>Пожалуйста, не пересылайте данные для входа третьим лицам.
+                  </td>
+                  <td class="mobile-stack" align="right" style="font-size:12px; line-height:19px; color:#ffffff; padding-top:0;">
+                    <a href="{{ link }}" target="_blank" style="color:#ffffff; font-weight:700;">hub.reklamynet.ru</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
