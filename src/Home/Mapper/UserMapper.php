@@ -3,6 +3,7 @@
 namespace App\Home\Mapper;
 
 use App\Entity\User;
+use App\Event\User\UserCreatedEvent;
 use App\Home\DTO\User\UserEditDTO;
 use App\Home\DTO\User\UserListDTO;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -44,20 +45,24 @@ public function __construct(
         return new UserEditDTO($name, $email, $departmentId);
     }
 
-    public function formToEntity(array $dataForm) {
+    public function formToEntity(array $dataForm): User {
         $user = new User();
         $user->setName($dataForm['name']);
         $user->setEmail($dataForm['email']);
-
-        $hashedPassword = $this->passwordHasher->hashPassword(
-            $user,
-            $dataForm['password']
-        );
-
-        $user->setPassword($hashedPassword);
-
-        $user->setRole($data['role'] ?? null);
-        $user->setDepartment($data['department'] ?? null);
+        $user->setRole($dataForm['role'] ?? null);
+        $user->setDepartment($dataForm['department'] ?? null);
         return $user;
+    }
+
+    public function entityToCreatedEvent(User $user, string $password): UserCreatedEvent {
+        $department = $user->getDepartment();
+        $role = $user->getRole();
+        return new UserCreatedEvent(
+            $user->getName(),
+            $user->getEmail(),
+            $password,
+            $department ? $department->getName() : null,
+            $role ? $role->getName() : null,
+        );
     }
 }
