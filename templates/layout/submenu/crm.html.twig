@@ -1,7 +1,9 @@
 <div class="side-section nav">
     <p class="side-title">CRM</p>
     <a class="{{ route == 'app_crm' ? 'active' : '' }}" href="{{ path('app_crm') }}">Воронки</a>
-    <a class="{{ route == 'app_crm_clients' ? 'active' : '' }}" href="{{ path('app_crm_clients') }}">Клиенты и организации</a>
-    <a class="{{ route == 'app_crm_tasks' ? 'active' : '' }}" href="{{ path('app_crm_tasks') }}">Задачи</a>
+    <a class="{{ route == 'app_crm_clients' ? 'active' : '' }}" href="{{ path('app_crm_clients') }}">Клиенты</a>
+    <a class="{{ route == 'app_crm_archive' ? 'active' : '' }}" href="{{ path('app_crm_archive') }}">Архив</a>
     <a class="{{ route == 'app_crm_integrations' ? 'active' : '' }}" href="{{ path('app_crm_integrations') }}">Интеграции</a>
+    <a class="{{ route == 'app_crm_triggers' ? 'active' : '' }}" href="{{ path('app_crm_triggers') }}">Триггеры</a>
+    <a class="{{ route == 'app_crm_robots' ? 'active' : '' }}" href="{{ path('app_crm_robots') }}">Роботы</a>
 </div>

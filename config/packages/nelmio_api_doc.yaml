@@ -1,0 +1,42 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: ReklamHUB API
+            description: This is REST API ReklamHUB!
+            version: 1.0.0
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+    models:
+        names:
+            - { alias: Pipeline, type: App\CRM\DTO\Pipeline\PipelineDTO }
+            - { alias: PipelineDetail, type: App\CRM\DTO\Pipeline\PipelineDetailDTO }
+            - { alias: PipelineListResponse, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineListResponseDTO }
+            - { alias: PipelineListDetailResponse, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineListDetailResponseDTO }
+            - { alias: PipelineRequest, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineRequestDTO }
+            
+            - { alias: Stage, type: App\CRM\DTO\Stage\StageDTO }
+            - { alias: StageGet, type: App\CRM\DTO\Stage\StageGetDTO }
+            - { alias: StageRequest, type: App\CRM\DTO\OpenAPI\Stage\StageRequestDTO }
+            - { alias: StageKanban, type: App\CRM\DTO\Stage\StageKanbanDTO }
+
+            - { alias: Kanban, type: App\CRM\DTO\KanbanDTO }
+
+            - { alias: Lead, type: App\CRM\DTO\Lead\LeadDTO }
+            - { alias: LeadDetail, type: App\CRM\DTO\Lead\LeadDetailDTO }
+            - { alias: LeadKanban, type: App\CRM\DTO\Lead\LeadKanbanDTO }
+            - { alias: LeadRequest, type: App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO }
+            - { alias: LeadListResponse, type: App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO }
+            
+            - { alias: Client, type: App\CRM\DTO\Client\ClientDTO }
+            - { alias: ClientDetail, type: App\CRM\DTO\Client\ClientDetailDTO }
+            - { alias: ClientListResponse, type: App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO }
+            - { alias: ClientRequest, type: App\CRM\DTO\OpenAPI\Client\ClientRequestDTO }
+
+            - { alias: Contact, type: App\CRM\DTO\Client\ContactDTO }
+            - { alias: ContactListResponse, type: App\CRM\DTO\OpenAPI\Contact\ContactListResponseDTO }
+            - { alias: ContactRequest, type: App\CRM\DTO\OpenAPI\Contact\ContactRequestDTO }
+
+            - { alias: Message, type: App\CRM\DTO\LeadMessages\MessageDTO }
+            - { alias: LeadMessagesListResponse, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesListResponseDTO }
+            - { alias: LeadMessagesRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO }
