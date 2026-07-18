@@ -4,9 +4,9 @@ namespace App\CRM\DTO\Stage;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'Stage'
+    schema: 'StageUI'
 )]
-class StageDTO
+class StageUIDTO
 {
     public function __construct(
         #[OA\Property(type: 'integer', example: 1)]
@@ -19,9 +19,9 @@ class StageDTO
         public string $color,
 
         #[OA\Property(type: 'integer', example: '2')]
-        public string $sequence,
+        public int $sequence,
 
         #[OA\Property(type: 'integer', example: '4')]
-        public string $pipeline_id
+        public int $pipeline_id
     ) {}
 }

@@ -19,10 +19,10 @@ class LeadKanbanDTO
         public string $date,
 
         #[OA\Property(type: 'string', example: 'Мария Кузнецова')]
-        public string $client,
+        public ?string $client,
 
         #[OA\Property(type: 'string', example: 'Михаил П.')]
-        public string $manager,
+        public ?string $manager,
 
         #[OA\Property(type: 'number', format: 'float', example: 75000)]
         public float $moneyAmount,

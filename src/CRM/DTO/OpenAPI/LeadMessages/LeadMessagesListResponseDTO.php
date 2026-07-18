@@ -12,10 +12,10 @@ final readonly class LeadMessagesListResponseDTO
     public function __construct(
         
         #[OA\Property(type: 'integer', example: 1)]
-        public int $limit,
+        public ?int $limit,
 
         #[OA\Property(type: 'integer', example: 23)]
-        public int $before_id,
+        public ?int $before_id,
 
         #[OA\Property(
             property: 'messages',

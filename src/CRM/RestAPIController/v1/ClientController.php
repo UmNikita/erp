@@ -2,14 +2,21 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
+use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
+use App\CRM\Mapper\ClientMapper;
+use App\CRM\Mapper\ContactMapper;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\ClientService;
+use App\Repository\ClientRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/crm')]
-final class ClientController extends AbstractController
+final class ClientController extends APIController
 {
     #[Route('/clients', methods: ['GET'])]
     #[OA\Get(
@@ -25,9 +32,11 @@ final class ClientController extends AbstractController
             )
         ]
     )]
-    public function index(): Response
+    public function index(ClientRepository $clientRepository, ClientMapper $clientMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $clients = $clientRepository->findAll();
+        $clientsDTO = $clientMapper->entityToListResponse($clients);
+        return $this->response($clientsDTO);
     }
 
     #[Route('/client/{id}', methods: ['GET'])]
@@ -44,9 +53,12 @@ final class ClientController extends AbstractController
             )
         ]
     )]
-    public function show(): Response
+    public function show(int $id, ClientRepository $clientRepository, ClientMapper $clientMapper, ContactMapper $contactMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $client = $clientRepository->findWithContacts($id);
+        $contacts = $contactMapper->entityToArrayDTO($client->getContacts()->toArray());
+        $clientDTO = $clientMapper->entityToDetailDTO($client, $contacts);
+        return $this->response($clientDTO);
     }
 
     #[Route('/client', methods: ['POST'])]
@@ -69,9 +81,11 @@ final class ClientController extends AbstractController
             )
         ]
     )]
-    public function create(): Response
+    public function create(Request $request, ClientService $clientService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $clientRequest = $this->serializeRequest($request, ClientRequestDTO::class);
+        $clientResponse = $clientService->createClient($clientRequest);
+        return $this->response($clientResponse, Response::HTTP_CREATED);
     }
 
     #[Route('/client/{id}', methods: ['PATCH'])]
@@ -94,9 +108,11 @@ final class ClientController extends AbstractController
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, Request $request, ClientService $clientService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 200);
+        $clientRequest = $this->serializeRequest($request, ClientUpdateRequestDTO::class);
+        $clientResponse = $clientService->updateClient($clientRequest, $id);
+        return $this->response($clientResponse);
     }
 
     #[Route('/client/{id}', methods: ['DELETE'])]
@@ -111,8 +127,9 @@ final class ClientController extends AbstractController
             
         ]
     )]
-    public function delete(int $id): Response
+    public function delete(int $id, ClientService $clientService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $clientService->deleteClient($id);
+        return $this->response(["status" => "Клиент успешно удален"], 204);
     }
 }

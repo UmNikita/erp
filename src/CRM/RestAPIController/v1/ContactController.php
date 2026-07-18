@@ -2,14 +2,21 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\Contact\ContactRequestDTO;
+use App\CRM\DTO\OpenAPI\Contact\ContactUpdateRequestDTO;
+use App\CRM\Mapper\ContactMapper;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\ClientService;
+use App\CRM\Services\ContactService;
+use App\Repository\ContactRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/crm')]
-final class ContactController extends AbstractController
+final class ContactController extends APIController
 {
     #[Route('/client/{id}/contacts', methods: ['GET'])]
     #[OA\Get(
@@ -25,9 +32,11 @@ final class ContactController extends AbstractController
             )
         ]
     )]
-    public function index(int $id): Response
+    public function index(ContactRepository $contactRepository, ContactMapper $contactMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $contacts = $contactRepository->findAll();
+        $contactsDTO = $contactMapper->entityToListResponse($contacts);
+        return $this->response($contactsDTO);
     }
 
     #[Route('/contact', methods: ['POST'])]
@@ -50,9 +59,11 @@ final class ContactController extends AbstractController
             )
         ]
     )]
-    public function create(): Response
+    public function create(Request $request, ContactService $contactService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $contactRequest = $this->serializeRequest($request, ContactRequestDTO::class);
+        $contactResponse = $contactService->createContact($contactRequest);
+        return $this->response($contactResponse, Response::HTTP_CREATED);
     }
 
     #[Route('/contact/{id}', methods: ['PATCH'])]
@@ -75,9 +86,11 @@ final class ContactController extends AbstractController
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, Request $request, ContactService $contactService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 200);
+        $contactRequest = $this->serializeRequest($request, ContactUpdateRequestDTO::class);
+        $contactResponse = $contactService->updateContact($contactRequest, $id);
+        return $this->response($contactResponse);
     }
 
     #[Route('/contact/{id}', methods: ['DELETE'])]
@@ -92,8 +105,9 @@ final class ContactController extends AbstractController
             
         ]
     )]
-    public function delete(int $id): Response
+    public function delete(int $id, ContactService $contactService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $contactService->deleteContact($id);
+        return $this->response(["status" => "Контакт успешно удален"], 204);
     }
 }

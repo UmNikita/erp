@@ -18,7 +18,7 @@ final readonly class ClientListResponseDTO
                 ref: '#/components/schemas/Client'
             )
         )]
-        public array $client
+        public array $clients
     ) {
     }
 }

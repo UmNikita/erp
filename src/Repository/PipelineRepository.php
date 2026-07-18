@@ -16,6 +16,15 @@ class PipelineRepository extends ServiceEntityRepository
         parent::__construct($registry, Pipeline::class);
     }
 
+    public function findAllWithStages(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.stages', 's')
+            ->addSelect('s')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Pipeline[] Returns an array of Pipeline objects
     //     */

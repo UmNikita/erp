@@ -2,16 +2,20 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\LeadMessageService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[Route('/crm')]
-final class LeadMessagesController extends AbstractController
+final class LeadMessagesController extends APIController
 {
-    #[Route('/messages', methods: ['GET'])]
+    #[Route('/lead/{id}/messages', methods: ['GET'])]
     #[OA\Get(
         summary: 'Получить список сообщений сделки',
         tags: ['CRM / LeadMessages'],
@@ -48,12 +52,15 @@ final class LeadMessagesController extends AbstractController
             )
         ]
     )]
-    public function show(): Response
+    public function show(int $id, Request $request, LeadMessageService $leadMessageService): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $limit = $request->query->get('limit');
+        $before_id = $request->query->get('before_id');
+        $res = $leadMessageService->getMessages($id, $limit, $before_id);
+        return $this->response($res);
     }
 
-    #[Route('/messages', methods: ['POST'])]
+    #[Route('/lead/messages', methods: ['POST'])]
     #[OA\Post(
         summary: 'Создать новое сообщение',
         tags: ['CRM / LeadMessages'],
@@ -73,12 +80,14 @@ final class LeadMessagesController extends AbstractController
             )
         ]
     )]
-    public function create(): Response
+    public function create(Request $request, LeadMessageService $leadMessageService): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $dto = $this->serializeRequest($request, LeadMessagesRequestDTO::class);
+        $message = $leadMessageService->createMessage($dto);
+        return $this->response($message, Response::HTTP_CREATED);
     }
 
-    #[Route('/message/{id}', methods: ['PATCH'])]
+    #[Route('/lead/message/{id}', methods: ['PATCH'])]
     #[OA\Patch(
         summary: 'Редактировать текущее сообщение',
         tags: ['CRM / LeadMessages'],
@@ -106,12 +115,17 @@ final class LeadMessagesController extends AbstractController
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, Request $request, LeadMessageService $leadMessageService): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['message']))
+            throw new BadRequestHttpException('Invalid request body');
+
+        $message = $leadMessageService->updateMessage($id, $data['message']);
+        return $this->response($message);
     }
 
-    #[Route('/message/{id}', methods: ['DELETE'])]
+    #[Route('/lead/message/{id}', methods: ['DELETE'])]
     #[OA\Delete(
         summary: 'Удалить сообщение',
         tags: ['CRM / LeadMessages'],
@@ -123,8 +137,9 @@ final class LeadMessagesController extends AbstractController
             
         ]
     )]
-    public function delete(int $id): Response
+    public function delete(int $id, LeadMessageService $leadMessageService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $leadMessageService->deleteMessage($id);
+        return $this->response(["status" => "Воронка успешно удалена"], 204);
     }
 }

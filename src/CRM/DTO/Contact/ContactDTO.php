@@ -19,22 +19,22 @@ class ContactDTO
         public string $secondname,
 
         #[OA\Property(type: 'string', example: 'Ивановна')]
-        public string $thirdname,
+        public ?string $thirdname,
 
         #[OA\Property(type: 'string', example: 'Руководитель отдела продаж')]
-        public string $position,
+        public ?string $position,
         
         #[OA\Property(type: 'string', example: '+7 (916) 987-65-43')]
-        public string $phone,
+        public ?string $phone,
 
         #[OA\Property(type: 'string', example: 'anna.ivanova@technopark.ru')]
-        public string $email,
+        public ?string $email,
 
         #[OA\Property(type: 'string', example: 'Telegram: @anna_ivanova')]
-        public string $messenger,
+        public ?string $messenger,
         
         #[OA\Property(type: 'string', example: 'Основное лицо, принимает решение по CRM')]
-        public string $note,
+        public ?string $note,
 
         #[OA\Property(
             type: 'string', 

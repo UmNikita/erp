@@ -2,15 +2,20 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestDTO;
+use App\CRM\Mapper\StageMapper;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\StageService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/crm')]
-final class StageController extends AbstractController
+final class StageController extends APIController
 {
+
     #[Route('/stage', methods: ['POST'])]
     #[OA\Post(
         summary: 'Создать этап воронки',
@@ -26,14 +31,16 @@ final class StageController extends AbstractController
                 response: 201,
                 description: 'Этап воронки создан',
                 content: new OA\JsonContent(
-                    ref: '#/components/schemas/Stage'
+                    ref: '#/components/schemas/StageUI'
                 )
             )
         ]
     )]
-    public function create(): Response
+    public function create(StageService $stageService, Request $request): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $dto = $this->serializeRequest($request, StageRequestDTO::class);
+        $stage = $stageService->createStage($dto);
+        return $this->response($stage, Response::HTTP_CREATED);
     }
 
     #[Route('/stage/{id}', methods: ['PATCH'])]
@@ -43,22 +50,24 @@ final class StageController extends AbstractController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                ref: '#/components/schemas/StageRequest'
+                ref: '#/components/schemas/StageRequestEdit'
             )
         ),
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Этап воронки изменена',
+                description: 'Этап воронки изменен',
                 content: new OA\JsonContent(
-                    ref: '#/components/schemas/Stage'
+                    ref: '#/components/schemas/StageUI'
                 )
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, StageService $stageService, Request $request): Response
     {
-        return $this->json(['stage' => 'заглушка'], 200);
+        $dto = $this->serializeRequest($request, StageRequestDTO::class);
+        $stage = $stageService->updateStage($id, $dto);
+        return $this->response($stage);
     }
 
     #[Route('/stage/{id}', methods: ['DELETE'])]
@@ -73,9 +82,10 @@ final class StageController extends AbstractController
             
         ]
     )]
-    public function delete(int $id): Response
+    public function delete(int $id, StageService $stageService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $stageService->deleteStage($id);
+        return $this->response(["status" => "Этап успешно удален"], 204);
     }
 
     #[Route('/stage/{id}/position', methods: ['POST'])]
@@ -103,8 +113,13 @@ final class StageController extends AbstractController
             )
         ]
     )]
-    public function changePosition(int $id): Response
+    public function changePosition(int $id, Request $request, StageService $stageService, StageMapper $stageMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $data = json_decode($request->getContent(), true);
+
+        $position = $stageMapper->getPositionFromRequest($data);
+        $stageService->changePosition($id, $position);
+
+        return $this->response(["status" => "Этап воронки успешно перемещен"]);
     }
 }

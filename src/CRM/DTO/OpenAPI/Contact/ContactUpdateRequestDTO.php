@@ -8,16 +8,17 @@ use OpenApi\Attributes as OA;
     schema: 'ContactRequest',
     required: ['name']
 )]
-final readonly class ContactRequestDTO
+final readonly class ContactUpdateRequestDTO
 {
     public function __construct(
         #[OA\Property(
             property: 'name',
             description: 'Имя',
             type: 'string',
-            example: 'Анна'
+            example: 'Анна',
+            nullable: true
         )]
-        public string $name,
+        public ?string $name,
 
         #[OA\Property(
             property: 'client_id',

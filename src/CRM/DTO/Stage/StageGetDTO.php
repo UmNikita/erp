@@ -15,9 +15,6 @@ class StageGetDTO
         #[OA\Property(type: 'string', example: 'Первичный контакт')]
         public string $name,
 
-        #[OA\Property(type: 'string', example: '#5340b6')]
-        public string $color,
-
         #[OA\Property(type: 'integer', example: '2')]
         public string $sequence
     ) {}

@@ -2,15 +2,16 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use App\CRM\OpenAPI\Responses\KanbanResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\Mapper\KanbanMapper;
+use App\CRM\RestAPIController\APIController;
+use App\Repository\StageRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 
 #[Route('/crm')]
-final class KanbanController extends AbstractController
+final class KanbanController extends APIController
 {
     #[Route('/kanban/{pipelineId}', methods: ['GET'])]
     #[OA\Get(
@@ -26,8 +27,10 @@ final class KanbanController extends AbstractController
             )
         ]
     )]
-    public function show(?int $pipelineId): Response
+    public function show(int $pipelineId, StageRepository $stageRepository, KanbanMapper $kanbanMapper): Response
     {
-        return $this->json(['kanban' => 'заглушка'], Response::HTTP_CREATED);
+        $stages = $stageRepository->findAllWithLeads($pipelineId);
+        $kanban = $kanbanMapper->entityToListResponse($stages);
+        return $this->response($kanban);
     }
 }

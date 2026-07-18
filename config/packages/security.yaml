@@ -19,7 +19,7 @@ security:
             security: false
 
         api_doc:
-            pattern: ^/api/doc
+            pattern: ^/api/v1
             security: false
             
         main:

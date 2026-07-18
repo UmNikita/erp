@@ -5,27 +5,28 @@ namespace App\CRM\DTO\OpenAPI\Lead;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'LeadRequest',
-    required: ['name', 'stage_id']
+    schema: 'LeadUpdateRequest'
 )]
-readonly class LeadRequestDTO
+final readonly class LeadUpdateRequestDTO
 {
     public function __construct(
         #[OA\Property(
             property: 'name',
             description: 'Название этапа',
             type: 'string',
-            example: 'РегионПлюс'
+            example: 'РегионПлюс',
+            nullable: true
         )]
-        public string $name,
+        public ?string $name,
 
         #[OA\Property(
             property: 'stage_id',
             description: 'ID этапа',
             type: 'integer',
-            example: '1'
+            example: '1',
+            nullable: true
         )]
-        public int $stage_id,
+        public ?string $stage_id,
 
         #[OA\Property(
             property: 'budget',
@@ -80,7 +81,16 @@ readonly class LeadRequestDTO
             example: 'Клиент рассматривает интеграцию в 1С',
             nullable: true
         )]
-        public ?string $comment
+        public ?string $comment,
+
+        #[OA\Property(
+            property: 'status',
+            description: 'Статус',
+            type: 'string',
+            example: 'won',
+            nullable: true
+        )]
+        public ?string $status,
     ) {
     }
 }

@@ -20,13 +20,13 @@ class LeadDTO
         public float $budget,
 
         #[OA\Property(type: 'string', example: 'CRM: лицензии + внедрение')]
-        public string $product,
+        public ?string $product,
 
         #[OA\Property(type: 'string', example: 'Холодный звонок')]
-        public string $source,
+        public ?string $source,
 
         #[OA\Property(type: 'string', example: 'Презентаци решения')]
-        public string $next_action,
+        public ?string $next_action,
 
         #[OA\Property(
             type: 'string', 
@@ -40,17 +40,20 @@ class LeadDTO
             format: 'date-time',
             example: '2026-02-01T00:00:00+00:00'
         )]
-        public \DateTime $date_next_action,
+        public ?\DateTime $date_next_action,
 
         #[OA\Property(type: 'string', example: 'Клиент рассматривает интеграцию в 1С')]
-        public string $comment,
+        public ?string $comment,
 
         #[OA\Property(
             type: 'string',
             enum: ['active', 'won', 'lost'],
             example: 'active'
         )]
-        public LeadStatus $status
+        public LeadStatus $status,
+
+        #[OA\Property(type: 'integer', example: '3')]
+        public ?int $stage_id
 
     ) {}
 }

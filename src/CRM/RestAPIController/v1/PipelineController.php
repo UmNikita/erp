@@ -2,15 +2,21 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\Pipeline\PipelineRequestDTO;
+use App\CRM\Mapper\PipelineMapper;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\PipelineService;
+use App\Repository\PipelineRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/crm')]
-final class PipelineController extends AbstractController
+final class PipelineController extends APIController
 {
+
     #[Route('/pipelines', methods: ['GET'])]
     #[OA\Get(
         summary: 'Получить список воронок',
@@ -25,9 +31,11 @@ final class PipelineController extends AbstractController
             )
         ]
     )]
-    public function index(): Response
+    public function index(PipelineRepository $pipelineRepository, PipelineMapper $pipelineMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $pipelines = $pipelineRepository->findAll();
+        $dto = $pipelineMapper->entityListToResponse($pipelines);
+        return $this->response($dto);
     }
 
     #[Route('/pipelines-detail', methods: ['GET'])]
@@ -44,12 +52,14 @@ final class PipelineController extends AbstractController
             )
         ]
     )]
-    public function show(): Response
+    public function show(PipelineRepository $pipelineRepository, PipelineMapper $pipelineMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $pipelines = $pipelineRepository->findAllWithStages();
+        $dto = $pipelineMapper->entityListToDetailResponse($pipelines);
+        return $this->response($dto);
     }
 
-    #[Route('/pipelines', methods: ['POST'])]
+    #[Route('/pipeline', methods: ['POST'])]
     #[OA\Post(
         summary: 'Создать воронку',
         tags: ['CRM / Pipelines'],
@@ -69,9 +79,11 @@ final class PipelineController extends AbstractController
             )
         ]
     )]
-    public function create(): Response
+    public function create(PipelineService $pipelineService, Request $request): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $dto = $this->serializeRequest($request, PipelineRequestDTO::class);
+        $pipeline = $pipelineService->createPipeline($dto);
+        return $this->response($pipeline, Response::HTTP_CREATED);
     }
 
     #[Route('/pipeline/{id}', methods: ['PATCH'])]
@@ -94,9 +106,13 @@ final class PipelineController extends AbstractController
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, Request $request, PipelineMapper $pipelineMapper, PipelineService $pipelineService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 200);
+        
+        $data = json_decode($request->getContent(), true);
+        $dto = $pipelineMapper->requestToDTO($id, $data);
+        $pipeline = $pipelineService->updatePipeline($dto);
+        return $this->response($pipeline);
     }
 
     #[Route('/pipeline/{id}', methods: ['DELETE'])]
@@ -111,8 +127,9 @@ final class PipelineController extends AbstractController
             
         ]
     )]
-    public function delete(int $id): Response
+    public function delete(int $id, PipelineService $pipelineService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $pipelineService->deletePipeline($id);
+        return $this->response(["status" => "Воронка успешно удалена"], 204);
     }
 }

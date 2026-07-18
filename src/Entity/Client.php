@@ -51,7 +51,7 @@ class Client
     /**
      * @var Collection<int, Contact>
      */
-    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Contact::class)]
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Contact::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $contacts;
 
     public function __construct()

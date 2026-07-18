@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lead;
+use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,27 @@ class LeadRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Lead::class);
+    }
+
+    public function hasByStage(Stage $stage): bool
+    {
+        return $this->createQueryBuilder('l')
+            ->select('COUNT(l.id)')
+            ->where('l.stage = :stage')
+            ->setParameter('stage', $stage)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
+    public function findWithClientAndContacts(int $id): ?Lead
+    {
+        return $this->createQueryBuilder('l')
+            ->leftJoin('l.client', 'c')->addSelect('c')
+            ->leftJoin('c.contacts', 'ct')->addSelect('ct')
+            ->where('l.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     //    /**

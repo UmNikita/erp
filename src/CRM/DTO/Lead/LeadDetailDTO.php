@@ -17,19 +17,20 @@ class LeadDetailDTO extends LeadDTO
         public int $id,
         public string $name,
         public float $budget,
-        public string $product,
-        public string $source,
-        public string $next_action,
+        public ?string $product,
+        public ?string $source,
+        public ?string $next_action,
         public \DateTime $dateStart,
-        public \DateTime $date_next_action,
-        public string $comment,
+        public ?\DateTime $date_next_action,
+        public ?string $comment,
         public LeadStatus $status,
+        public ?int $stage_id,
 
         #[OA\Property(
             property: 'client',
             ref: '#/components/schemas/ClientDetail'
         )]
-        public ClientDetailDTO $client,
+        public ?ClientDetailDTO $client,
         
     ) {
         parent::__construct(
@@ -42,7 +43,8 @@ class LeadDetailDTO extends LeadDTO
             $dateStart,
             $date_next_action,
             $comment,
-            $status
+            $status,
+            $stage_id
         );
     }
 }

@@ -2,14 +2,19 @@
 
 namespace App\CRM\RestAPIController\v1;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
+use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
+use App\CRM\Mapper\LeadMapper;
+use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\LeadService;
+use App\Repository\LeadRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/crm')]
-final class LeadController extends AbstractController
+final class LeadController extends APIController
 {
 
     #[Route('/leads', methods: ['GET'])]
@@ -26,9 +31,10 @@ final class LeadController extends AbstractController
             )
         ]
     )]
-    public function index(): Response
+    public function index(LeadRepository $leadRepository, LeadMapper $leadMapper): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $leads = $leadMapper->entityToListResponse($leadRepository->findAll());
+        return $this->response($leads);
     }
 
     #[Route('/lead/{id}', methods: ['GET'])]
@@ -45,9 +51,10 @@ final class LeadController extends AbstractController
             )
         ]
     )]
-    public function show(): Response
+    public function show(int $id, LeadService $leadService): Response
     {
-        return $this->json(['pipeline' => 'заглушка']);
+        $lead = $leadService->getDetailLead($id);
+        return $this->response($lead);
     }
 
     #[Route('/lead', methods: ['POST'])]
@@ -70,19 +77,21 @@ final class LeadController extends AbstractController
             )
         ]
     )]
-    public function create(): Response
+    public function create(Request $request, LeadService $leadService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], Response::HTTP_CREATED);
+        $dto = $this->serializeRequest($request, LeadRequestDTO::class);
+        $lead = $leadService->createLead($dto);
+        return $this->response($lead, Response::HTTP_CREATED);
     }
 
     #[Route('/lead/{id}', methods: ['PATCH'])]
     #[OA\Patch(
-        summary: 'Обновить воронку',
+        summary: 'Обновить сделку',
         tags: ['CRM / Lead'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                ref: '#/components/schemas/LeadRequest'
+                ref: '#/components/schemas/LeadUpdateRequest'
             )
         ),
         responses: [
@@ -95,25 +104,10 @@ final class LeadController extends AbstractController
             )
         ]
     )]
-    public function update(int $id): Response
+    public function update(int $id, Request $request, LeadService $leadService): Response
     {
-        return $this->json(['pipeline' => 'заглушка'], 200);
-    }
-
-    #[Route('/lead/{id}', methods: ['DELETE'])]
-    #[OA\Delete(
-        summary: 'Удалить сделку',
-        tags: ['CRM / Lead'],
-        responses: [
-            new OA\Response(
-                response: 204,
-                description: 'Сделка удалена'
-            )
-            
-        ]
-    )]
-    public function delete(int $id): Response
-    {
-        return $this->json(['pipeline' => 'заглушка'], 204);
+        $dto = $this->serializeRequest($request, LeadUpdateRequestDTO::class);
+        $lead = $leadService->updateLead($id, $dto);
+        return $this->response($lead);
     }
 }

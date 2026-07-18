@@ -1,12 +1,12 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: ReklamHUB API
+            title: ReklamHUB API v1
             description: This is REST API ReklamHUB!
             version: 1.0.0
     areas: # to filter documented areas
         path_patterns:
-            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+            - ^/api/v1(?!/doc$) # Accepts routes under /api except /api/doc
     models:
         names:
             - { alias: Pipeline, type: App\CRM\DTO\Pipeline\PipelineDTO }
@@ -15,9 +15,10 @@ nelmio_api_doc:
             - { alias: PipelineListDetailResponse, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineListDetailResponseDTO }
             - { alias: PipelineRequest, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineRequestDTO }
             
-            - { alias: Stage, type: App\CRM\DTO\Stage\StageDTO }
+            - { alias: StageUI, type: App\CRM\DTO\Stage\StageUIDTO }
             - { alias: StageGet, type: App\CRM\DTO\Stage\StageGetDTO }
             - { alias: StageRequest, type: App\CRM\DTO\OpenAPI\Stage\StageRequestDTO }
+            - { alias: StageRequestEdit, type: App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO }
             - { alias: StageKanban, type: App\CRM\DTO\Stage\StageKanbanDTO }
 
             - { alias: Kanban, type: App\CRM\DTO\KanbanDTO }
@@ -25,6 +26,7 @@ nelmio_api_doc:
             - { alias: Lead, type: App\CRM\DTO\Lead\LeadDTO }
             - { alias: LeadDetail, type: App\CRM\DTO\Lead\LeadDetailDTO }
             - { alias: LeadKanban, type: App\CRM\DTO\Lead\LeadKanbanDTO }
+            - { alias: LeadUpdateRequest, type: App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO }
             - { alias: LeadRequest, type: App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO }
             - { alias: LeadListResponse, type: App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO }
             

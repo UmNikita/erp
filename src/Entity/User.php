@@ -52,9 +52,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class)]
     private Collection $lead_messages;
 
+    /**
+     * @var Collection<int, Lead>
+     */
+    #[ORM\OneToMany(mappedBy: 'responsible', targetEntity: Lead::class)]
+    private Collection $leads;
+
     public function __construct()
     {
         $this->lead_messages = new ArrayCollection();
+        $this->leads = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -191,6 +198,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->lead_messages->removeElement($leadMessage)) {
             if ($leadMessage->getUser() === $this) {
                 $leadMessage->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLeads(): Collection
+    {
+        return $this->leads;
+    }
+
+    public function addLead(Lead $lead): static
+    {
+        if (!$this->leads->contains($lead)) {
+            $this->leads->add($lead);
+            $lead->setResponsible($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLead(Lead $lead): static
+    {
+        if ($this->leads->removeElement($lead)) {
+            if ($lead->getResponsible() === $this) {
+                $lead->setResponsible(null);
             }
         }
 

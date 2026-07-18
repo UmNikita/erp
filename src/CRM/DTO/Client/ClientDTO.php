@@ -16,25 +16,25 @@ class ClientDTO
         public string $name,
 
         #[OA\Property(type: 'string', example: '7701234567')]
-        public string $inn,
+        public ?string $inn,
 
         #[OA\Property(type: 'string', example: 'ИТ, разработка ПО')]
-        public string $field_of_activity,
+        public ?string $field_of_activity,
 
         #[OA\Property(type: 'string', example: 'https://technopark.ru')]
-        public string $website,
+        public ?string $website,
 
         #[OA\Property(type: 'string', example: '84951234567')]
-        public string $phone,
+        public ?string $phone,
 
         #[OA\Property(type: 'string', example: 'info@technopark.ru')]
-        public string $email,
+        public ?string $email,
 
         #[OA\Property(type: 'string', example: 'Москва')]
-        public string $city,
+        public ?string $city,
 
         #[OA\Property(type: 'string', example: 'Email')]
-        public string $channel,
+        public ?string $channel,
 
         #[OA\Property(
             type: 'string', 

@@ -41,7 +41,7 @@ class Contact
     private ?\DateTime $date_create = null;
 
     #[ORM\ManyToOne(inversedBy: 'contacts')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Client $client = null;
 
     public function __construct()
