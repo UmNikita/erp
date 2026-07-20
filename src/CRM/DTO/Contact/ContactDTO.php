@@ -1,5 +1,5 @@
 <?php
-namespace App\CRM\DTO\Client;
+namespace App\CRM\DTO\Contact;
 
 use OpenApi\Attributes as OA;
 

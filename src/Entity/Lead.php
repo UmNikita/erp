@@ -51,7 +51,7 @@ class Lead
     #[ORM\Column(enumType: LeadStatus::class)]
     private LeadStatus $status = LeadStatus::ACTIVE;
 
-    #[ORM\ManyToOne(inversedBy: 'stages')]
+    #[ORM\ManyToOne(inversedBy: 'leads')]
     private ?Stage $stage = null;
 
      /**

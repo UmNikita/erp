@@ -12,29 +12,38 @@ use App\Home\Mapper\AbstractMapper;
 class KanbanMapper extends AbstractMapper {
 
     public function entityToListResponse(array $stages): KanbanDTO {
-        $stages = $this->mapList($stages, function (Stage $stage) {
-            $leads  = $this->mapList($stage->getLeads()->toArray(), function (Lead $lead) {
+        $allLeadsCount = 0;
+        $allMoneyAmount = 0;
+        $stages = $this->mapList($stages, function (Stage $stage) use (&$allLeadsCount, &$allMoneyAmount) {
+            $leadsCount = 0;
+            $moneyAmount = 0;
+            $leads = $this->mapList($stage->getLeads()->toArray(), function (Lead $lead) use (&$leadsCount, &$moneyAmount) {
+                $leadsCount++;
+                $moneyAmount += $lead->getBudget();
                 return $this->entityLeadToDTO($lead);
             });
-            return $this->entityStageToDTO($stage, $leads);
+            $allLeadsCount += $leadsCount;
+            $allMoneyAmount += $moneyAmount;
+            return $this->entityStageToDTO($stage, $leads, $leadsCount, $moneyAmount);
         });
-        return $this->entityToDTO($stages);
+        return $this->entityToDTO($stages, $allLeadsCount, $allMoneyAmount);
     }
 
-    public function entityToDTO(array $stages): KanbanDTO {
+    public function entityToDTO(array $stages, $leadsCount = 0, $moneyAmount = 0): KanbanDTO {
         return new KanbanDTO(
-            0,
-            0,
+            $leadsCount,
+            $moneyAmount,
             $stages
         );
     }
 
-    public function entityStageToDTO(Stage $stage, array $leads) {
+    public function entityStageToDTO(Stage $stage, array $leads, $leadsCount = 0, $moneyAmount = 0) {
         return new StageKanbanDTO(
             $stage->getId(),
             $stage->getName(),
             $stage->getColor(),
-            0,0,
+            $leadsCount,
+            $moneyAmount,
             $leads
         );
     }

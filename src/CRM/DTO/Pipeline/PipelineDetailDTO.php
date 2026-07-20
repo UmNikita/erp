@@ -19,7 +19,7 @@ class PipelineDetailDTO
             property: 'stages',
             type: 'array',
             items: new OA\Items(
-                ref: '#/components/schemas/StageGet'
+                ref: '#/components/schemas/Stage'
             )
         )]
         public array $stages

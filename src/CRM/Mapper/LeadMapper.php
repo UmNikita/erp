@@ -76,7 +76,7 @@ class LeadMapper extends AbstractMapper {
             $lead->getNextAction(),
             $lead->getComment(),
             $lead->getStatus(),
-            $lead->getStage()->getId(),
+            $lead->getStage() ? $lead->getStage()->getId() : null,
             $clientDTO
         );
     }

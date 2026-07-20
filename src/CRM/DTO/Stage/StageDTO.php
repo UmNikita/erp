@@ -4,9 +4,9 @@ namespace App\CRM\DTO\Stage;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'StageGet'
+    schema: 'Stage'
 )]
-class StageGetDTO
+class StageDTO
 {
     public function __construct(
         #[OA\Property(type: 'integer', example: 1)]

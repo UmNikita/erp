@@ -2,10 +2,8 @@
 
 namespace App\CRM\Mapper;
 
-use App\CRM\DTO\OpenAPI\Pipeline\PipelineListDetailResponseDTO;
 use App\CRM\DTO\OpenAPI\Stage\StageRequestDTO;
-use App\CRM\DTO\Pipeline\PipelineDetailDTO;
-use App\CRM\DTO\Stage\StageGetDTO;
+use App\CRM\DTO\Stage\StageDTO;
 use App\CRM\DTO\Stage\StageUIDTO;
 use App\Entity\Pipeline;
 use App\Entity\Stage;
@@ -13,26 +11,8 @@ use App\Home\Mapper\AbstractMapper;
 
 class StageMapper extends AbstractMapper {
 
-    public function entityToListDetailResponse(array $pipelines): PipelineListDetailResponseDTO {
-        $pipelines = $this->mapList($pipelines, function ($pipeline) {
-            $stagesDTO = $this->mapList($pipeline->getStages()->toArray(), function ($stage) {
-                return new StageGetDTO(
-                    $stage->getId(),
-                    $stage->getName(),
-                    $stage->getSequence()
-                );
-            });
-            return new PipelineDetailDTO(
-                $pipeline->getId(),
-                $pipeline->getName(),
-                $stagesDTO
-            );
-        });
-        return new PipelineListDetailResponseDTO($pipelines);
-    }
-
     public function entityToDTO(Stage $stage) {
-        return new StageGetDTO(
+        return new StageDTO(
             $stage->getId(),
             $stage->getName(),
             $stage->getSequence()

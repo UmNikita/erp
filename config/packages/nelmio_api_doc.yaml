@@ -16,7 +16,7 @@ nelmio_api_doc:
             - { alias: PipelineRequest, type: App\CRM\DTO\OpenAPI\Pipeline\PipelineRequestDTO }
             
             - { alias: StageUI, type: App\CRM\DTO\Stage\StageUIDTO }
-            - { alias: StageGet, type: App\CRM\DTO\Stage\StageGetDTO }
+            - { alias: Stage, type: App\CRM\DTO\Stage\StageDTO }
             - { alias: StageRequest, type: App\CRM\DTO\OpenAPI\Stage\StageRequestDTO }
             - { alias: StageRequestEdit, type: App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO }
             - { alias: StageKanban, type: App\CRM\DTO\Stage\StageKanbanDTO }
@@ -35,7 +35,7 @@ nelmio_api_doc:
             - { alias: ClientListResponse, type: App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO }
             - { alias: ClientRequest, type: App\CRM\DTO\OpenAPI\Client\ClientRequestDTO }
 
-            - { alias: Contact, type: App\CRM\DTO\Client\ContactDTO }
+            - { alias: Contact, type: App\CRM\DTO\Contact\ContactDTO }
             - { alias: ContactListResponse, type: App\CRM\DTO\OpenAPI\Contact\ContactListResponseDTO }
             - { alias: ContactRequest, type: App\CRM\DTO\OpenAPI\Contact\ContactRequestDTO }
 
