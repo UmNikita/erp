@@ -19,11 +19,11 @@ class LeadMessageMapper extends AbstractMapper {
     )
     {}
 
-    public function entityListToResponse(array $messages): LeadMessagesListResponseDTO {
+    public function entityListToResponse(array $messages, ?int $limit, ?int $beforeId): LeadMessagesListResponseDTO {
         $messagesDTO = $this->mapList($messages, function ($message) {
             return $this->entityToDTO($message);
         });
-        return new LeadMessagesListResponseDTO(null, null, $messagesDTO);
+        return new LeadMessagesListResponseDTO($limit, $beforeId, $messagesDTO);
     }
 
     public function entityToDTO(LeadMessage $message): MessageDTO {
@@ -42,12 +42,12 @@ class LeadMessageMapper extends AbstractMapper {
 
         $user = $this->userRepository->find($request->user_id);
         if (!$user)
-            throw new NotFoundHttpException('Пользователь не найден');
+            throw new NotFoundHttpException('User not found');
         $message->setUser($user);
 
         $lead = $this->leadRepository->find($request->lead_id);
         if (!$lead)
-            throw new NotFoundHttpException('Сделка не найдена');
+            throw new NotFoundHttpException('Lead not found');
         $message->setLead($lead);
     }
 }

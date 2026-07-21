@@ -34,7 +34,7 @@ final class UsersHomeController extends AbstractController
     }
 
     #[Route('/home/users/new', name: 'app_home_users_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserMapper $userMapper, RoleRepository $roleRepository, DepartmentRepository $departmentRepository, EntityManagerInterface $em): Response
+    public function new(Request $request, UserMapper $userMapper, RoleRepository $roleRepository, DepartmentRepository $departmentRepository, UserService $userService): Response
     {
         $this->denyAccessUnlessGranted(Permission::ROOT_ACCESS->value);
 
@@ -50,8 +50,7 @@ final class UsersHomeController extends AbstractController
 
             $data = $form->getData();
             $user = $userMapper->formToEntity($data);
-            $em->persist($user);
-            $em->flush();
+            $userService->createUser($user, $data['password']);
 
             return $this->redirectToRoute('app_home_users');
         }

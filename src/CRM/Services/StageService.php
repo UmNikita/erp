@@ -3,6 +3,7 @@
 namespace App\CRM\Services;
 
 use App\CRM\DTO\OpenAPI\Stage\StageRequestDTO;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO;
 use App\CRM\DTO\Stage\StageUIDTO;
 use App\CRM\Mapper\StageMapper;
 use App\Entity\Stage;
@@ -35,7 +36,7 @@ class StageService {
             );
 
             if (!$pipeline)
-                throw new NotFoundHttpException('Воронка не найдена');
+                throw new NotFoundHttpException('Pipeline not found!');
 
             $sequence = $this->stageRepository->getMaxSequenceByPipeline($pipeline) + 1;
 
@@ -50,18 +51,25 @@ class StageService {
         });
     }
 
-    public function updateStage(int $id, StageRequestDTO $stageDto): StageUIDTO
+    public function updateStage(int $id, StageRequestEditDTO $stageDto): StageUIDTO | array
     {
+
+        if($stageDto->isEmpty())
+            return ["status" => "Empty body"];
 
         $stage = $this->stageRepository->find($id);
 
         if (!$stage)
-            throw new NotFoundHttpException('Этап не найден');
+            throw new NotFoundHttpException('Stage not found!');
 
         $pipeline = null;
         if($stageDto->pipeline_id)
+        {
             $pipeline = $this->pipelineRepository->find($stageDto->pipeline_id);
-
+            if (!$pipeline)
+                throw new NotFoundHttpException('Pipeline not found!');
+        }
+            
         $this->stageMapper->mapRequestDTOToEntity($stageDto, $stage, $pipeline);
 
         $this->em->persist($stage);
@@ -75,10 +83,10 @@ class StageService {
 
         $stage = $this->stageRepository->find($id);
         if (!$stage)
-            throw new NotFoundHttpException('Этап не найден');
+            throw new NotFoundHttpException('Stage not found!');
 
         if ($this->leadRepository->hasByStage($stage))
-            throw new BadRequestHttpException('Невозможно удалить воронку с этапами');
+            throw new BadRequestHttpException('The stages with the leads cannot be deleted!');
         
         $this->minusSequenceAfterStages($stage);
         

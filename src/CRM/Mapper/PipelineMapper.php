@@ -33,11 +33,6 @@ class PipelineMapper extends AbstractMapper {
         return new PipelineListDetailResponseDTO($pipelines);
     }
 
-    public function requestToDTO(int $id, array $data): PipelineDTO {
-        $this->requestKeysCheck($data, ['name']);
-        return new PipelineDTO($id, $data['name']);
-    }
-
     public function entityToDTO(Pipeline $pipeline): PipelineDTO {
         return new PipelineDTO(
             $pipeline->getId(),

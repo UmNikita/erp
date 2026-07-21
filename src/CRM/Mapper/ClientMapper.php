@@ -13,7 +13,7 @@ use App\Home\Mapper\AbstractMapper;
 
 class ClientMapper extends AbstractMapper {
 
-    public function entityToDetailDTO(Client $client, ?array $contactsDTO): ClientDetailDTO {
+    public function entityToDetailDTO(Client $client, ?array $contactsDTO, ClientMetricsDTO $metrics = null): ClientDetailDTO {
         return new ClientDetailDTO(
             $client->getId(),
             $client->getName(),
@@ -25,7 +25,11 @@ class ClientMapper extends AbstractMapper {
             $client->getCity(),
             $client->getChannel(),
             $client->getDateCreate(),
-            0, 0, 0, 0, $contactsDTO
+            $metrics ? $metrics->totalBudget : 0,
+            $metrics ? $metrics->averageBudget : 0, 
+            $metrics ? $metrics->leadsCount : 0,
+            $metrics ? $metrics->totalBudget : 0,
+            $contactsDTO
         );
     }
 

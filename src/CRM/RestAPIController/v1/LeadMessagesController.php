@@ -2,6 +2,7 @@
 
 namespace App\CRM\RestAPIController\v1;
 
+use App\CRM\DTO\OpenAPI\LeadMessages\LeadMessageEditRequestDTO;
 use App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\LeadMessageService;
@@ -60,7 +61,7 @@ final class LeadMessagesController extends APIController
         return $this->response($res);
     }
 
-    #[Route('/lead/messages', methods: ['POST'])]
+    #[Route('/lead/message', methods: ['POST'])]
     #[OA\Post(
         summary: 'Создать новое сообщение',
         tags: ['CRM / LeadMessages'],
@@ -83,6 +84,9 @@ final class LeadMessagesController extends APIController
     public function create(Request $request, LeadMessageService $leadMessageService): Response
     {
         $dto = $this->serializeRequest($request, LeadMessagesRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $message = $leadMessageService->createMessage($dto);
         return $this->response($message, Response::HTTP_CREATED);
     }
@@ -94,15 +98,7 @@ final class LeadMessagesController extends APIController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['message'],
-                properties: [
-                    new OA\Property(
-                        property: 'message',
-                        description: 'Текст сообщения',
-                        type: 'string',
-                        example: 'Добавила в КП блок по интеграции и примеры отчётов. Проверьте, пожалуйста.'
-                    )
-                ]
+                ref: '#/components/schemas/LeadMessageEditRequest'
             )
         ),
         responses: [
@@ -117,11 +113,11 @@ final class LeadMessagesController extends APIController
     )]
     public function update(int $id, Request $request, LeadMessageService $leadMessageService): Response
     {
-        $data = json_decode($request->getContent(), true);
-        if (!isset($data['message']))
-            throw new BadRequestHttpException('Invalid request body');
-
-        $message = $leadMessageService->updateMessage($id, $data['message']);
+        $dto = $this->serializeRequest($request, LeadMessageEditRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
+        $message = $leadMessageService->updateMessage($id, $dto->message);
         return $this->response($message);
     }
 
@@ -140,6 +136,6 @@ final class LeadMessagesController extends APIController
     public function delete(int $id, LeadMessageService $leadMessageService): Response
     {
         $leadMessageService->deleteMessage($id);
-        return $this->response(["status" => "Воронка успешно удалена"], 204);
+        return $this->response(["status" => "Message deleted!"]);
     }
 }

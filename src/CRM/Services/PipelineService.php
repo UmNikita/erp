@@ -30,8 +30,10 @@ class PipelineService {
         return $this->pipelineMapper->entityToDTO($pipeline);
     }
 
-    public function updatePipeline(PipelineDTO $pipelineDTO): PipelineDTO {
-        $pipeline = $this->pipelineRepository->find($pipelineDTO->id);
+    public function updatePipeline(int $id, PipelineRequestDTO $pipelineDTO): PipelineDTO {
+        $pipeline = $this->pipelineRepository->find($id);
+        if (!$pipeline)
+            throw new NotFoundHttpException('Pipeline not found!');
         $pipeline->setName($pipelineDTO->name);
         $this->em->persist($pipeline);
         $this->em->flush();
@@ -43,10 +45,10 @@ class PipelineService {
         $pipeline = $this->pipelineRepository->find($pipelineID);
 
         if (!$pipeline)
-            throw new NotFoundHttpException('Воронка не найдена');
+            throw new NotFoundHttpException('Pipeline not found!');
 
         if ($this->stageRepository->hasByPipeline($pipeline))
-            throw new BadRequestHttpException('Невозможно удалить воронку с этапами');
+            throw new BadRequestHttpException('The pipelines with the stages cannot be deleted!');
 
         $this->em->remove($pipeline);
         $this->em->flush();

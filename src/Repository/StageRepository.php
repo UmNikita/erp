@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\CRM\Enums\LeadStatus;
 use App\Entity\Pipeline;
 use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -69,7 +70,12 @@ class StageRepository extends ServiceEntityRepository
     public function findAllWithLeads(int $pipelineId): array
     {
         return $this->createQueryBuilder('s')
-            ->leftJoin('s.leads', 'l')
+            ->leftJoin(
+                's.leads',
+                'l',
+                'WITH',
+                'l.status = :active'
+            )
             ->addSelect('l')
             ->leftJoin('l.client', 'c')
             ->addSelect('c')
@@ -77,6 +83,8 @@ class StageRepository extends ServiceEntityRepository
             ->addSelect('u')
             ->where('s.pipeline = :pipelineId')
             ->setParameter('pipelineId', $pipelineId)
+            ->setParameter('active', LeadStatus::ACTIVE->value)
+            ->orderBy('s.sequence', 'ASC')
             ->getQuery()
             ->getResult();
     }

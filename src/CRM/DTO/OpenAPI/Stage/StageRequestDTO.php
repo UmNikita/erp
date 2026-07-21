@@ -3,6 +3,7 @@
 namespace App\CRM\DTO\OpenAPI\Stage;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'StageRequest'
@@ -16,6 +17,8 @@ final readonly class StageRequestDTO
             type: 'string',
             example: 'Первичный контакт'
         )]
+        #[Assert\NotBlank(message: 'Name required')]
+        #[Assert\Length(min: 1, max: 50)]
         public ?string $name,
 
         #[OA\Property(
@@ -23,6 +26,11 @@ final readonly class StageRequestDTO
             description: 'UI-цвет этапа',
             type: 'string',
             example: '#5340b6'
+        )]
+        #[Assert\NotBlank(message: 'Color required')]
+        #[Assert\Regex(
+            pattern: '/^#[0-9A-Fa-f]{6}$/',
+            message: 'Color must be in format HEX (#FFFFFF)'
         )]
         public ?string $color,
 
@@ -32,6 +40,7 @@ final readonly class StageRequestDTO
             type: 'integer',
             example: '4'
         )]
+        #[Assert\NotBlank(message: 'Pipeline_id required')]
         public ?int $pipeline_id
     ) {
     }

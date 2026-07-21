@@ -16,6 +16,6 @@ class StageDTO
         public string $name,
 
         #[OA\Property(type: 'integer', example: '2')]
-        public string $sequence
+        public int $sequence
     ) {}
 }

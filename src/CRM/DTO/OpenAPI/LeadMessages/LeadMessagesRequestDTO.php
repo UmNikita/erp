@@ -3,6 +3,7 @@
 namespace App\CRM\DTO\OpenAPI\LeadMessages;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'LeadMessagesRequest',
@@ -12,10 +13,14 @@ final readonly class LeadMessagesRequestDTO
 {
     public function __construct(
         #[OA\Property(
-            property: 'name',
+            property: 'message',
             description: 'Текст сообщения',
             type: 'string',
             example: 'Добавила в КП блок по интеграции и примеры отчётов. Проверьте, пожалуйста.'
+        )]
+        #[Assert\NotBlank(message: 'Message required')]
+        #[Assert\Length(
+            min: 1, max: 4096
         )]
         public string $message,
 
@@ -25,7 +30,8 @@ final readonly class LeadMessagesRequestDTO
             type: 'integer',
             example: '6'
         )]
-        public string $user_id,
+        #[Assert\NotBlank(message: 'user_id required')]
+        public int $user_id,
 
         #[OA\Property(
             property: 'lead_id',
@@ -33,7 +39,8 @@ final readonly class LeadMessagesRequestDTO
             type: 'integer',
             example: '13'
         )]
-        public string $lead_id
+        #[Assert\NotBlank(message: 'lead_id required')]
+        public int $lead_id
     ) {
     }
 }

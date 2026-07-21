@@ -30,7 +30,7 @@ class LeadService {
         $lead = $this->leadRepository->findWithClientAndContacts($id);
 
         if (!$lead)
-            throw new NotFoundHttpException('Сделка не найдена');
+            throw new NotFoundHttpException('Lead not found');
         
         $leadDTO = $this->leadMapper->entityToDetailResponse($lead);
 
@@ -43,12 +43,14 @@ class LeadService {
         return $leadDTO;
     }
 
-    public function updateLead(int $id, LeadUpdateRequestDTO $request): LeadDTO {
-        
+    public function updateLead(int $id, LeadUpdateRequestDTO $request): LeadDTO | array {
+        if($request->isEmpty())
+            return ["status" => "Empty body"];
+
         $lead = $this->leadRepository->find($id);
 
         if (!$lead)
-            throw new NotFoundHttpException('Сделка не найдена');
+            throw new NotFoundHttpException('Stage not found!');
 
         $this->leadMapper->mapRequestToEntity($lead, $request);
 

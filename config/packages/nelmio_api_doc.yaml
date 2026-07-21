@@ -19,6 +19,7 @@ nelmio_api_doc:
             - { alias: Stage, type: App\CRM\DTO\Stage\StageDTO }
             - { alias: StageRequest, type: App\CRM\DTO\OpenAPI\Stage\StageRequestDTO }
             - { alias: StageRequestEdit, type: App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO }
+            - { alias: StageRequestPosition, type: App\CRM\DTO\OpenAPI\Stage\StageRequestPositionDTO }
             - { alias: StageKanban, type: App\CRM\DTO\Stage\StageKanbanDTO }
 
             - { alias: Kanban, type: App\CRM\DTO\KanbanDTO }
@@ -42,3 +43,4 @@ nelmio_api_doc:
             - { alias: Message, type: App\CRM\DTO\LeadMessages\MessageDTO }
             - { alias: LeadMessagesListResponse, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesListResponseDTO }
             - { alias: LeadMessagesRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO }
+            - { alias: LeadMessageEditRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessageEditRequestDTO }

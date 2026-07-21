@@ -3,6 +3,7 @@
 namespace App\CRM\DTO\OpenAPI\Lead;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'LeadRequest',
@@ -17,6 +18,10 @@ readonly class LeadRequestDTO
             type: 'string',
             example: 'РегионПлюс'
         )]
+        #[Assert\NotBlank(message: 'Name required')]
+        #[Assert\Length(
+            min: 1, max: 50
+        )]
         public string $name,
 
         #[OA\Property(
@@ -25,7 +30,17 @@ readonly class LeadRequestDTO
             type: 'integer',
             example: '1'
         )]
+        #[Assert\NotBlank(message: 'stage_id required')]
         public int $stage_id,
+
+        #[OA\Property(
+            property: 'client_id',
+            description: 'ID клиента',
+            type: 'integer',
+            example: '1',
+            nullable: true
+        )]
+        public ?int $client_id,
 
         #[OA\Property(
             property: 'budget',
@@ -44,6 +59,9 @@ readonly class LeadRequestDTO
             example: 'CRM: лицензии + внедрение',
             nullable: true
         )]
+        #[Assert\Length(
+            min: 1, max: 50
+        )]
         public ?string $product,
 
         #[OA\Property(
@@ -53,6 +71,9 @@ readonly class LeadRequestDTO
             example: 'Холодный звонок',
             nullable: true
         )]
+        #[Assert\Length(
+            min: 1, max: 50
+        )]
         public ?string $source,
 
         #[OA\Property(
@@ -61,6 +82,9 @@ readonly class LeadRequestDTO
             type: 'string',
             example: 'Презентаци решения',
             nullable: true
+        )]
+        #[Assert\Length(
+            min: 1, max: 50
         )]
         public ?string $next_action,
 
@@ -79,6 +103,9 @@ readonly class LeadRequestDTO
             type: 'string',
             example: 'Клиент рассматривает интеграцию в 1С',
             nullable: true
+        )]
+        #[Assert\Length(
+            min: 1, max: 255
         )]
         public ?string $comment
     ) {

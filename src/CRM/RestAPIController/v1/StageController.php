@@ -3,6 +3,8 @@
 namespace App\CRM\RestAPIController\v1;
 
 use App\CRM\DTO\OpenAPI\Stage\StageRequestDTO;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestPositionDTO;
 use App\CRM\Mapper\StageMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\StageService;
@@ -39,6 +41,9 @@ final class StageController extends APIController
     public function create(StageService $stageService, Request $request): Response
     {
         $dto = $this->serializeRequest($request, StageRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $stage = $stageService->createStage($dto);
         return $this->response($stage, Response::HTTP_CREATED);
     }
@@ -65,7 +70,10 @@ final class StageController extends APIController
     )]
     public function update(int $id, StageService $stageService, Request $request): Response
     {
-        $dto = $this->serializeRequest($request, StageRequestDTO::class);
+        $dto = $this->serializeRequest($request, StageRequestEditDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $stage = $stageService->updateStage($id, $dto);
         return $this->response($stage);
     }
@@ -85,7 +93,7 @@ final class StageController extends APIController
     public function delete(int $id, StageService $stageService): Response
     {
         $stageService->deleteStage($id);
-        return $this->response(["status" => "Этап успешно удален"], 204);
+        return $this->response(["status" => "Stage deleted!"], 204);
     }
 
     #[Route('/stage/{id}/position', methods: ['POST'])]
@@ -95,15 +103,7 @@ final class StageController extends APIController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['position'],
-                properties: [
-                    new OA\Property(
-                        property: 'position',
-                        type: 'integer',
-                        example: 6,
-                        description: 'Новая позиция этапа'
-                    )
-                ]
+                ref: '#/components/schemas/StageRequestPosition'
             )
         ),
         responses: [
@@ -115,11 +115,13 @@ final class StageController extends APIController
     )]
     public function changePosition(int $id, Request $request, StageService $stageService, StageMapper $stageMapper): Response
     {
-        $data = json_decode($request->getContent(), true);
+        $dto = $this->serializeRequest($request, StageRequestPositionDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
 
-        $position = $stageMapper->getPositionFromRequest($data);
-        $stageService->changePosition($id, $position);
+        $stageService->changePosition($id, $dto->position);
 
-        return $this->response(["status" => "Этап воронки успешно перемещен"]);
+        return $this->response(["status" => "Pipeline stage successfully moved"]);
     }
 }

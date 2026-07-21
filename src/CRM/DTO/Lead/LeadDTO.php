@@ -53,7 +53,10 @@ class LeadDTO
         public LeadStatus $status,
 
         #[OA\Property(type: 'integer', example: '3')]
-        public ?int $stage_id
+        public ?int $stage_id,
+        
+        #[OA\Property(type: 'integer', example: '2')]
+        public ?int $client_id
 
     ) {}
 }

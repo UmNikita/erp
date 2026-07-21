@@ -2,7 +2,7 @@
 
 namespace App\CRM\Services;
 
-use App\CRM\DTO\Client\ContactDTO;
+use App\CRM\DTO\Contact\ContactDTO;
 use App\CRM\DTO\OpenAPI\Contact\ContactRequestDTO;
 use App\CRM\DTO\OpenAPI\Contact\ContactUpdateRequestDTO;
 use App\CRM\Mapper\ContactMapper;

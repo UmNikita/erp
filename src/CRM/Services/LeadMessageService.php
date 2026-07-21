@@ -22,16 +22,18 @@ class LeadMessageService {
     ) 
     {}
 
-    public function getMessages(int $leadId, int $limit, ?int $beforeId): LeadMessagesListResponseDTO
+    public function getMessages(int $leadId, ?int $limit, ?int $beforeId): LeadMessagesListResponseDTO
     {
         $lead = $this->leadRepository->find($leadId);
 
         if (!$lead)
-            throw new NotFoundHttpException('Сделка не найдена');
+            throw new NotFoundHttpException('Lead not found!');
 
+        if(!$limit)
+            $limit = 50;
         $messages = $this->messageRepository->findMessages($lead, $limit, $beforeId);
-
-        return $this->messageMapper->entityListToResponse($messages);
+        
+        return $this->messageMapper->entityListToResponse($messages, $limit, $beforeId);
     }
 
     public function createMessage(LeadMessagesRequestDTO $dto): MessageDTO {
@@ -42,9 +44,13 @@ class LeadMessageService {
         return $this->messageMapper->entityToDTO($message);
     }
 
-    public function updateMessage(int $id, string $message): MessageDTO {
+    public function updateMessage(int $id, string $text): MessageDTO {
         $message = $this->messageRepository->find($id);
-        $message->setMessage($message);
+
+        if(!$message)
+            throw new NotFoundHttpException('Message not found!');
+
+        $message->setMessage($text);
         $this->em->persist($message);
         $this->em->flush();
         return $this->messageMapper->entityToDTO($message);

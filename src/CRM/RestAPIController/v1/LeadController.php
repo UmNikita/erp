@@ -80,6 +80,9 @@ final class LeadController extends APIController
     public function create(Request $request, LeadService $leadService): Response
     {
         $dto = $this->serializeRequest($request, LeadRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $lead = $leadService->createLead($dto);
         return $this->response($lead, Response::HTTP_CREATED);
     }
@@ -107,6 +110,9 @@ final class LeadController extends APIController
     public function update(int $id, Request $request, LeadService $leadService): Response
     {
         $dto = $this->serializeRequest($request, LeadUpdateRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $lead = $leadService->updateLead($id, $dto);
         return $this->response($lead);
     }

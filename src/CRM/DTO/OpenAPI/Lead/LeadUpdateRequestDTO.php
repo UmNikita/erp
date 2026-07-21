@@ -2,7 +2,9 @@
 
 namespace App\CRM\DTO\OpenAPI\Lead;
 
+use App\CRM\Enums\LeadStatus;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'LeadUpdateRequest'
@@ -17,6 +19,7 @@ final readonly class LeadUpdateRequestDTO
             example: 'РегионПлюс',
             nullable: true
         )]
+        #[Assert\Length(max: 50)]
         public ?string $name,
 
         #[OA\Property(
@@ -26,7 +29,16 @@ final readonly class LeadUpdateRequestDTO
             example: '1',
             nullable: true
         )]
-        public ?string $stage_id,
+        public ?int $stage_id,
+
+        #[OA\Property(
+            property: 'client_id',
+            description: 'ID клиента',
+            type: 'integer',
+            example: '1',
+            nullable: true
+        )]
+        public ?int $client_id,
 
         #[OA\Property(
             property: 'budget',
@@ -45,6 +57,7 @@ final readonly class LeadUpdateRequestDTO
             example: 'CRM: лицензии + внедрение',
             nullable: true
         )]
+        #[Assert\Length(max: 50)]
         public ?string $product,
 
         #[OA\Property(
@@ -54,6 +67,7 @@ final readonly class LeadUpdateRequestDTO
             example: 'Холодный звонок',
             nullable: true
         )]
+        #[Assert\Length(max: 50)]
         public ?string $source,
 
         #[OA\Property(
@@ -63,6 +77,7 @@ final readonly class LeadUpdateRequestDTO
             example: 'Презентаци решения',
             nullable: true
         )]
+        #[Assert\Length(max: 50)]
         public ?string $next_action,
 
         #[OA\Property(
@@ -81,6 +96,7 @@ final readonly class LeadUpdateRequestDTO
             example: 'Клиент рассматривает интеграцию в 1С',
             nullable: true
         )]
+        #[Assert\Length(max: 255)]
         public ?string $comment,
 
         #[OA\Property(
@@ -90,7 +106,16 @@ final readonly class LeadUpdateRequestDTO
             example: 'won',
             nullable: true
         )]
+        #[Assert\Choice(
+            callback: [LeadStatus::class, 'values'],
+            message: 'Invalid status'
+        )]
         public ?string $status,
     ) {
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->name === null && $this->stage_id === null && $this->client_id === null && $this->budget === null && $this->product === null && $this->source === null && $this->next_action === null && $this->date_next_action === null && $this->comment === null && $this->status === null;
     }
 }

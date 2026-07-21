@@ -3,6 +3,7 @@
 namespace App\CRM\DTO\OpenAPI\Contact;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'ContactRequest',
@@ -16,6 +17,10 @@ final readonly class ContactRequestDTO
             description: 'Имя',
             type: 'string',
             example: 'Анна'
+        )]
+        #[Assert\NotBlank(message: 'Name required')]
+        #[Assert\Length(
+            min: 1, max: 100
         )]
         public string $name,
 
@@ -35,6 +40,10 @@ final readonly class ContactRequestDTO
             example: 'Иванова',
             nullable: true
         )]
+        #[Assert\NotBlank(message: 'Secondname required')]
+        #[Assert\Length(
+            min: 1, max: 100
+        )]
         public ?string $secondname,
 
         #[OA\Property(
@@ -44,6 +53,7 @@ final readonly class ContactRequestDTO
             example: 'Ивановна',
             nullable: true
         )]
+        #[Assert\Length(max: 100)]
         public ?string $thirdname,
 
         #[OA\Property(
@@ -53,6 +63,7 @@ final readonly class ContactRequestDTO
             example: 'Руководитель отдела продаж',
             nullable: true
         )]
+        #[Assert\Length(max: 100)]
         public ?string $position,
         
         #[OA\Property(
@@ -61,6 +72,11 @@ final readonly class ContactRequestDTO
             type: 'string',
             example: '+7 (916) 987-65-43',
             nullable: true
+        )]
+        #[Assert\Length(max: 50)]
+        #[Assert\Regex(
+            pattern: '/^\+?[\d\s\-()]+$/',
+            message: 'The phone must contain only numbers.'
         )]
         public ?string $phone,
 
@@ -71,6 +87,10 @@ final readonly class ContactRequestDTO
             example: 'anna.ivanova@technopark.ru',
             nullable: true
         )]
+        #[Assert\Length(max: 255)]
+        #[Assert\Email(
+            message: 'Invalid email'
+        )]
         public ?string $email,
 
         #[OA\Property(
@@ -80,6 +100,7 @@ final readonly class ContactRequestDTO
             example: 'Telegram: @anna_ivanova',
             nullable: true
         )]
+        #[Assert\Length(max: 100)]
         public ?string $messenger,
         
         #[OA\Property(
@@ -89,6 +110,7 @@ final readonly class ContactRequestDTO
             example: 'Основное лицо, принимает решение по CRM',
             nullable: true
         )]
+        #[Assert\Length(max: 255)]
         public ?string $note,
     ) {
     }

@@ -5,7 +5,6 @@ namespace App\CRM\RestAPIController\v1;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
 use App\CRM\Mapper\ClientMapper;
-use App\CRM\Mapper\ContactMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\ClientService;
 use App\Repository\ClientRepository;
@@ -53,12 +52,9 @@ final class ClientController extends APIController
             )
         ]
     )]
-    public function show(int $id, ClientRepository $clientRepository, ClientMapper $clientMapper, ContactMapper $contactMapper): Response
+    public function show(int $id, ClientService $clientService): Response
     {
-        $client = $clientRepository->findWithContacts($id);
-        $contacts = $contactMapper->entityToArrayDTO($client->getContacts()->toArray());
-        $clientDTO = $clientMapper->entityToDetailDTO($client, $contacts);
-        return $this->response($clientDTO);
+        return $this->response($clientService->showClient($id));
     }
 
     #[Route('/client', methods: ['POST'])]
@@ -84,6 +80,9 @@ final class ClientController extends APIController
     public function create(Request $request, ClientService $clientService): Response
     {
         $clientRequest = $this->serializeRequest($request, ClientRequestDTO::class);
+        $errorResponse = $this->validate($clientRequest);
+        if ($errorResponse)
+            return $errorResponse;
         $clientResponse = $clientService->createClient($clientRequest);
         return $this->response($clientResponse, Response::HTTP_CREATED);
     }
@@ -111,6 +110,9 @@ final class ClientController extends APIController
     public function update(int $id, Request $request, ClientService $clientService): Response
     {
         $clientRequest = $this->serializeRequest($request, ClientUpdateRequestDTO::class);
+        $errorResponse = $this->validate($clientRequest);
+        if ($errorResponse)
+            return $errorResponse;
         $clientResponse = $clientService->updateClient($clientRequest, $id);
         return $this->response($clientResponse);
     }
@@ -130,6 +132,6 @@ final class ClientController extends APIController
     public function delete(int $id, ClientService $clientService): Response
     {
         $clientService->deleteClient($id);
-        return $this->response(["status" => "Клиент успешно удален"], 204);
+        return $this->response(["status" => "Клиент успешно удален"], 200);
     }
 }

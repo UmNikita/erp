@@ -55,7 +55,7 @@ class ContactMapper extends AbstractMapper {
         if($client_id) {
             $client = $this->clientRepository->find($client_id);
             if (!$client)
-                throw new NotFoundHttpException('Этап не найден');
+                throw new NotFoundHttpException('Client not found!');
             $contact->setClient($client);
         }
 

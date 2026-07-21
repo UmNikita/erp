@@ -3,6 +3,8 @@
 namespace App\CRM\Mapper;
 
 use App\CRM\DTO\OpenAPI\Stage\StageRequestDTO;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO;
+use App\CRM\DTO\OpenAPI\Stage\StageRequestPositionDTO;
 use App\CRM\DTO\Stage\StageDTO;
 use App\CRM\DTO\Stage\StageUIDTO;
 use App\Entity\Pipeline;
@@ -29,7 +31,7 @@ class StageMapper extends AbstractMapper {
         );
     }
 
-    public function mapRequestDTOToEntity(StageRequestDTO $stageRequest, Stage $stage, ?Pipeline $pipeline = null, ?int $sequence = null) {
+    public function mapRequestDTOToEntity(StageRequestDTO | StageRequestEditDTO $stageRequest, Stage $stage, ?Pipeline $pipeline = null, ?int $sequence = null) {
         if($stageRequest->name)
             $stage->setName($stageRequest->name);
 
@@ -41,10 +43,5 @@ class StageMapper extends AbstractMapper {
 
         if($sequence != null)
             $stage->setSequence($sequence);
-    }
-
-    public function getPositionFromRequest(array $data): int {
-        $this->requestKeysCheck($data, ['position']);
-        return $data['position'];
     }
 }

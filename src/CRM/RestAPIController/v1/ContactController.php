@@ -6,14 +6,15 @@ use App\CRM\DTO\OpenAPI\Contact\ContactRequestDTO;
 use App\CRM\DTO\OpenAPI\Contact\ContactUpdateRequestDTO;
 use App\CRM\Mapper\ContactMapper;
 use App\CRM\RestAPIController\APIController;
-use App\CRM\Services\ClientService;
 use App\CRM\Services\ContactService;
+use App\Repository\ClientRepository;
 use App\Repository\ContactRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class ContactController extends APIController
@@ -32,9 +33,12 @@ final class ContactController extends APIController
             )
         ]
     )]
-    public function index(ContactRepository $contactRepository, ContactMapper $contactMapper): Response
+    public function index(int $id, ClientRepository $clientRepository, ContactRepository $contactRepository, ContactMapper $contactMapper): Response
     {
-        $contacts = $contactRepository->findAll();
+        $client = $clientRepository->find($id);
+        if(!$client)
+            throw new NotFoundHttpException('Client not found!');
+        $contacts = $contactRepository->findBy(['client' => $client]);
         $contactsDTO = $contactMapper->entityToListResponse($contacts);
         return $this->response($contactsDTO);
     }
@@ -62,6 +66,9 @@ final class ContactController extends APIController
     public function create(Request $request, ContactService $contactService): Response
     {
         $contactRequest = $this->serializeRequest($request, ContactRequestDTO::class);
+        $errorResponse = $this->validate($contactRequest);
+        if ($errorResponse)
+            return $errorResponse;
         $contactResponse = $contactService->createContact($contactRequest);
         return $this->response($contactResponse, Response::HTTP_CREATED);
     }
@@ -89,6 +96,9 @@ final class ContactController extends APIController
     public function update(int $id, Request $request, ContactService $contactService): Response
     {
         $contactRequest = $this->serializeRequest($request, ContactUpdateRequestDTO::class);
+        $errorResponse = $this->validate($contactRequest);
+        if ($errorResponse)
+            return $errorResponse;
         $contactResponse = $contactService->updateContact($contactRequest, $id);
         return $this->response($contactResponse);
     }

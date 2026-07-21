@@ -13,6 +13,7 @@ use App\CRM\Enums\LeadStatus;
 use App\Entity\Contact;
 use App\Entity\Lead;
 use App\Home\Mapper\AbstractMapper;
+use App\Repository\ClientRepository;
 use App\Repository\StageRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -20,6 +21,7 @@ class LeadMapper extends AbstractMapper {
 
     public function __construct(
         private StageRepository $stageRepository,
+        private ClientRepository $clientRepository,
         private ContactMapper $contactMapper,
         private ClientMapper $clientMapper
     ) 
@@ -60,11 +62,12 @@ class LeadMapper extends AbstractMapper {
             $lead->getDateNextAction(),
             $lead->getComment(),
             $lead->getStatus(),
-            $lead->getStage()->getId()
+            $lead->getStage()->getId(),
+            $lead->getClient() ? $lead->getClient()->getId() : null
         );
     }
 
-    public function entityToDetailDTO(Lead $lead, ClientDetailDTO $clientDTO): LeadDetailDTO {
+    public function entityToDetailDTO(Lead $lead, ?ClientDetailDTO $clientDTO): LeadDetailDTO {
         return new LeadDetailDTO(
             $lead->getId(),
             $lead->getName(),
@@ -73,10 +76,11 @@ class LeadMapper extends AbstractMapper {
             $lead->getSource(),
             $lead->getNextAction(),
             $lead->getDateStart(),
-            $lead->getNextAction(),
+            $lead->getDateNextAction(),
             $lead->getComment(),
             $lead->getStatus(),
             $lead->getStage() ? $lead->getStage()->getId() : null,
+            $lead->getClient() ? $lead->getClient()->getId() : null,
             $clientDTO
         );
     }
@@ -90,8 +94,16 @@ class LeadMapper extends AbstractMapper {
         if($stage_id) {
             $stage = $this->stageRepository->find($stage_id);
             if (!$stage)
-                throw new NotFoundHttpException('Этап не найден');
+                throw new NotFoundHttpException('Stage not found!');
             $lead->setStage($stage);
+        }
+
+        $client_id = $request->client_id;
+        if($client_id) {
+            $client = $this->clientRepository->find($client_id);
+            if (!$client)
+                throw new NotFoundHttpException('Client not found!');
+            $lead->setClient($client);
         }
         
         $budget = $request->budget;

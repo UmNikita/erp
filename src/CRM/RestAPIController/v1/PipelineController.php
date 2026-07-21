@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/crm')]
 final class PipelineController extends APIController
@@ -82,6 +84,9 @@ final class PipelineController extends APIController
     public function create(PipelineService $pipelineService, Request $request): Response
     {
         $dto = $this->serializeRequest($request, PipelineRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
         $pipeline = $pipelineService->createPipeline($dto);
         return $this->response($pipeline, Response::HTTP_CREATED);
     }
@@ -106,12 +111,13 @@ final class PipelineController extends APIController
             )
         ]
     )]
-    public function update(int $id, Request $request, PipelineMapper $pipelineMapper, PipelineService $pipelineService): Response
+    public function update(int $id, Request $request, PipelineService $pipelineService): Response
     {
-        
-        $data = json_decode($request->getContent(), true);
-        $dto = $pipelineMapper->requestToDTO($id, $data);
-        $pipeline = $pipelineService->updatePipeline($dto);
+        $dto = $this->serializeRequest($request, PipelineRequestDTO::class);
+        $errorResponse = $this->validate($dto);
+        if ($errorResponse)
+            return $errorResponse;
+        $pipeline = $pipelineService->updatePipeline($id, $dto);
         return $this->response($pipeline);
     }
 
@@ -130,6 +136,7 @@ final class PipelineController extends APIController
     public function delete(int $id, PipelineService $pipelineService): Response
     {
         $pipelineService->deletePipeline($id);
-        return $this->response(["status" => "Воронка успешно удалена"], 204);
+        return $this->response(["status" => "Pipeline deleted!"], 204);
     }
+
 }

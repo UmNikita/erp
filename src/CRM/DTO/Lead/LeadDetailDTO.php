@@ -25,6 +25,7 @@ class LeadDetailDTO extends LeadDTO
         public ?string $comment,
         public LeadStatus $status,
         public ?int $stage_id,
+        public ?int $client_id,
 
         #[OA\Property(
             property: 'client',
@@ -44,7 +45,8 @@ class LeadDetailDTO extends LeadDTO
             $date_next_action,
             $comment,
             $status,
-            $stage_id
+            $stage_id,
+            $client_id
         );
     }
 }
