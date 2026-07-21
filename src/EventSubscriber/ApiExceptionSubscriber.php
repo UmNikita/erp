@@ -19,28 +19,28 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
-        // $request = $event->getRequest();
+        $request = $event->getRequest();
 
-        // if (!str_starts_with($request->getPathInfo(), '/api')) {
-        //     return;
-        // }
+        if (!str_starts_with($request->getPathInfo(), '/api')) {
+            return;
+        }
 
-        // $exception = $event->getThrowable();
+        $exception = $event->getThrowable();
 
-        // if ($exception instanceof InvalidRequestException) {
-        //     $event->setResponse(
-        //         new JsonResponse([
-        //             'errors' => $exception->getErrors()
-        //         ], 422)
-        //     );
+        if ($exception instanceof InvalidRequestException) {
+            $event->setResponse(
+                new JsonResponse([
+                    'errors' => $exception->getErrors()
+                ], 422)
+            );
 
-        //     return;
-        // }
+            return;
+        }
 
-        // $event->setResponse(
-        //     new JsonResponse([
-        //         'error' => $exception->getMessage(),
-        //     ], 500)
-        // );
+        $event->setResponse(
+            new JsonResponse([
+                'error' => $exception->getMessage(),
+            ], 500)
+        );
     }
 }

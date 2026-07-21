@@ -44,3 +44,8 @@ nelmio_api_doc:
             - { alias: LeadMessagesListResponse, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesListResponseDTO }
             - { alias: LeadMessagesRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO }
             - { alias: LeadMessageEditRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessageEditRequestDTO }
+
+when@prod:
+    nelmio_api_doc:
+        areas:
+            path_patterns: []
