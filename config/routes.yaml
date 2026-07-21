@@ -14,3 +14,7 @@ api:
     resource: ../src/CRM/RestAPIController/v1/
     type: attribute
     prefix: /api/v1
+
+when@dev:
+    api_login_check:
+        path: /api/login_check
