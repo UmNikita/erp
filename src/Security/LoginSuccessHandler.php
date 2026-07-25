@@ -19,8 +19,7 @@ class LoginSuccessHandler
     {
         $jwt = $this->jwtManager->create($user);
 
-        $refreshToken = $this->refreshTokenGenerator->createForUserWithTtl(
-            $user,
+        $refreshToken = $this->refreshTokenGenerator->createForUserWithTtl($user,
             2592000
         );
 

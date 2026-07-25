@@ -1,6 +1,6 @@
 <div class="side-section nav">
     <p class="side-title">CRM</p>
-    <a class="{{ route == 'app_crm' ? 'active' : '' }}" href="{{ path('app_crm') }}">Воронки</a>
+    <a class="{{ route == 'app_crm' ? 'active' : '' }}" href="{{ path('app_crm') }}" data-turbo="false">Воронки</a>
     <a class="{{ route == 'app_crm_clients' ? 'active' : '' }}" href="{{ path('app_crm_clients') }}">Клиенты</a>
     <a class="{{ route == 'app_crm_archive' ? 'active' : '' }}" href="{{ path('app_crm_archive') }}">Архив</a>
     <a class="{{ route == 'app_crm_integrations' ? 'active' : '' }}" href="{{ path('app_crm_integrations') }}">Интеграции</a>

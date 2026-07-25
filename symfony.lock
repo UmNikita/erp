@@ -74,6 +74,9 @@
             "./config/routes/nelmio_api_doc.yaml"
         ]
     },
+    "pentatrion/vite-bundle": {
+        "version": "v8.2.4"
+    },
     "phpunit/phpunit": {
         "version": "13.2",
         "recipe": {

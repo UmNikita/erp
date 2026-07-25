@@ -58,7 +58,7 @@ class LoginSubscriber implements EventSubscriberInterface
 
         $response->headers->setCookie(
             Cookie::create(
-                'REFRESH_TOKEN',
+                'refresh_token',
                 $refreshToken->getRefreshToken()
             )
             ->withHttpOnly(true)
