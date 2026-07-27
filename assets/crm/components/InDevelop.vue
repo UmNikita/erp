@@ -1,0 +1,6 @@
+<template>
+    <section class="card empty">
+        <h2>Раздел находится в разработке</h2>
+        <p>Скоро мы его допилим. Наберись терпения!</p>
+    </section>
+</template>

@@ -2,6 +2,7 @@
 
 namespace App\CRM\DTO\OpenAPI\Client;
 
+use Nelmio\ApiDocBundle\Attribute\Ignore;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -107,6 +108,7 @@ final readonly class ClientUpdateRequestDTO
         public ?string $channel
     ) {}
 
+    #[Ignore]
     public function isEmpty() {
         return $this->name === null && $this->inn === null && $this->field_of_activity === null && $this->website === null && $this->phone === null && $this->email === null && $this->city === null && $this->channel === null;
     }

@@ -1,18 +1,23 @@
 <template>
-    <div class="lead">
+    <div class="lead" draggable="true" @dragstart="onDragStart">
         <p>{{lead.name}}</p>
         <p>{{ formatDate(lead.date) }}</p>
         <p>{{lead.client}}</p>
-        <p>{{lead.moneyAmount}} ₽</p>
+        <p>{{ formatNumber(lead.moneyAmount) }} ₽</p>
         <p>{{lead.manager}}</p>
     </div>
 </template>
 
 <script setup lang="ts">
     import { Lead } from '../../types/lead';
-    import { formatDate } from '../../utils/date';
+    import { formatDate, formatNumber } from '../../utils/fields';
     
-    defineProps<{lead: Lead}>();
+    const props = defineProps<{lead: Lead, stageId: number}>();
+
+    function onDragStart(event: DragEvent) {
+        event.dataTransfer?.setData('leadId', String(props.lead.id));
+        event.dataTransfer?.setData('stageId', String(props.stageId));
+    }
 </script>
 
 <style>
@@ -22,6 +27,7 @@
         padding: 12px;
         margin-top: 15px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: pointer;
     }
 
     .lead p {

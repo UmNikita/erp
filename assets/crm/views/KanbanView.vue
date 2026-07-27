@@ -1,5 +1,6 @@
 <template>
-    <h1>Kanban</h1>
+    <h1>CRM</h1>
+    <button>+ воронка</button>
     <Kanban
         v-if="pipelines.length"
         :pipelines="pipelines"
@@ -8,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-    import Kanban from './Kanban/Kanban.vue';
-    import EmptyPipelines from './Kanban/EmptyPipelines.vue';
+    import Kanban from '../components/Kanban/Kanban.vue';
+    import EmptyPipelines from '../components/Kanban/EmptyPipelines.vue';
     import { Pipeline } from '../types/pipeline.ts';
     import { onMounted, ref } from 'vue';
     import { getPipelines } from '../api/pipeline.ts';

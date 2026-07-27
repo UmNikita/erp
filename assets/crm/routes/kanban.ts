@@ -1,3 +1,3 @@
 export function kanbanPipelineUrl(id: number) {
-    return `/kanban?pipeline=${id}`;
+    return `/crm?pipeline_id=${id}`;
 }

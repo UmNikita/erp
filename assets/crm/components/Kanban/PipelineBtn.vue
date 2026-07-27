@@ -1,5 +1,5 @@
 <template>
-    <a :href="kanbanPipelineUrl(pipeline.id)">{{pipeline.name}}</a>
+    <router-link :to="kanbanPipelineUrl(pipeline.id)">{{pipeline.name}}</router-link>
 </template>
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
-{% extends 'layout/index.html.twig' %}
+{% extends 'layout/spa.html.twig' %}
 
 {% block content %}
-<div id="crm-app"></div>
+<div id="crm-app" class="crm-layout"></div>
 {{ vite_entry_link_tags('crm') }}
 {{ vite_entry_script_tags('crm') }}
 {% endblock %}

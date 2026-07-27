@@ -3,6 +3,7 @@
 namespace App\CRM\DTO\OpenAPI\Lead;
 
 use App\CRM\Enums\LeadStatus;
+use Nelmio\ApiDocBundle\Attribute\Ignore;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -113,7 +114,7 @@ final readonly class LeadUpdateRequestDTO
         public ?string $status,
     ) {
     }
-
+    #[Ignore]
     public function isEmpty(): bool
     {
         return $this->name === null && $this->stage_id === null && $this->client_id === null && $this->budget === null && $this->product === null && $this->source === null && $this->next_action === null && $this->date_next_action === null && $this->comment === null && $this->status === null;

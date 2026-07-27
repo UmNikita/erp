@@ -2,6 +2,7 @@
 
 namespace App\CRM\DTO\OpenAPI\Stage;
 
+use Nelmio\ApiDocBundle\Attribute\Ignore;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -46,6 +47,7 @@ final readonly class StageRequestEditDTO
     ) {
     }
 
+    #[Ignore]
     public function isEmpty(): bool
     {
         return $this->name === null&& $this->color === null && $this->pipeline_id === null;

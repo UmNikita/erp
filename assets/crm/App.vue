@@ -1,9 +1,11 @@
-<template>
-    <Main />
-</template>
-
 <script setup lang="ts">
-import Main from './components/Main.vue';
-
+import Sidebar from './components/Sidebar.vue';
 
 </script>
+
+<template>
+    <Sidebar />
+    <main class="main">
+        <router-view />
+    </main>
+</template>
