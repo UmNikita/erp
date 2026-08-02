@@ -21,6 +21,18 @@ final class ClientController extends APIController
     #[OA\Get(
         summary: 'Получить список клиентов',
         tags: ['CRM / Client'],
+        parameters: [
+            new OA\Parameter(
+                name: 'search',
+                description: 'Найти по имени, телефону, email',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'string',
+                    example: 'регион Плюс'
+                )
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -31,9 +43,18 @@ final class ClientController extends APIController
             )
         ]
     )]
-    public function index(ClientRepository $clientRepository, ClientMapper $clientMapper): Response
+    public function index(Request $request, ClientRepository $clientRepository, ClientMapper $clientMapper): Response
     {
-        $clients = $clientRepository->findAll();
+        $search = $request->query->get('search');
+        if($search) {
+            if ($search === '')
+                $clients = [];
+            else
+                $clients = $clientRepository->search(trim($search));
+        }
+        else {
+            $clients = $clientRepository->findAll();
+        }
         $clientsDTO = $clientMapper->entityToListResponse($clients);
         return $this->response($clientsDTO);
     }

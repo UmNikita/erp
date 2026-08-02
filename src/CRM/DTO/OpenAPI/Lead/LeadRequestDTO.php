@@ -2,6 +2,7 @@
 
 namespace App\CRM\DTO\OpenAPI\Lead;
 
+use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,15 +31,6 @@ readonly class LeadRequestDTO
         )]
         #[Assert\NotBlank(message: 'stage_id required')]
         public int $stage_id,
-
-        #[OA\Property(
-            property: 'client_id',
-            description: 'ID клиента',
-            type: 'integer',
-            example: '1',
-            nullable: true
-        )]
-        public ?int $client_id,
 
         #[OA\Property(
             property: 'budget',
@@ -97,7 +89,25 @@ readonly class LeadRequestDTO
             nullable: true
         )]
         #[Assert\Length(max: 255)]
-        public ?string $comment
+        public ?string $comment,
+
+        #[OA\Property(
+            property: 'client_id',
+            description: 'ID клиента',
+            type: 'integer',
+            example: '1',
+            nullable: true
+        )]
+        public ?int $client_id,
+        
+        #[OA\Property(
+            property: 'client',
+            description: 'Информация о новом клиенте (при наличии client_id, игнорируется)',
+            nullable: true,
+            ref: '#/components/schemas/ClientCreateLead'
+        )]
+        #[Assert\Valid]
+        public ?ClientCreateLeadDTO $client,
     ) {
     }
 }

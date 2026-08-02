@@ -9,6 +9,7 @@ use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
 use App\CRM\Enums\LeadStatus;
 use App\CRM\Mapper\ClientMapper;
 use App\CRM\Mapper\LeadMapper;
+use App\Entity\Client;
 use App\Entity\Lead;
 use App\Repository\ClientRepository;
 use App\Repository\LeadRepository;
@@ -65,7 +66,12 @@ class LeadService {
 
         $this->leadMapper->mapRequestToEntity($lead, $request);
         $lead->setStatus(LeadStatus::ACTIVE);
-
+        if($lead->getClient() == null && $request->client) {
+            $client = new Client();
+            $this->clientMapper->mapRequestLeadToEntity($client, $request->client);
+            $lead->setClient($client);
+            $this->em->persist($client);
+        }
         $this->em->persist($lead);
         $this->em->flush();
 

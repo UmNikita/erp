@@ -2,6 +2,7 @@
 
 namespace App\CRM\Mapper;
 
+use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use App\CRM\DTO\Client\ClientDetailDTO;
 use App\CRM\DTO\Client\ClientDTO;
 use App\CRM\DTO\Client\ClientMetricsDTO;
@@ -12,6 +13,11 @@ use App\Entity\Client;
 use App\Home\Mapper\AbstractMapper;
 
 class ClientMapper extends AbstractMapper {
+
+    public function __construct(
+        private ContactMapper $contactsMapper
+    )
+    {}
 
     public function entityToDetailDTO(Client $client, ?array $contactsDTO, ClientMetricsDTO $metrics = null): ClientDetailDTO {
         return new ClientDetailDTO(
@@ -62,7 +68,7 @@ class ClientMapper extends AbstractMapper {
         $client->average_cheque = $metrics->averageBudget;
     }
 
-    public function mapRequestToEntity(Client $client, ClientRequestDTO| ClientUpdateRequestDTO $request) {
+    public function mapRequestToEntity(Client $client, ClientRequestDTO | ClientUpdateRequestDTO $request) {
         $name = $request->name;
         if($name != null)
             $client->setName($name);
@@ -81,15 +87,32 @@ class ClientMapper extends AbstractMapper {
 
         $phone = $request->phone;
         if($phone != null)
-            $client->setPhone($phone);
+            $client->setPhone($this->contactsMapper->normalizePhone($phone));
 
         $email = $request->email;
         if($email != null)
-            $client->setEmail($email);
+            $client->setEmail($this->contactsMapper->normalizeEmail($email));
 
         $city = $request->city;
         if($city != null)
             $client->setCity($city);
+
+        $channel = $request->channel;
+        if($channel != null)
+            $client->setChannel($channel);
+    }
+    
+    public function mapRequestLeadToEntity(Client $client, ClientCreateLeadDTO $request) {
+        $name = $request->name;
+        $client->setName($name);
+
+        $phone = $request->phone;
+        if($phone != null)
+            $client->setPhone($this->contactsMapper->normalizePhone($phone));
+
+        $email = $request->email;
+        if($email != null)
+            $client->setEmail($this->contactsMapper->normalizeEmail($email));
 
         $channel = $request->channel;
         if($channel != null)

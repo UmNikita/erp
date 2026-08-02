@@ -33,7 +33,7 @@ final class LeadController extends APIController
     )]
     public function index(LeadRepository $leadRepository, LeadMapper $leadMapper): Response
     {
-        $leads = $leadMapper->entityToListResponse($leadRepository->findAll());
+        $leads = $leadMapper->entityToListResponse($leadRepository->findAllWithClientAndResponsible());
         return $this->response($leads);
     }
 

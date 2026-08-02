@@ -23,6 +23,7 @@ nelmio_api_doc:
             - { alias: StageKanban, type: App\CRM\DTO\Stage\StageKanbanDTO }
 
             - { alias: Kanban, type: App\CRM\DTO\KanbanDTO }
+            - { alias: Responsible, type: App\CRM\DTO\ResponsibleDTO }
 
             - { alias: Lead, type: App\CRM\DTO\Lead\LeadDTO }
             - { alias: LeadDetail, type: App\CRM\DTO\Lead\LeadDetailDTO }
@@ -33,6 +34,7 @@ nelmio_api_doc:
             
             - { alias: Client, type: App\CRM\DTO\Client\ClientDTO }
             - { alias: ClientDetail, type: App\CRM\DTO\Client\ClientDetailDTO }
+            - { alias: ClientCreateLead, type: App\CRM\DTO\Client\ClientCreateLeadDTO }
             - { alias: ClientListResponse, type: App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO }
             - { alias: ClientRequest, type: App\CRM\DTO\OpenAPI\Client\ClientRequestDTO }
 

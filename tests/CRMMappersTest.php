@@ -6,6 +6,7 @@ use App\CRM\DTO\Client\ClientDetailDTO;
 use App\CRM\Mapper\ClientMapper;
 use App\CRM\Mapper\ContactMapper;
 use App\CRM\Mapper\LeadMapper;
+use App\CRM\Mapper\UserMapper;
 use App\Entity\Client;
 use App\Entity\Lead;
 use App\Repository\ClientRepository;
@@ -33,6 +34,7 @@ class CRMMappersTest extends TestCase
 
         $contactMapper = $this->createMock(ContactMapper::class);
         $clientMapper = $this->createMock(ClientMapper::class);
+        $userMapper = $this->createMock(UserMapper::class);
         $stageRepository = $this->createMock(StageRepository::class);
         $clientRepository = $this->createMock(ClientRepository::class);
 
@@ -40,7 +42,8 @@ class CRMMappersTest extends TestCase
             $stageRepository,
             $clientRepository,
             $contactMapper,
-            $clientMapper
+            $clientMapper,
+            $userMapper
         );
 
         $clientDTO = new ClientDetailDTO(

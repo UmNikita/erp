@@ -30,12 +30,27 @@ class LeadRepository extends ServiceEntityRepository
     public function findWithClientAndContacts(int $id): ?Lead
     {
         return $this->createQueryBuilder('l')
-            ->leftJoin('l.client', 'c')->addSelect('c')
-            ->leftJoin('c.contacts', 'ct')->addSelect('ct')
+            ->leftJoin('l.client', 'c')
+            ->addSelect('c')
+            ->leftJoin('c.contacts', 'ct')
+            ->addSelect('ct')
+            ->leftJoin('l.responsible', 'u')
+            ->addSelect('u')
             ->where('l.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function findAllWithClientAndResponsible(): array
+    {
+        return $this->createQueryBuilder('l')
+            ->leftJoin('l.client', 'c')
+            ->addSelect('c')
+            ->leftJoin('l.responsible', 'u')
+            ->addSelect('u')
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

@@ -44,6 +44,18 @@ class ClientRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function search(string $query): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('LOWER(c.name) LIKE LOWER(:query)')
+            ->orWhere('LOWER(c.email) LIKE LOWER(:query)')
+            ->orWhere('c.phone LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Client[] Returns an array of Client objects
     //     */

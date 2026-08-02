@@ -13,6 +13,7 @@ use App\CRM\Enums\LeadStatus;
 use App\Entity\Contact;
 use App\Entity\Lead;
 use App\Home\Mapper\AbstractMapper;
+use App\CRM\Mapper\UserMapper;
 use App\Repository\ClientRepository;
 use App\Repository\StageRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -23,7 +24,8 @@ class LeadMapper extends AbstractMapper {
         private StageRepository $stageRepository,
         private ClientRepository $clientRepository,
         private ContactMapper $contactMapper,
-        private ClientMapper $clientMapper
+        private ClientMapper $clientMapper,
+        private UserMapper $userMapper,
     ) 
     {}
 
@@ -63,7 +65,8 @@ class LeadMapper extends AbstractMapper {
             $lead->getComment(),
             $lead->getStatus(),
             $lead->getStage()->getId(),
-            $lead->getClient() ? $lead->getClient()->getId() : null
+            $lead->getResponsible() ? $this->userMapper->entityToResponsibleDTO($lead->getResponsible()) : null,
+            $lead->getClient() ? $this->clientMapper->entityToDTO($lead->getClient()) : null
         );
     }
 
@@ -80,7 +83,7 @@ class LeadMapper extends AbstractMapper {
             $lead->getComment(),
             $lead->getStatus(),
             $lead->getStage() ? $lead->getStage()->getId() : null,
-            $lead->getClient() ? $lead->getClient()->getId() : null,
+            $lead->getResponsible() ? $this->userMapper->entityToResponsibleDTO($lead->getResponsible()) : null,
             $clientDTO
         );
     }
