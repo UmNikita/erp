@@ -6,3 +6,28 @@ export interface Lead {
     manager: string;
     moneyAmount: number;
 }
+
+export interface LeadRequest {
+    name: string;
+    budget: number;
+    product?: string;
+    source?: string;
+    next_action?: string;
+    comment?: string;
+    stage_id?: number;
+}
+
+export interface LeadResponse {
+  id: number;
+  name: string;
+  budget: number;
+  product: string;
+  source: string;
+  next_action: string;
+  dateStart: string;
+  date_next_action: string;
+  comment: string;
+  status: string;
+  stage_id: number;
+  client_id: number;
+}

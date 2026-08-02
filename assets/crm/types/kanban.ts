@@ -1,7 +1,7 @@
-import type { Stage } from './stage';
+import type { StageUI } from './stage';
 
 export interface Kanban {
     leadsCount: number;
     moneyAmount: number;
-    stages: Stage[];
+    stages: StageUI[];
 }

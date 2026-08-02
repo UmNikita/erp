@@ -19,9 +19,7 @@ readonly class LeadRequestDTO
             example: 'РегионПлюс'
         )]
         #[Assert\NotBlank(message: 'Name required')]
-        #[Assert\Length(
-            min: 1, max: 50
-        )]
+        #[Assert\Length(max: 50)]
         public string $name,
 
         #[OA\Property(
@@ -59,9 +57,7 @@ readonly class LeadRequestDTO
             example: 'CRM: лицензии + внедрение',
             nullable: true
         )]
-        #[Assert\Length(
-            min: 1, max: 50
-        )]
+        #[Assert\Length(max: 50)]
         public ?string $product,
 
         #[OA\Property(
@@ -71,9 +67,7 @@ readonly class LeadRequestDTO
             example: 'Холодный звонок',
             nullable: true
         )]
-        #[Assert\Length(
-            min: 1, max: 50
-        )]
+        #[Assert\Length(max: 50)]
         public ?string $source,
 
         #[OA\Property(
@@ -83,9 +77,7 @@ readonly class LeadRequestDTO
             example: 'Презентаци решения',
             nullable: true
         )]
-        #[Assert\Length(
-            min: 1, max: 50
-        )]
+        #[Assert\Length(max: 50)]
         public ?string $next_action,
 
         #[OA\Property(
@@ -104,9 +96,7 @@ readonly class LeadRequestDTO
             example: 'Клиент рассматривает интеграцию в 1С',
             nullable: true
         )]
-        #[Assert\Length(
-            min: 1, max: 255
-        )]
+        #[Assert\Length(max: 255)]
         public ?string $comment
     ) {
     }
