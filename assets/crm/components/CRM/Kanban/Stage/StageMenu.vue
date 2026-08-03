@@ -1,6 +1,7 @@
 <template>
-    <div class="column-header-actions">
-        <button class="column-menu-button" @click="isOpen = !isOpen">⋮</button>
+    <div class="column-header-actions" ref="menuRef">
+        <button class="column-menu-button" @click="toggle">⋮</button>
+
         <div class="stage-menu" v-if="isOpen">
             <button @click="rename">Переименовать</button>
             <button class="danger" @click="remove">Удалить</button>
@@ -9,23 +10,47 @@
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue';
-    const isOpen = ref<boolean>(false);
+    import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+    const isOpen = ref(false);
+    const menuRef = ref<HTMLElement | null>(null);
 
     const emit = defineEmits<{
         rename: [];
         delete: [];
     }>();
 
+    function toggle() {
+        isOpen.value = !isOpen.value;
+    }
+
+    function handleClick(event: MouseEvent) {
+        if (
+            menuRef.value &&
+            !menuRef.value.contains(event.target as Node)
+        ) {
+            isOpen.value = false;
+        }
+    }
+
+    onMounted(() => {
+        document.addEventListener('click', handleClick);
+    });
+
+    onBeforeUnmount(() => {
+        document.removeEventListener('click', handleClick);
+    });
+
     function rename() {
         isOpen.value = false;
         emit('rename');
     }
+
     function remove() {
         isOpen.value = false;
         emit('delete');
     }
-    </script>
+</script>
 
 <style>
     .column-header-actions {

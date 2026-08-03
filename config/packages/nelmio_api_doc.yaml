@@ -24,6 +24,7 @@ nelmio_api_doc:
 
             - { alias: Kanban, type: App\CRM\DTO\KanbanDTO }
             - { alias: Responsible, type: App\CRM\DTO\ResponsibleDTO }
+            - { alias: ResponsibleListResponse, type: App\CRM\DTO\OpenAPI\ResponsibleListResponseDTO }
 
             - { alias: Lead, type: App\CRM\DTO\Lead\LeadDTO }
             - { alias: LeadDetail, type: App\CRM\DTO\Lead\LeadDetailDTO }

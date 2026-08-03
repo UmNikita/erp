@@ -1,22 +1,28 @@
 <template>
     <div v-if="loading"></div>
-    <Kanban v-else-if="pipelines.length" :pipelines="pipelines" :pipelines-detail="pipelinesDetail"
-    @open-pipeline-edit-modal="openModal(MODALS.SETTINGS_PIPELINE)" 
-    @open-pipeline-modal="openModal(MODALS.CREATE_PIPELINE)" 
-    :update-pipelines-detail="updatePipelinesDetailAfterCreateStage"
-    :rename-stage-pipelines-detail="renameStageForPipelinesDetail"
-    :delete-stage-pipelines-detail="deleteStageForPipelinesDetail"
-    />
-    <EmptyPipelines @open-pipeline-modal="openModal(MODALS.CREATE_PIPELINE)" v-else />
-    <PipelineModal
-        v-if="activeModal === MODALS.CREATE_PIPELINE" :error="generalError"
-        @close="closeModal" @submit="acceptAddPipeline"
-    />
-    <PipelineSettingsModal 
-        v-if="activeModal === MODALS.SETTINGS_PIPELINE" @close="closeModal" 
-        :pipelines="pipelinesDetail" @submit="acceptUpdatePipeline"
-        :error="generalError"
-    />
+    <div v-else>
+        <div v-if="error"><KanbanError /></div>
+        <div v-else>
+            <Kanban v-if="pipelines.length" :pipelines="pipelines" :pipelines-detail="pipelinesDetail"
+            @open-pipeline-edit-modal="openModal(MODALS.SETTINGS_PIPELINE)" 
+            @open-pipeline-modal="openModal(MODALS.CREATE_PIPELINE)" 
+            :update-pipelines-detail="updatePipelinesDetailAfterCreateStage"
+            :rename-stage-pipelines-detail="renameStageForPipelinesDetail"
+            :delete-stage-pipelines-detail="deleteStageForPipelinesDetail"
+            :set-error="setError"
+            />
+            <EmptyPipelines @open-pipeline-modal="openModal(MODALS.CREATE_PIPELINE)" v-else />
+            <PipelineModal
+                v-if="activeModal === MODALS.CREATE_PIPELINE" :error="generalError"
+                @close="closeModal" @submit="acceptAddPipeline"
+            />
+            <PipelineSettingsModal 
+                v-if="activeModal === MODALS.SETTINGS_PIPELINE" @close="closeModal" 
+                :pipelines="pipelinesDetail" @submit="acceptUpdatePipeline"
+                :error="generalError"
+            />
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -28,13 +34,18 @@
     import PipelineSettingsModal from '../components/CRM/modals/PipelineSettingsModal.vue';
     import { MODALS, useModal } from '../composables/useModal.ts';
     import { usePipelines } from '../composables/CRM/usePipelines.ts';
+    import KanbanError from '../components/CRM/Kanban/KanbanError.vue';
 
     const {activeModal, generalError, openModal, closeModal} = useModal();
     
-    const {loading, pipelines, pipelinesDetail, 
+    const {loading, pipelines, pipelinesDetail, error, 
     updatePipelinesAfterCreate, updatePipelinesAfterUpdate, 
     getRequests, updatePipelinesDetailAfterCreateStage,
     renameStageForPipelinesDetail, deleteStageForPipelinesDetail} = usePipelines();
+
+    function setError() {
+        error.value = true;
+    }
 
     async function acceptAddPipeline(data: PipelineRequest) {
         generalError.value = null;
@@ -44,7 +55,7 @@
             updatePipelinesAfterCreate(pipeline);
             closeModal();
 
-        } catch (error) {
+        } catch {
             generalError.value = 'Не удалось создать воронку. Попробуйте чуть позже';
         }
     }

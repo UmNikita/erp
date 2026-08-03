@@ -1,12 +1,12 @@
 import { LeadRequest } from '../types/lead';
-import { max, required, validate } from './rules';
+import { email, max, phone, required, validate } from './rules';
 import { ValidationResult } from './validationResult';
 
 const MAX_LENGTH_STR = 50
 const MAX_BUDGET = 1000000
 const MAX_COMMENT_STR = 255
 
-export function validateLead(data: LeadRequest): ValidationResult {
+export function validateLead(data: LeadRequest, isNewClient: boolean): ValidationResult {
     const errors: Record<string, string> = {};
     
     const name = data.name.trim();
@@ -44,6 +44,20 @@ export function validateLead(data: LeadRequest): ValidationResult {
     validate(errors, 'stage_id', [
         required("Не выбран этап воронки")
     ], stage_id);
+
+    const client = data.client;
+    if(isNewClient) {
+        validate(errors, 'new_client', [
+            required("Требуется ввести имя клиента")
+        ], client?.name);
+        validate(errors, 'new_client', [
+            email("Некорректный email")
+        ], client?.email);
+        validate(errors, 'new_client', [
+            phone("Некорректный телефон")
+        ], client?.phone);
+    }
+    
 
     return {isValid: Object.keys(errors).length === 0, errors};
 }

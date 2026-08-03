@@ -10,7 +10,7 @@
             <button class="round-btn" @click="emit('openPipelineEditModal')"><SettingsIco /></button>
           </div>
       </nav>
-      <section class="board-wrap">
+      <section class="board-wrap" v-if="loading">
           <div class="board" v-if="kanban?.stages.length">
             <Stage v-for="stage in kanban?.stages" :key="stage.id" @delete="acceptDeleteStage"
             @rename="acceptRenameStage" :pipeline-id="pipelineId" :stage="stage" @lead-drop="onLeadDrop" />
@@ -20,6 +20,7 @@
           </div>
           <EmptyStages @open-pipeline-modal="openModal(MODALS.CREATE_STAGE)" v-else />
       </section>
+      <section class="board-wrap" v-else></section>
       <KanbanStatistic v-if="kanban" :kanban="kanban" />
     </div>
 
@@ -30,109 +31,111 @@
 
     <LeadModal
       v-if="activeModal === MODALS.CREATE_LEAD" :pipelinesDetail="pipelinesDetail"
-      @close="closeModal" @submit="acceptAddLead" :error="generalError"
+      @close="closeModal" @submit="acceptAddLead" :error="generalError" :responsibles="responsibles"
     />
     
 </template>
 
 <script setup lang="ts">
-    import PipelineBtn from './Pipeline/PipelineBtn.vue';
-    import type { Pipeline, PipelineDetail } from '../../../types/pipeline';
-    import KanbanStatistic from './KanbanStatistic.vue';
-    import EmptyStages from './Empty/EmptyStages.vue';
-    import Stage from './Stage/Stage.vue';
-    import { createStageLead, updateStageLead } from '../../../api/lead.ts';
-    import StageModal from '../modals/StageModal.vue';
-    import { Stage as StageType, StageRequest } from '../../../types/stage.ts';
-    import PipelineNav from './Pipeline/PipelineNav.vue';
-    import { usePipelineKanban } from '../../../composables/CRM/usePipelineKanban.ts';
-    import { MODALS, useModal } from '../../../composables/useModal.ts';
-    import PlusIco from '../../icons/PlusIco.vue';
-    import SettingsIco from '../../icons/SettingsIco.vue';
-    import { createStage, renameStage as renameThisStage, deleteStage as deleteCurrentStage } from '../../../api/stage.ts';
-    import { responseToStage } from '../../../mappers/stageMapper.ts';
-    import { useMoveLead } from '../../../composables/CRM/useMoveLead.ts';
-    import LeadModal from '../modals/LeadModal.vue';
-    import { LeadRequest } from '../../../types/lead.ts';
+  import PipelineBtn from './Pipeline/PipelineBtn.vue';
+  import type { Pipeline, PipelineDetail } from '../../../types/pipeline';
+  import KanbanStatistic from './KanbanStatistic.vue';
+  import EmptyStages from './Empty/EmptyStages.vue';
+  import Stage from './Stage/Stage.vue';
+  import { createStageLead, updateStageLead } from '../../../api/lead.ts';
+  import StageModal from '../modals/StageModal.vue';
+  import { Stage as StageType, StageRequest } from '../../../types/stage.ts';
+  import PipelineNav from './Pipeline/PipelineNav.vue';
+  import { usePipelineKanban } from '../../../composables/CRM/usePipelineKanban.ts';
+  import { MODALS, useModal } from '../../../composables/useModal.ts';
+  import PlusIco from '../../icons/PlusIco.vue';
+  import SettingsIco from '../../icons/SettingsIco.vue';
+  import { createStage, renameStage as renameThisStage, deleteStage as deleteCurrentStage } from '../../../api/stage.ts';
+  import { responseToStage } from '../../../mappers/stageMapper.ts';
+  import { useMoveLead } from '../../../composables/CRM/useMoveLead.ts';
+  import LeadModal from '../modals/LeadModal.vue';
+  import { LeadRequest } from '../../../types/lead.ts';
 
-    const props = defineProps<{
-      pipelines: Pipeline[],
-      pipelinesDetail: PipelineDetail[],
-      updatePipelinesDetail: (pipelineId: number, stage: StageType) => void,
-      renameStagePipelinesDetail: (pipelineId: number, stageId: number, newName: string) => void,
-      deleteStagePipelinesDetail: (pipelineId: number, stageId: number) => void
-    }>();
-    const {kanban, pipelineId, updateKanbanAfterCreateStage, addLeadKanban} = usePipelineKanban(props.pipelines);
+  const props = defineProps<{
+    pipelines: Pipeline[],
+    pipelinesDetail: PipelineDetail[],
+    updatePipelinesDetail: (pipelineId: number, stage: StageType) => void,
+    renameStagePipelinesDetail: (pipelineId: number, stageId: number, newName: string) => void,
+    deleteStagePipelinesDetail: (pipelineId: number, stageId: number) => void,
+    setError: () => void;
+  }>();
+  const {kanban, pipelineId, responsibles, loading,
+  updateKanbanAfterCreateStage, addLeadKanban} = usePipelineKanban(props.pipelines, props.setError);
 
-    const {activeModal, generalError, openModal, closeModal} = useModal();
+  const {activeModal, generalError, openModal, closeModal} = useModal();
 
-    const {moveLead} = useMoveLead(kanban);
+  const {moveLead} = useMoveLead(kanban);
 
-    async function onLeadDrop(leadId: number, fromStageId: number, toStageId: number) {
-        moveLead(leadId, fromStageId, toStageId);
-        try {
-          await updateStageLead(leadId, toStageId);
-        } catch(error) {
-          console.error(error);
-          moveLead(leadId, toStageId, fromStageId);
-        }
+  async function onLeadDrop(leadId: number, fromStageId: number, toStageId: number) {
+      moveLead(leadId, fromStageId, toStageId);
+      try {
+        await updateStageLead(leadId, toStageId);
+      } catch(error) {
+        console.error(error);
+        moveLead(leadId, toStageId, fromStageId);
+      }
+  }
+
+  async function acceptAddStage(data: StageRequest) {
+    data.pipeline_id = pipelineId.value;
+    if(data.pipeline_id == null) {
+      generalError.value = "Ошибка. Перезагрузите страницу!";
+      return;
+    }
+    const stage = await createStage(data);
+    updateKanbanAfterCreateStage(stage);
+    props.updatePipelinesDetail(data.pipeline_id, responseToStage(stage));
+    closeModal();
+  }
+
+  async function acceptDeleteStage(id: number) {
+    try {
+      await deleteCurrentStage(id);
+    }
+    catch {
+      alert("Не удалось удалить. Попробуйте позже!")
     }
 
-    async function acceptAddStage(data: StageRequest) {
-      data.pipeline_id = pipelineId.value;
-      if(data.pipeline_id == null) {
-        generalError.value = "Ошибка. Перезагрузите страницу!";
-        return;
-      }
-      const stage = await createStage(data);
-      updateKanbanAfterCreateStage(stage);
-      props.updatePipelinesDetail(data.pipeline_id, responseToStage(stage));
+    if (!kanban.value)
+      return;
+
+    kanban.value.stages = kanban.value.stages.filter(stage => stage.id !== id);
+    props.deleteStagePipelinesDetail(pipelineId.value, id);
+  }
+  
+  async function acceptRenameStage(prop: any, value: string) {
+    const oldName = prop.stage.name;
+    try {
+      prop.stage.name = value;
+      await renameThisStage(value, prop.stage.id);
+    }
+    catch {
+        alert("Не удалось обновить название. Попробуйте позже!")
+        prop.stage.name = oldName;
+    }
+    props.renameStagePipelinesDetail(pipelineId.value, prop.stage.id, value);
+  }
+
+  async function acceptAddLead(data: LeadRequest) {
+    try {
+      const lead = await createStageLead(data);
+      addLeadKanban(lead);
       closeModal();
     }
-
-    async function acceptDeleteStage(id: number) {
-      try {
-        await deleteCurrentStage(id);
-      }
-      catch {
-        alert("Не удалось удалить. Попробуйте позже!")
-      }
-
-      if (!kanban.value)
-        return;
-
-      kanban.value.stages = kanban.value.stages.filter(stage => stage.id !== id);
-      props.deleteStagePipelinesDetail(pipelineId.value, id);
+    catch (error) {
+      generalError.value = 'Не удалось добавить лид. Попробуйте чуть позже';
     }
-    
-    async function acceptRenameStage(prop: any, value: string) {
-      const oldName = prop.stage.name;
-      try {
-        prop.stage.name = value;
-        await renameThisStage(value, prop.stage.id);
-      }
-      catch {
-          alert("Не удалось обновить название. Попробуйте позже!")
-          prop.stage.name = oldName;
-      }
-      props.renameStagePipelinesDetail(pipelineId.value, prop.stage.id, value);
-    }
+  }
 
-    async function acceptAddLead(data: LeadRequest) {
-      try {
-        const lead = await createStageLead(data);
-        addLeadKanban(lead);
-        closeModal();
-      }
-      catch (error) {
-        generalError.value = 'Не удалось добавить лид. Попробуйте чуть позже';
-      }
-    }
-
-    const emit = defineEmits<{
-        openPipelineModal: [],
-        openPipelineEditModal: []
-    }>()
+  const emit = defineEmits<{
+      openPipelineModal: [],
+      openPipelineEditModal: []
+  }>()
 </script>
 
 <style>

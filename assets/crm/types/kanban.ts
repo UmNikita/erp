@@ -5,3 +5,9 @@ export interface Kanban {
     moneyAmount: number;
     stages: StageUI[];
 }
+
+export interface Responsible {
+    id: number;
+    name: string;
+    email: string;
+}

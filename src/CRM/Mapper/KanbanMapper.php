@@ -4,9 +4,12 @@ namespace App\CRM\Mapper;
 
 use App\CRM\DTO\KanbanDTO;
 use App\CRM\DTO\Lead\LeadKanbanDTO;
+use App\CRM\DTO\OpenAPI\ResponsibleListResponseDTO;
+use App\CRM\DTO\ResponsibleDTO;
 use App\CRM\DTO\Stage\StageKanbanDTO;
 use App\Entity\Lead;
 use App\Entity\Stage;
+use App\Entity\User;
 use App\Home\Mapper\AbstractMapper;
 
 class KanbanMapper extends AbstractMapper {
@@ -66,5 +69,16 @@ class KanbanMapper extends AbstractMapper {
             $responsible,
             $lead->getBudget()
         );
+    }
+    
+    public function entityResponsibleToDTO(array $users): ResponsibleListResponseDTO {
+        $responsibles = $this->mapList($users, function ($user) {
+            return new ResponsibleDTO(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+        });
+        return new ResponsibleListResponseDTO($responsibles);
     }
 }

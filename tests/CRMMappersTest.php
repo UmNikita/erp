@@ -11,6 +11,7 @@ use App\Entity\Client;
 use App\Entity\Lead;
 use App\Repository\ClientRepository;
 use App\Repository\StageRepository;
+use App\Repository\UserRepository;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -37,10 +38,12 @@ class CRMMappersTest extends TestCase
         $userMapper = $this->createMock(UserMapper::class);
         $stageRepository = $this->createMock(StageRepository::class);
         $clientRepository = $this->createMock(ClientRepository::class);
+        $userRepository = $this->createMock(UserRepository::class);
 
         $mapper = new LeadMapper(
             $stageRepository,
             $clientRepository,
+            $userRepository,
             $contactMapper,
             $clientMapper,
             $userMapper

@@ -1,18 +1,19 @@
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, Ref, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { getKanban } from '../../api/kanban';
+import { getKanban, getResponsibles } from '../../api/kanban';
 import type { Pipeline } from '../../types/pipeline';
-import type { Kanban } from '../../types/kanban';
+import type { Kanban, Responsible } from '../../types/kanban';
 import { StageResponse } from '../../types/stage';
 import { stageResponseToUi } from '../../mappers/stageMapper';
 import { LeadResponse } from '../../types/lead';
-import { leadResponseToUi } from '../../mappers/leadMapper';
-import { mapKanban } from '../../api/lead';
+import { leadResponseToUi, mapKanban } from '../../mappers/leadMapper';
 
-export function usePipelineKanban(pipelines: Pipeline[]) {
+export function usePipelineKanban(pipelines: Pipeline[], setError: any) {
     const route = useRoute();
 
     const kanban = ref<Kanban | null>(null);
+    const responsibles = ref<Responsible[]>([]);
+    const loading = ref(false);
 
     const pipelineId = computed(() => {
         const queryId = Number(route.query.pipeline_id);
@@ -26,6 +27,7 @@ export function usePipelineKanban(pipelines: Pipeline[]) {
 
     async function loadKanban(id: number) {
         kanban.value = mapKanban(await getKanban(id));
+        loading.value = true;
     }
 
     function updateKanbanAfterCreateStage(data: StageResponse) {
@@ -40,9 +42,19 @@ export function usePipelineKanban(pipelines: Pipeline[]) {
             stage.leads.push(lead);
     }
 
+    async function getAllResponsibles() {
+        responsibles.value = await getResponsibles();
+    }
+
     onMounted(() => {
-        if (pipelineId.value) {
-            loadKanban(pipelineId.value);
+        try {
+            getAllResponsibles();
+            if (pipelineId.value) {
+                loadKanban(pipelineId.value);
+            }
+        }
+        catch {
+            setError();
         }
     });
 
@@ -56,6 +68,8 @@ export function usePipelineKanban(pipelines: Pipeline[]) {
         kanban,
         pipelineId,
         updateKanbanAfterCreateStage,
-        addLeadKanban
+        addLeadKanban,
+        responsibles,
+        loading
     };
 }

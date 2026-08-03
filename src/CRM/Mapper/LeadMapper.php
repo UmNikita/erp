@@ -16,6 +16,7 @@ use App\Home\Mapper\AbstractMapper;
 use App\CRM\Mapper\UserMapper;
 use App\Repository\ClientRepository;
 use App\Repository\StageRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LeadMapper extends AbstractMapper {
@@ -23,6 +24,7 @@ class LeadMapper extends AbstractMapper {
     public function __construct(
         private StageRepository $stageRepository,
         private ClientRepository $clientRepository,
+        private UserRepository $userRepository,
         private ContactMapper $contactMapper,
         private ClientMapper $clientMapper,
         private UserMapper $userMapper,
@@ -107,6 +109,14 @@ class LeadMapper extends AbstractMapper {
             if (!$client)
                 throw new NotFoundHttpException('Client not found!');
             $lead->setClient($client);
+        }
+
+        $responsible_id = $request->responsible_id;
+        if($responsible_id) {
+            $responsible = $this->userRepository->find($responsible_id);
+            if (!$responsible)
+                throw new NotFoundHttpException('User not found!');
+            $lead->setResponsible($responsible);
         }
         
         $budget = $request->budget;

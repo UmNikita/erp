@@ -40,12 +40,19 @@ export function usePipelines() {
     const pipelines = ref<Pipeline[]>([]);
     const pipelinesDetail = ref<PipelineDetail[]>([]);
     const loading = ref(true);
-
+    const error = ref(false);
 
     onMounted(async () => {
-        pipelines.value = await getPipelines();
-        pipelinesDetail.value = await getPipelinesDetail();
-        loading.value = false;
+        try{
+            pipelines.value = await getPipelines();
+            pipelinesDetail.value = await getPipelinesDetail();
+        }
+        catch {
+            error.value = true;
+        }
+        finally {
+            loading.value = false;
+        }
     })
 
     function updatePipelinesAfterCreate(pipeline: Pipeline) {
@@ -114,6 +121,7 @@ export function usePipelines() {
         getRequests,
         updatePipelinesDetailAfterCreateStage,
         renameStageForPipelinesDetail,
-        deleteStageForPipelinesDetail
+        deleteStageForPipelinesDetail,
+        error
     };
 }

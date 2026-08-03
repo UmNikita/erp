@@ -108,6 +108,15 @@ readonly class LeadRequestDTO
         )]
         #[Assert\Valid]
         public ?ClientCreateLeadDTO $client,
+
+        #[OA\Property(
+            property: 'responsible_id',
+            description: 'ID пользователя (ответственного)',
+            type: 'integer',
+            example: '1',
+            nullable: true
+        )]
+        public ?int $responsible_id,
     ) {
     }
 }
