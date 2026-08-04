@@ -116,4 +116,22 @@ final class LeadController extends APIController
         $lead = $leadService->updateLead($id, $dto);
         return $this->response($lead);
     }
+
+    #[Route('/lead/{id}', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: 'Удалить лид',
+        tags: ['CRM / Lead'],
+        responses: [
+            new OA\Response(
+                response: 204,
+                description: 'Лид удален'
+            )
+            
+        ]
+    )]
+    public function delete(int $id, LeadService $leadService): Response
+    {
+        $leadService->deleteLead($id);
+        return $this->response(["status" => "Lead deleted!"], 204);
+    }
 }

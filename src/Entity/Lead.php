@@ -57,7 +57,7 @@ class Lead
      /**
      * @var Collection<int, LeadMessage>
      */
-    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class)]
+    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class, cascade: ['remove'])]
     private Collection $lead_messages;
 
     public function __construct()

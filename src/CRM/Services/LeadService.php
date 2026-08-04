@@ -77,4 +77,15 @@ class LeadService {
 
         return $this->leadMapper->entityToDTO($lead);
     }
+
+    public function deleteLead(int $id)
+    {
+
+        $lead = $this->leadRepository->find($id);
+        if (!$lead)
+            throw new NotFoundHttpException('Lead not found!');
+                
+        $this->em->remove($lead);
+        $this->em->flush();
+    }
 }

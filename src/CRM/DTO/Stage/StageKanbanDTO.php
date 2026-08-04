@@ -18,6 +18,9 @@ class StageKanbanDTO
         #[OA\Property(type: 'string', example: '#78BC61')]
         public string $color,
 
+        #[OA\Property(type: 'integer', example: 1)]
+        public int $sequence,
+
         #[OA\Property(type: 'integer', example: 4)]
         public int $leadCount,
 

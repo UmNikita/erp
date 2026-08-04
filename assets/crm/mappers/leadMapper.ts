@@ -22,6 +22,7 @@ export function mapKanban(response: Kanban): Kanban {
             id: stage.id,
             name: stage.name,
             color: stage.color,
+            sequence: stage.sequence,
             leadCount: stage.leadCount,
             moneyAmount: stage.moneyAmount,
 

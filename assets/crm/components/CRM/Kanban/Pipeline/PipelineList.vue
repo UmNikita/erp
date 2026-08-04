@@ -48,4 +48,25 @@
       color: #5c79c6;
       font-weight: 600;
     }
+
+    .navrow {
+      min-height: 72px;
+      display: flex;
+      align-items: stretch;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    @media (max-width: 980px) {
+
+      .tabs {
+        overflow: visible;
+      }
+
+      .navrow {
+        min-height: 64px;
+        padding: 0 12px;
+        overflow-x: auto;
+      }
+
+    }
 </style>

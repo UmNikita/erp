@@ -29,7 +29,7 @@ export function useInitPipelineKanban(pipelines: Pipeline[], getAllResponsibles:
 
   watch(pipelineId, (id) => {
       if (id) {
-          loadKanban(id);
+        loadKanban(id);
       }
   });
 

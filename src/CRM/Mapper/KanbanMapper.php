@@ -45,6 +45,7 @@ class KanbanMapper extends AbstractMapper {
             $stage->getId(),
             $stage->getName(),
             $stage->getColor(),
+            $stage->getSequence(),
             $leadsCount,
             $moneyAmount,
             $leads

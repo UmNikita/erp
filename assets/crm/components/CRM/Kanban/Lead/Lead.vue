@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-    import { Lead } from '../../../types/lead';
-    import { formatDate, formatNumber } from '../../../utils/fields';
+    import { Lead } from '../../../../types/lead';
+    import { formatNumber } from '../../../../utils/fields';
     
     const props = defineProps<{lead: Lead, stageId: number}>();
 

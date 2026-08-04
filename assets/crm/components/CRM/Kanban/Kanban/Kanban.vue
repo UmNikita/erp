@@ -56,43 +56,12 @@
       box-shadow: 0px 0px 26px 0px rgba(34, 60, 80, 0.3);
     }
 
-    .navrow {
-      min-height: 72px;
-      display: flex;
-      align-items: stretch;
-      padding: 0 28px;
-      border-bottom: 1px solid var(--line);
-    }
-
     .nav-actions {
       margin-left: auto;
       display: flex;
       align-items: center;
       gap: 14px;
       padding-left: 24px;
-    }
-
-    .round-btn {
-      width: 49px;
-      height: 49px;
-      display: inline-grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      background: #fff;
-      color: #151922;
-      transition: background 0.18s, border-color 0.18s, transform 0.18s;
-    }
-
-    .round-btn:hover {
-      transform: translateY(-1px);
-      border-color: #ccd3dd;
-      background: #f8f9fb;
-    }
-
-    .round-btn svg {
-      width: 22px;
-      height: 22px;
     }
 
     .board-wrap {
@@ -103,31 +72,11 @@
       overflow-y: hidden;
     }
 
-    .board {
-      min-width: 1860px;
-      height: 100%;
-      min-height: 570px;
-      display: grid;
-      grid-template-columns: repeat(6, minmax(210px, 1fr));
-      gap: 14px;
-    }
-
-    .stage-btns {
-      padding-top: 250px;
-      padding-left: 25px;
-    }
-
     @media (max-width: 980px) {
 
       .crm {
         min-height: 100vh;
         border-radius: 0;
-      }
-
-      .topbar {
-        min-height: auto;
-        flex-wrap: wrap;
-        padding: 14px;
       }
 
       .search {
@@ -145,12 +94,6 @@
         margin-left: 0;
       }
 
-      .navrow {
-        min-height: 64px;
-        padding: 0 12px;
-        overflow-x: auto;
-      }
-
       .tabs {
         overflow: visible;
       }
@@ -166,11 +109,6 @@
         right: 0;
         padding-left: 12px;
         background: linear-gradient(90deg, transparent, #fff 18%);
-      }
-
-      .round-btn {
-        width: 42px;
-        height: 42px;
       }
 
       .board-wrap {

@@ -89,4 +89,12 @@
       width: 22px;
       height: 22px;
     }
+
+    @media (max-width: 980px) {
+      .topbar {
+        min-height: auto;
+        flex-wrap: wrap;
+        padding: 14px;
+      }
+    }
 </style>

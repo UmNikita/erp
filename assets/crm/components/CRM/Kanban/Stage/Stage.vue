@@ -12,7 +12,8 @@
                     @keyup.esc="cancelEdit(props)"
                     @blur="saveName(props, emit)"
                 />
-                <StageMenu @rename="startEditName(props)" @delete="deleteStage(stage.id)" />
+                <StageMenu @rename="startEditName(props)" @delete="deleteStage()"
+                @forward="forward" @back="back" />
             </div>
             <div class="column-meta">
                 <span>{{stage.leadCount}} {{getPluralizeLead(stage.leadCount)}}</span>
@@ -30,7 +31,7 @@
     import { StageUI } from '../../../../types/stage.ts';
     import { getPluralizeLead } from '../../../../utils/words.ts';
     import EmptyLeads from '../Empty/EmptyLeads.vue';
-    import Lead from '../Lead.vue';
+    import Lead from '../Lead/Lead.vue';
     import StageMenu from './StageMenu.vue';
     import { useRenameStage } from '../../../../composables/CRM/stages/useRenameStage.ts';
 
@@ -47,10 +48,12 @@
             fromStageId: number,
             toStageId: number
         ],
-        delete: [id: number]
+        delete: [id: number],
+        forward: [stage: StageUI],
+        back: [stage: StageUI]
     }>();
 
-    async function deleteStage(id: number) {
+    async function deleteStage() {
         if(!confirm(`Вы действительно хотите удалить этап "${props.stage.name}"`))
             return;
         if(props.stage.leadCount > 0) {
@@ -68,6 +71,14 @@
         if(leadStageId != toStage) {
             emit('leadDrop', leadId, leadStageId, toStage);
         }   
+    }
+
+    async function forward() {
+        emit('forward', props.stage);
+    }
+
+    function back() {
+        emit('back', props.stage);
     }
 </script>
 

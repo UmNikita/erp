@@ -4,6 +4,7 @@ export interface StageUI {
     id: number;
     name: string;
     color: string;
+    sequence: number;
     leadCount: number;
     moneyAmount: number;
     leads: Lead[];

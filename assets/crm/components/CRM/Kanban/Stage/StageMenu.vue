@@ -3,6 +3,8 @@
         <button class="column-menu-button" @click="toggle">⋮</button>
 
         <div class="stage-menu" v-if="isOpen">
+            <button @click="forward">Передвинуть вперед</button>
+            <button @click="back">Передвинуть назад</button>
             <button @click="rename">Переименовать</button>
             <button class="danger" @click="remove">Удалить</button>
         </div>
@@ -18,6 +20,8 @@
     const emit = defineEmits<{
         rename: [];
         delete: [];
+        forward: [];
+        back: [];
     }>();
 
     function toggle() {
@@ -49,6 +53,16 @@
     function remove() {
         isOpen.value = false;
         emit('delete');
+    }
+
+    function forward() {
+        isOpen.value = false;
+        emit('forward');
+    }
+
+    function back() {
+        isOpen.value = false;
+        emit('back');
     }
 </script>
 

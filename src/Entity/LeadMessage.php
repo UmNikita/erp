@@ -20,7 +20,7 @@ class LeadMessage
     private ?\DateTime $date_send = null;
 
     #[ORM\ManyToOne(inversedBy: 'lead_messages')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Lead $lead = null;
 
     #[ORM\ManyToOne(inversedBy: 'lead_messages')]

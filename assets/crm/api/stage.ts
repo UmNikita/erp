@@ -24,3 +24,9 @@ export async function deleteStage(id: number): Promise<StageResponse>
     const response = await api.delete('/stage/'+id);
     return response.data;
 }
+
+export async function moveStage(stageId: number, position: number): Promise<any>
+{
+    const response = await api.post('/stage/'+stageId+'/position', { position: position });
+    return response.data;
+}
