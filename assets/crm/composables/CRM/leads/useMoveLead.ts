@@ -1,5 +1,6 @@
 import { Ref } from 'vue';
-import { Kanban } from '../../types/kanban';
+import { Kanban } from '../../../types/kanban';
+import { updateStageLead } from '../../../api/lead';
 
 export function useMoveLead(kanban: Ref<Kanban | null>) {
 
@@ -25,7 +26,15 @@ export function useMoveLead(kanban: Ref<Kanban | null>) {
         toStage.leads.push(lead);
     }
 
-    return {
-        moveLead
-    };
+    async function onLeadDrop(leadId: number, fromStageId: number, toStageId: number) {
+        moveLead(leadId, fromStageId, toStageId);
+        try {
+            await updateStageLead(leadId, toStageId);
+        } catch(error) {
+            console.error(error);
+            moveLead(leadId, toStageId, fromStageId);
+        }
+    }
+
+    return { onLeadDrop };
 }

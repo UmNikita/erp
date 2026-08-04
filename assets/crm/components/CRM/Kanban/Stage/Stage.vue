@@ -32,13 +32,14 @@
     import EmptyLeads from '../Empty/EmptyLeads.vue';
     import Lead from '../Lead.vue';
     import StageMenu from './StageMenu.vue';
-    import { useRenameStage } from '../../../../composables/CRM/useRenameStage.ts';
+    import { useRenameStage } from '../../../../composables/CRM/stages/useRenameStage.ts';
 
     const props = defineProps<{
         stage: StageUI,
         pipelineId: number,
     }>();
-    const {editingName, name, nameInput, startEditName, cancelEdit, saveName} = useRenameStage(props.stage.name)
+
+    const {editingName, name, nameInput, startEditName, cancelEdit, saveName} = useRenameStage(props.stage.name, props.pipelineId)
 
     const emit = defineEmits<{
         leadDrop: [
@@ -46,8 +47,7 @@
             fromStageId: number,
             toStageId: number
         ],
-        delete: [id: number],
-        rename: [stageId: number, value: string]
+        delete: [id: number]
     }>();
 
     async function deleteStage(id: number) {

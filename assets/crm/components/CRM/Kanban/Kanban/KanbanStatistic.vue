@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-    import { Kanban } from '../../../types/kanban';
-    import { getPluralizeLead } from '../../../utils/words';
+    import { Kanban } from '../../../../types/kanban';
+    import { getPluralizeLead } from '../../../../utils/words';
 
     defineProps<{kanban: Kanban}>();
 </script>

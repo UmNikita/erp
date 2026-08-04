@@ -1,8 +1,9 @@
 import { ref } from 'vue';
 
+const activeModal = ref<string | null>(null);
+const generalError = ref<string | null>(null);
+
 export function useModal() {
-    const activeModal = ref<string | null>(null);
-    const generalError = ref<string | null>(null);
 
     function openModal(name: string) {
         activeModal.value = name;

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" @click.self="close">
+  <div class="modal-overlay" @click.self="emit('close')">
       <div class="pipeline-settings">
         <div class="pipeline-settings__header">
           <div>
@@ -9,7 +9,7 @@
             </p>
           </div>
 
-          <button class="pipeline-settings__close" @click="close"><ExitModalIco /></button>
+          <button class="pipeline-settings__close" @click="emit('close')"><ExitModalIco /></button>
         </div>
 
         <div class="pipeline-settings__list">
@@ -58,7 +58,7 @@
           <button
             class="pipeline-settings__button pipeline-settings__button--cancel"
             type="button"
-            @click="close"
+            @click="emit('close')"
           >
             Отмена
           </button>
@@ -77,16 +77,16 @@
 
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
-  import { PipelineDetail, PipelineModalUpdateResponeDTO } from '../../../types/pipeline';
-  import PipelineIco from '../../icons/PipelineIco.vue';
+  import { PipelineDetail, PipelineBuffersDTO } from '../../../types/pipeline';
+  import PipelineIco from '../../icons/Kanban/PipelineIco.vue';
   import DeleteIco from '../../icons/DeleteIco.vue';
   import ExitModalIco from '../../icons/ExitModalIco.vue';
-  import { validatePipeline } from '../../../validators/pipeline.ts';
-import { pipelineDetailToPipelineList, pipelineToRequest } from '../../../mappers/pipelineMapper.ts';
+  import { pipelineDetailToPipelineList } from '../../../mappers/pipelineMapper.ts';
 
   const emit = defineEmits(['close', 'submit'])
 
   const props = defineProps<{pipelines: PipelineDetail[], error: string | null}>()
+
   const errors = ref<Record<string, string>>({});
   const localPipelines = ref<PipelineDetail[]>([]);
   const pipelinesDeleteBuffer = ref<PipelineDetail[]>([]);
@@ -97,24 +97,13 @@ import { pipelineDetailToPipelineList, pipelineToRequest } from '../../../mapper
   });
 
   function savePipelines() {
-    errors.value = {};
-    const upt = Array.from(pipelinesChangeBuffer.value.values());
-    let isValid = true;
-    upt.forEach(element => {
-      const data = pipelineToRequest(element);
-      const validationErrors = validatePipeline(data);
-      errors.value[element.id] = validationErrors.errors.name;
-      if(!validationErrors.isValid)
-        isValid = false;
-    });
-    if(isValid) {
-      const data: PipelineModalUpdateResponeDTO = {
-          update: pipelineDetailToPipelineList(upt),
-          delete: pipelineDetailToPipelineList(pipelinesDeleteBuffer.value)
-      };
+    const updatePipelines = Array.from(pipelinesChangeBuffer.value.values());
+    const data: PipelineBuffersDTO = {
+        update: pipelineDetailToPipelineList(updatePipelines),
+        delete: pipelineDetailToPipelineList(pipelinesDeleteBuffer.value)
+    };
 
-      emit('submit', data);
-    }
+    emit('submit', data);
   }
 
   function deletePipeline(pipeline: PipelineDetail, hasStages: boolean) {
@@ -142,10 +131,6 @@ import { pipelineDetailToPipelineList, pipelineToRequest } from '../../../mapper
         stages: pipeline.stages
       }
     );
-  }
-
-  function close() {
-    emit('close')
   }
 </script>
 

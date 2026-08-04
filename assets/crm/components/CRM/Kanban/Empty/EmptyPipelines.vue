@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import PipelineIco from '../../../icons/PipelineIco.vue';
+import PipelineIco from '../../../icons/Kanban/PipelineIco.vue';
 
   const emit = defineEmits<{
     openPipelineModal: []

@@ -8,7 +8,7 @@
             <input id="searchInput" type="search" placeholder="Поиск по сделкам, клиентам, компаниям..." />
         </label>
 
-        <button class="create-btn" type="button" @click="emit('openLeadModal')" >
+        <button class="create-btn" type="button" @click="openModal(MODALS.CREATE_LEAD)" >
             <PlusIco />
             Создать сделку
         </button>
@@ -16,10 +16,10 @@
 </template>
 
 <script setup lang="ts">
+  import { MODALS, useModal } from '../../../../composables/useModal.ts';
   import PlusIco from '../../../icons/PlusIco.vue';
-  const emit = defineEmits<{
-    openLeadModal: []
-  }>();
+
+  const {openModal} = useModal();
 </script>
 
 <style>

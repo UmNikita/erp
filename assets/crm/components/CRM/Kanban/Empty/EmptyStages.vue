@@ -5,10 +5,9 @@
         </div>
 
         <h2 class="funnels-empty__title">Этапов нет</h2>
-
         <p class="funnels-empty__text">Создайте первый этап, чтобы добавлять сделки.</p>
 
-        <button class="funnels-empty__button" @click="emit('openPipelineModal')">
+        <button class="funnels-empty__button" @click="openModal(MODALS.CREATE_STAGE)">
             <span>+</span>
             Создать этап
         </button>
@@ -16,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import StageIco from '../../../icons/StageIco.vue';
+  import { MODALS, useModal } from '../../../../composables/useModal.ts';
+  import StageIco from '../../../icons/Kanban/StageIco.vue';
 
-  const emit = defineEmits<{
-    openPipelineModal: []
-  }>();
+  const { openModal } = useModal();
+
 </script>
 
 <style>

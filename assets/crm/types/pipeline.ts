@@ -15,7 +15,7 @@ export interface PipelineModalUpdateListElementDTO {
     haveStages: boolean;
 }
 
-export interface PipelineModalUpdateResponeDTO {
+export interface PipelineBuffersDTO {
     update: Pipeline[];
     delete: Pipeline[];
 }

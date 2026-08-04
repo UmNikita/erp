@@ -10,9 +10,8 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { validateStage } from '../../../validators/stage.ts';
-  import StageIco from '../../icons/StageIco.vue';
-  import ColorIco from '../../icons/ColorIco.vue';
+  import StageIco from '../../icons/Kanban/StageIco.vue';
+  import ColorIco from '../../icons/Kanban/ColorIco.vue';
   import TextField from './fields/TextField.vue';
   import ColorField from './fields/ColorField.vue';
   import CreateModalWrapper from './CreateModalWrapper.vue';
@@ -21,22 +20,18 @@
 
   const name = ref('');
   const color = ref('');
-  const errors = ref<Record<string, string>>({});
 
-  const props = defineProps<{ error?: string | null }>();
+  const props = defineProps<{ 
+    error?: string | null,
+    errors: Record<string, string>
+   }>();
 
   function close() {
     emit('close');
   }
 
   function submit() {
-    errors.value = {};
     const data = {name: name.value, color: color.value};
-    const validationErrors = validateStage(data);
-    if (!validationErrors.isValid) {
-        errors.value = validationErrors.errors;
-        return;
-    }
     emit('submit', data);
   }
 </script>

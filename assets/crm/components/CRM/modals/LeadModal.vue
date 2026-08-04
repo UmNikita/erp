@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import LeadIco from '../../icons/LeadIco.vue';
+  import LeadIco from '../../icons/Kanban/LeadIco.vue';
   import ProductIco from '../../icons/Kanban/ProductIco.vue';
   import ClientIco from '../../icons/Kanban/ClientIco.vue';
   import SourceIco from '../../icons/Kanban/SourceIco.vue';
@@ -39,7 +39,6 @@
   import NumberField from './fields/NumberField.vue';
   import StageField from './fields/StageField.vue';
   import { PipelineDetail } from '../../../types/pipeline.ts';
-  import { validateLead } from '../../../validators/lead.ts';
   import ClientSearchField from './fields/ClientSearchField.vue';
   import { Client } from '../../../types/client.ts';
   import ClientDataField from './fields/ClientDataField.vue';
@@ -59,12 +58,12 @@
   const newClientEmail = ref();
   const newClientPhone = ref();
   const currentManager = ref();
-  const errors = ref<Record<string, string>>({});
   const isNewClient = ref(false);
   const props = defineProps<{ 
     error?: string | null,
     pipelinesDetail: PipelineDetail[],
-    responsibles: Responsible[]
+    responsibles: Responsible[],
+    errors: Record<string, string>
   }>();
 
   function setClient(client: Client) {
@@ -81,7 +80,6 @@
   }
 
   function submit() {
-    errors.value = {};
     let newClient;
     if(newClientName.value || newClientPhone.value || newClientEmail.value) {
       newClient = {
@@ -102,12 +100,7 @@
       client: newClient,
       responsible_id: currentManager.value
     };
-    const validationErrors = validateLead(data, isNewClient.value);
-    if (!validationErrors.isValid) {
-        errors.value = validationErrors.errors;
-        return;
-    }
-    emit('submit', data);
+    emit('submit', data, isNewClient.value);
   }
 </script>
 <style>
