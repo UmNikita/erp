@@ -240,11 +240,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if($this->getRole() == null) 
             return false;
         
-        foreach ($this->getRole() as $role) {
-            foreach ($role->getPermissions() as $permission) {
-                if ($permission->getName() === $permissionName) {
-                    return true;
-                }
+        foreach ($this->getRole()->getPermissions() as $permission) {
+            if ($permission->getName() === $permissionName) {
+                return true;
             }
         }
 

@@ -2,7 +2,11 @@
 
 <aside class="rail">
   <div class="logo">RH</div>
-
+  {% if is_granted('CRM_ACCESS') %}
+    YES
+{% else %}
+    NO
+{% endif %}
   <div class="rail-nav">
     <a class="rail-btn {{ route starts with 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}" data-tip="Главная">
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>
