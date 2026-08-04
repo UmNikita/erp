@@ -1,0 +1,19 @@
+{
+  "base": "/build/",
+  "entryPoints": {
+    "crm": {
+      "js": [
+        "http://localhost:5173/build/assets/crm/main.ts"
+      ]
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "8.2.4",
+    8,
+    2,
+    4
+  ],
+  "viteServer": "http://localhost:5173"
+}

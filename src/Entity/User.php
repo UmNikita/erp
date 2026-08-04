@@ -3,9 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Override;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -44,6 +45,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(targetEntity: Role::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Role $role = null;
+
+    /**
+     * @var Collection<int, LeadMessage>
+     */
+    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class)]
+    private Collection $lead_messages;
+
+    /**
+     * @var Collection<int, Lead>
+     */
+    #[ORM\OneToMany(mappedBy: 'responsible', targetEntity: Lead::class)]
+    private Collection $leads;
+
+    public function __construct()
+    {
+        $this->lead_messages = new ArrayCollection();
+        $this->leads = new ArrayCollection();
+    }
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
@@ -157,6 +176,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $roles[] = 'ROLE_ADMIN';
         }
         return array_unique($roles);
+    }
+
+    public function getLeadMessages(): Collection
+    {
+        return $this->lead_messages;
+    }
+
+    public function addLeadMessage(LeadMessage $leadMessage): static
+    {
+        if (!$this->lead_messages->contains($leadMessage)) {
+            $this->lead_messages->add($leadMessage);
+            $leadMessage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLeadMessage(LeadMessage $leadMessage): static
+    {
+        if ($this->lead_messages->removeElement($leadMessage)) {
+            if ($leadMessage->getUser() === $this) {
+                $leadMessage->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLeads(): Collection
+    {
+        return $this->leads;
+    }
+
+    public function addLead(Lead $lead): static
+    {
+        if (!$this->leads->contains($lead)) {
+            $this->leads->add($lead);
+            $lead->setResponsible($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLead(Lead $lead): static
+    {
+        if ($this->leads->removeElement($lead)) {
+            if ($lead->getResponsible() === $this) {
+                $lead->setResponsible(null);
+            }
+        }
+
+        return $this;
     }
 
     public function getUserIdentifier(): string

@@ -1,0 +1,30 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "Для запуска проекта надо выполнить следующие команды:\r docker compose up -d --build\r docker compose exec php composer install\r docker compose exec php php bin/console doctrine:migrations:migrate",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "vue": "^3.5.40",
+    "vue-router": "^5.2.0",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vite-plugin-symfony": "^8.2.4",
+    "vue-tsc": "^3.3.8"
+  }
+}

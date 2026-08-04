@@ -9,3 +9,15 @@
 
 controllers:
     resource: routing.controllers
+
+api:
+    resource: ../src/CRM/RestAPIController/v1/
+    type: attribute
+    prefix: /api/v1
+
+api_refresh_token:
+    path: /api/token/refresh
+
+when@dev:
+    api_login_check:
+        path: /api/login_check

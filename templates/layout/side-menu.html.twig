@@ -8,7 +8,7 @@
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>
     </a>
     {% if is_granted(enum('App\\Security\\Enum\\Permission').CRM_ACCESS.value) %}
-      <a class="rail-btn {{ route starts with 'app_crm' ? 'active' : '' }}" href="{{ path('app_crm') }}" data-tip="CRM">
+      <a class="rail-btn {{ route starts with 'app_crm' ? 'active' : '' }}" href="{{ path('app_crm') }}" data-turbo="false" data-tip="CRM">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M9 10v10"/><path d="M15 10v10"/></svg>
       </a>
     {% endif %}
