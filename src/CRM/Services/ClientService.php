@@ -3,7 +3,7 @@
 namespace App\CRM\Services;
 
 use App\CRM\DTO\Client\ClientDTO;
-use App\CRM\DTO\Client\ClientPaginationDTO;
+use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Client\EmailKPRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
@@ -15,6 +15,7 @@ use App\Event\CRM\ClientUpdateEvent;
 use App\Messages\SendKPEmailMessage;
 use App\Repository\ClientRepository;
 use App\Repository\ContactRepository;
+use App\Shared\Pagination\PaginationFactory;
 use App\Shared\Services\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -34,32 +35,26 @@ class ClientService {
         private ContactMapper $contactMapper,
         private Security $security,
         private EventDispatcherInterface $eventDispatcher,
-        private MessageBusInterface $bus,
-        #[Autowire('%kernel.environment%')]
-        private readonly string $environment
+        private MessageBusInterface $bus
     ) 
     {}
 
     public function getClients(Request $request): ClientListResponseDTO {
         $search = $request->query->get('search');
-        $limit = $request->query->get('limit', 10);
-        $page = $request->query->get('page', 1);
-        $offset = ($page - 1) * $limit;
-
-        $allCount = $this->clientRepository->countClients();
+        $pagination = PaginationFactory::create($request, $this->clientRepository, 10);
 
         if($search) {
             if ($search === '')
                 $clients = [];
             else
-                $clients = $this->clientRepository->search(trim($search), $offset, $limit);
+                $clients = $this->clientRepository->search(trim($search), $pagination->offset(), $pagination->limit);
         }
         else {
-            $clients = $this->clientRepository->findClients($offset, $limit);
+            $clients = $this->clientRepository->findClients($pagination->offset(), $pagination->limit);
         }
 
-        $pagination = new ClientPaginationDTO($page, $limit, count($clients), $allCount);
-        return $this->clientMapper->entityToListResponse($clients, $pagination);
+        $paginationDTO = $pagination->getPaginationDTO($clients);
+        return $this->clientMapper->entityToListResponse($clients, $paginationDTO);
     }
 
     public function showClient(int $id): ClientDTO {

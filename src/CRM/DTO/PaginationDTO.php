@@ -1,12 +1,12 @@
 <?php
-namespace App\CRM\DTO\Client;
+namespace App\CRM\DTO;
 
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'ClientPagination'
+    schema: 'Pagination'
 )]
-class ClientPaginationDTO
+class PaginationDTO
 {
     public function __construct(
 

@@ -10,7 +10,6 @@ use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\ClientService;
 use App\CRM\Services\History\JsonManager;
 use App\Repository\ClientRepository;
-use App\Repository\EmailLogRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 

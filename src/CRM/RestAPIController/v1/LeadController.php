@@ -8,8 +8,8 @@ use App\CRM\Mapper\LeadMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\History\JsonManager;
 use App\CRM\Services\LeadService;
-use App\Repository\LeadHistoryRepository;
 use App\Repository\LeadRepository;
+use App\Shared\Pagination\PaginationFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
@@ -34,6 +34,26 @@ final class LeadController extends APIController
                     type: 'number',
                     example: 1
                 )
+            ),
+            new OA\Parameter(
+                name: 'limit',
+                description: 'Ограничение на записи',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 12
+                )
+            ),
+            new OA\Parameter(
+                name: 'page',
+                description: 'Страница пагинации',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 2
+                )
             )
         ],
         responses: [
@@ -49,8 +69,17 @@ final class LeadController extends APIController
     public function index(Request $request, LeadRepository $leadRepository, LeadMapper $leadMapper): Response
     {
         $clientId = $request->query->get('client_id');
-        $leads = $leadMapper->entityToListResponse($leadRepository->findAllWithClientAndResponsible($clientId));
-        return $this->response($leads);
+        $archive = $request->query->get('archive', false);
+        $allCount = $leadRepository->getCountArchive();
+        $pagination = PaginationFactory::create($request, $leadRepository, 12, $allCount);
+        if(!$archive) {
+            $leads = $leadRepository->findAllWithClientAndResponsible($clientId, $pagination->offset(), $pagination->limit);
+        } else {
+            $leads = $leadRepository->findAllArchiveResponsible($pagination->offset(), $pagination->limit);
+        }
+        $paginationDTO = $pagination->getPaginationDTO($leads);
+        $response = $leadMapper->entityToListResponse($leads, $paginationDTO);
+        return $this->response($response);
     }
 
     #[Route('/lead/{id}', methods: ['GET'])]

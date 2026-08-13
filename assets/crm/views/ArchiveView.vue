@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import InDevelop from '../components/InDevelop.vue';
+import Archive from '../components/Archive/Archive.vue';
 
 </script>
 
 <template>
-    <InDevelop />
+    <Archive />
 </template>

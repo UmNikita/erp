@@ -20,7 +20,8 @@ export function useCurrentClient() {
 
     async function load(clientId: number) {
         client.value = await getDetailClients(clientId);
-        leads.value = await getLeads(clientId);
+        const res = await getLeads(clientId);
+        leads.value = res.leads;
         pipelines.value = await getPipelinesDetail();
         responsibles.value = await getResponsibles()
         history.value = await getHistoryClient(clientId);

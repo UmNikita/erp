@@ -1,4 +1,4 @@
-import { Client } from "./client";
+import { Client, Pagination } from "./client";
 import { Responsible } from "./kanban";
 import { LeadStage } from "./stage";
 
@@ -44,4 +44,9 @@ export interface LeadResponse {
   stage: LeadStage;
   responsible?: Responsible;
   client?: Client;
+}
+
+export interface GetLeadsResponse {
+    leads: LeadResponse[];
+    pagination: Pagination;
 }

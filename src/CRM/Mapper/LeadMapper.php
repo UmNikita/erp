@@ -8,6 +8,7 @@ use App\CRM\DTO\Lead\LeadDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
+use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Pipeline\PipelineDTO;
 use App\CRM\DTO\Stage\LeadStageDTO;
 use App\CRM\Enums\LeadStatus;
@@ -32,11 +33,11 @@ class LeadMapper extends AbstractMapper {
     ) 
     {}
 
-    public function entityToListResponse(array $values): LeadListResponseDTO {
+    public function entityToListResponse(array $values, ?PaginationDTO $pagination = null): LeadListResponseDTO {
         $leads = $this->mapList($values, function ($lead) {
             return $this->entityToDTO($lead);
         });
-        return new LeadListResponseDTO($leads);
+        return new LeadListResponseDTO($leads, $pagination);
     }
 
     public function entityToDetailResponse(Lead $lead): LeadDetailDTO {

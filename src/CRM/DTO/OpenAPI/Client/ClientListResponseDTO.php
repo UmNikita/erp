@@ -2,7 +2,7 @@
 
 namespace App\CRM\DTO\OpenAPI\Client;
 
-use App\CRM\DTO\Client\ClientPaginationDTO;
+use App\CRM\DTO\PaginationDTO;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -26,7 +26,7 @@ final readonly class ClientListResponseDTO
             description: 'Параметры пагинации',
             ref: '#/components/schemas/ClientPagination'
         )]
-        public ?ClientPaginationDTO $pagination
+        public ?PaginationDTO $pagination
     ) {
     }
 }
