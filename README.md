@@ -8,5 +8,8 @@
 - docker compose -f docker-compose.dev.yml run --rm node npm install
 - docker compose -f docker-compose.dev.yml run --rm node npm run build
 
+Пересборка воркера:
+- docker compose up -d --build email-worker
+
 Для создания нового пользователя с правами админа, нужна команда:
 - docker compose exec php php bin/console app:root
