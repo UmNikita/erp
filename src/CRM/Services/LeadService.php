@@ -2,8 +2,10 @@
 
 namespace App\CRM\Services;
 
+use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Lead\LeadDetailDTO;
 use App\CRM\DTO\Lead\LeadDTO;
+use App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
 use App\CRM\Enums\LeadStatus;
@@ -17,6 +19,7 @@ use App\Repository\ClientRepository;
 use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

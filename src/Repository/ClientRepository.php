@@ -44,7 +44,7 @@ class ClientRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function search(string $query, int $offset, int $limit): array
+    public function search(string $query, int $offset = 0, int $limit = 10): array
     {
         return $this->createQueryBuilder('c')
             ->where('LOWER(c.name) LIKE LOWER(:query)')
@@ -66,15 +66,6 @@ class ClientRepository extends ServiceEntityRepository
             ->addSelect('l')
             ->getQuery()
             ->getResult();
-    }
-
-
-    public function countClients(): int
-    {
-        return (int) $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
     }
 
     //    /**

@@ -2,6 +2,7 @@
 
 namespace App\CRM\DTO\OpenAPI\Lead;
 
+use App\CRM\DTO\PaginationDTO;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -18,7 +19,14 @@ final readonly class LeadListResponseDTO
                 ref: '#/components/schemas/Lead'
             )
         )]
-        public array $leads
+        public array $leads,
+        
+        #[OA\Property(
+            property: 'pagination',
+            description: 'Параметры пагинации',
+            ref: '#/components/schemas/ClientPagination'
+        )]
+        public ?PaginationDTO $pagination
     ) {
     }
 }

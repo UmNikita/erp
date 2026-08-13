@@ -2,7 +2,7 @@
     <div v-if="loading"></div>
     <div v-else>
         <div v-if="error"><Error /></div>
-        <section class="shell" v-else>
+        <section v-else class="shell">
             <ClientHeader />
             <ClientTable @delete="deleteClient" :clients="clients" />
             <ClientFooter :page="page" :range="range" :is-start="isStart()" 
@@ -55,7 +55,6 @@
     const error = ref(false);
 
     const total = ref(1);
-
     const route = useRoute();
     const page = computed(() => Number(route.query.page ?? 1));
 

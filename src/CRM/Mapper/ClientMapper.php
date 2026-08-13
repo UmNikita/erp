@@ -6,7 +6,7 @@ use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use App\CRM\DTO\Client\ClientDetailDTO;
 use App\CRM\DTO\Client\ClientDTO;
 use App\CRM\DTO\Client\ClientMetricsDTO;
-use App\CRM\DTO\Client\ClientPaginationDTO;
+use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Client\ClientResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
@@ -77,7 +77,7 @@ class ClientMapper extends AbstractMapper {
         );
     }
 
-    public function entityToListResponse(array $values, ?ClientPaginationDTO $pagination = null): ClientListResponseDTO {
+    public function entityToListResponse(array $values, ?PaginationDTO $pagination = null): ClientListResponseDTO {
         $clients = $this->mapList($values, function ($client) {
             return $this->entityToResponseDTO($client);
         });

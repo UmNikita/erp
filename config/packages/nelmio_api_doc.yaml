@@ -36,7 +36,6 @@ nelmio_api_doc:
             
             - { alias: Client, type: App\CRM\DTO\Client\ClientDTO }
             - { alias: EmailRecord, type: App\CRM\DTO\Client\EmailRecordDTO }
-            - { alias: ClientPagination, type: App\CRM\DTO\Client\ClientPaginationDTO }
             - { alias: ClientDetail, type: App\CRM\DTO\Client\ClientDetailDTO }
             - { alias: ClientCreateLead, type: App\CRM\DTO\Client\ClientCreateLeadDTO }
             - { alias: ClientListResponse, type: App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO }
@@ -54,6 +53,7 @@ nelmio_api_doc:
             - { alias: LeadMessageEditRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessageEditRequestDTO }
             
             - { alias: History, type: App\CRM\DTO\HistoryDTO }
+            - { alias: Pagination, type: App\CRM\DTO\PaginationDTO }
 
 when@prod:
     nelmio_api_doc:

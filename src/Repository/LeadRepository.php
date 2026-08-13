@@ -46,8 +46,7 @@ class LeadRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findAllWithClientAndResponsible(?int $clientId = null): array
-    {
+    public function findAllWithClientAndResponsible(?int $clientId = null, int $offset = 0, int $limit = 12): array {
         $qb = $this->createQueryBuilder('l')
             ->leftJoin('l.client', 'c')
             ->addSelect('c')
@@ -60,10 +59,31 @@ class LeadRepository extends ServiceEntityRepository
             ->orderBy('l.date_start', 'DESC');
 
         if ($clientId !== null) {
-            $qb
-                ->andWhere('c.id = :clientId')
-                ->setParameter('clientId', $clientId);
+            $qb->andWhere('c.id = :clientId')
+            ->setParameter('clientId', $clientId);
         }
+
+        $qb->setFirstResult($offset)
+        ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAllArchiveResponsible(int $offset = 0, int $limit = 12): array {
+        $qb = $this->createQueryBuilder('l')
+            ->leftJoin('l.client', 'c')
+            ->addSelect('c')
+            ->leftJoin('l.responsible', 'u')
+            ->addSelect('u')
+            ->leftJoin('l.stage', 's')
+            ->addSelect('s')
+            ->leftJoin('s.pipeline', 'p')
+            ->addSelect('p')
+            ->andWhere('l.status != :status')
+            ->setParameter('status', 'active')
+            ->orderBy('l.date_start', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
     }
@@ -78,6 +98,15 @@ class LeadRepository extends ServiceEntityRepository
             ->setParameter('ids', $leadIds)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getCountArchive() { 
+        return $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.status != :status')
+            ->setParameter('status', 'active')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**
