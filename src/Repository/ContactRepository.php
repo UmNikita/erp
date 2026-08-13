@@ -16,6 +16,27 @@ class ContactRepository extends ServiceEntityRepository
         parent::__construct($registry, Contact::class);
     }
 
+    public function findLeadsWithStagesHashTable(array $leadIds): array
+    {
+        return $this->createQueryBuilder('l')
+            ->addSelect('s', 'p')
+            ->join('l.stage', 's')
+            ->join('s.pipeline', 'p')
+            ->where('l.id IN (:ids)')
+            ->setParameter('ids', $leadIds)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findContactsHashTable(array $contactIds): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.id IN (:ids)')
+            ->setParameter('ids', $contactIds)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Client[] Returns an array of Client objects
     //     */

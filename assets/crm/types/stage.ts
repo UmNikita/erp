@@ -1,4 +1,5 @@
 import type { Lead } from './lead';
+import { Pipeline } from './pipeline';
 
 export interface StageUI {
     id: number;
@@ -28,4 +29,10 @@ export interface Stage {
     id: number;
     name: string;
     sequence: number;
+}
+
+export interface LeadStage {
+    id: number;
+    name: string;
+    pipeline: Pipeline;
 }

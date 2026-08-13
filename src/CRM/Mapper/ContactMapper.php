@@ -73,11 +73,11 @@ class ContactMapper extends AbstractMapper {
 
         $phone = $request->phone;
         if($phone != null)
-            $contact->setPhone($phone);
+            $contact->setPhone($this->normalizePhone($phone));
 
         $email = $request->email;
         if($email != null)
-            $contact->setEmail($email);
+            $contact->setEmail($this->normalizeEmail($email));
 
         $messenger = $request->messenger;
         if($messenger != null)

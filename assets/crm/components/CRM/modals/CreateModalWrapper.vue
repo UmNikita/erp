@@ -14,7 +14,7 @@
 
         <div class="create-pipeline__actions">
           <button class="create-pipeline__cancel" @click.self="close">Отмена</button>
-          <button class="create-pipeline__submit" @click="submit">Создать</button>
+          <button class="create-pipeline__submit" @click="submit">{{ titleBtn }}</button>
         </div>
       </div>
   </div>
@@ -27,7 +27,8 @@
     const props = defineProps<{
         error?: string | null,
         title: string,
-        subtitle: string
+        subtitle: string,
+        titleBtn: string
     }>();
 
     function close() {

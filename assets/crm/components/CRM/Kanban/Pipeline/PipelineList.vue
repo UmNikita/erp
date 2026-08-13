@@ -28,7 +28,7 @@
     }>();
 </script>
 
-<style>
+<style scoped>
     .tabs {
       min-width: 0;
       display: flex;
@@ -52,9 +52,13 @@
     .navrow {
       min-height: 72px;
       display: flex;
+      justify-content: space-between;
       align-items: stretch;
       padding: 0 28px;
       border-bottom: 1px solid var(--line);
+    }
+    .nav-actions .round-btn {
+      margin: 10px;
     }
     @media (max-width: 980px) {
 

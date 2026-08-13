@@ -1,5 +1,5 @@
 <template>
-  <CreateModalWrapper title="Создание сделки" subtitle="Заполните информацию о сделки"
+  <CreateModalWrapper title-btn="Создать" title="Создание сделки" subtitle="Заполните информацию о сделки"
   :error="error" @submit="submit" @close="close">
     <TextField :required="true" :ico="LeadIco" title="Название сделки" v-model="name" 
     placeholder="Введите название сделки" :error="errors.name" />

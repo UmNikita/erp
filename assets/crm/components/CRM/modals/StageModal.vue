@@ -1,5 +1,5 @@
 <template>
-  <CreateModalWrapper title="Создание этапа" subtitle="Заполните информацию об этапе"
+  <CreateModalWrapper title-btn="Создать" title="Создание этапа" subtitle="Заполните информацию об этапе"
   :error="error" @submit="submit" @close="close">
     <TextField :required="true" :ico="StageIco" title="Название этапа" v-model="name" 
     placeholder="Введите название этапа" :error="errors.name" />

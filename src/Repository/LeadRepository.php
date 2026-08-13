@@ -36,19 +36,46 @@ class LeadRepository extends ServiceEntityRepository
             ->addSelect('ct')
             ->leftJoin('l.responsible', 'u')
             ->addSelect('u')
+            ->leftJoin('l.stage', 's')
+            ->addSelect('s')
+            ->leftJoin('s.pipeline', 'p')
+            ->addSelect('p')
             ->where('l.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function findAllWithClientAndResponsible(): array
+    public function findAllWithClientAndResponsible(?int $clientId = null): array
     {
-        return $this->createQueryBuilder('l')
+        $qb = $this->createQueryBuilder('l')
             ->leftJoin('l.client', 'c')
             ->addSelect('c')
             ->leftJoin('l.responsible', 'u')
             ->addSelect('u')
+            ->leftJoin('l.stage', 's')
+            ->addSelect('s')
+            ->leftJoin('s.pipeline', 'p')
+            ->addSelect('p')
+            ->orderBy('l.date_start', 'DESC');
+
+        if ($clientId !== null) {
+            $qb
+                ->andWhere('c.id = :clientId')
+                ->setParameter('clientId', $clientId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findLeadsWithStagesHashTable(array $leadIds): array
+    {
+        return $this->createQueryBuilder('l')
+            ->addSelect('s', 'p')
+            ->join('l.stage', 's')
+            ->join('s.pipeline', 'p')
+            ->where('l.id IN (:ids)')
+            ->setParameter('ids', $leadIds)
             ->getQuery()
             ->getResult();
     }

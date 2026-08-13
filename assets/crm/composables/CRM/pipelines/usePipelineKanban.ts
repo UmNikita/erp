@@ -3,7 +3,7 @@ import { getKanban, getResponsibles } from '../../../api/kanban';
 import type { Kanban, Responsible } from '../../../types/kanban';
 import { StageResponse } from '../../../types/stage';
 import { stageResponseToUi } from '../../../mappers/stageMapper';
-import { Lead, LeadResponse } from '../../../types/lead';
+import { LeadResponse } from '../../../types/lead';
 import { leadResponseToUi, mapKanban } from '../../../mappers/leadMapper';
 
 const kanban = ref<Kanban | null>(null);
@@ -22,7 +22,7 @@ export function usePipelineKanban() {
 
     function addLeadKanban(data: LeadResponse) {
         const lead = leadResponseToUi(data);
-        const stage = kanban.value?.stages.find(stage => stage.id === data.stage_id);
+        const stage = kanban.value?.stages.find(stage => stage.id === data.stage.id);
         if (stage != null) {
             stage.leads.push(lead);
             if(kanban.value) {

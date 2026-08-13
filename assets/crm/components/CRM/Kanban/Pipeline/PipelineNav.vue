@@ -22,7 +22,7 @@
   const {openModal} = useModal();
 </script>
 
-<style>
+<style scoped>
     .topbar {
       min-height: 94px;
       display: flex;

@@ -1,5 +1,6 @@
 import { Client } from "./client";
 import { Responsible } from "./kanban";
+import { LeadStage } from "./stage";
 
 export interface Lead {
     id: number;
@@ -40,7 +41,7 @@ export interface LeadResponse {
   date_next_action: string;
   comment: string;
   status: string;
-  stage_id: number;
+  stage: LeadStage;
   responsible?: Responsible;
   client?: Client;
 }

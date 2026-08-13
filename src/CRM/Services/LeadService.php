@@ -11,10 +11,14 @@ use App\CRM\Mapper\ClientMapper;
 use App\CRM\Mapper\LeadMapper;
 use App\Entity\Client;
 use App\Entity\Lead;
+use App\Event\CRM\LeadCreatedEvent;
+use App\Event\CRM\LeadUpdateEvent;
 use App\Repository\ClientRepository;
 use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class LeadService {
 
@@ -24,6 +28,8 @@ class LeadService {
         private ClientMapper $clientMapper,
         private LeadRepository $leadRepository,
         private EntityManagerInterface $em,
+        private Security $security,
+        private EventDispatcherInterface $eventDispatcher
     ) 
     {}
 
@@ -45,37 +51,50 @@ class LeadService {
     }
 
     public function updateLead(int $id, LeadUpdateRequestDTO $request): LeadDTO | array {
-        if($request->isEmpty())
-            return ["status" => "Empty body"];
+        return $this->em->wrapInTransaction(function () use ($request, $id) {
+            if($request->isEmpty())
+                return ["status" => "Empty body"];
 
-        $lead = $this->leadRepository->find($id);
+            $lead = $this->leadRepository->find($id);
 
-        if (!$lead)
-            throw new NotFoundHttpException('Stage not found!');
+            if (!$lead)
+                throw new NotFoundHttpException('Stage not found!');
 
-        $this->leadMapper->mapRequestToEntity($lead, $request);
+            $oldLead = clone $lead;
 
-        $this->em->persist($lead);
-        $this->em->flush();
+            $this->leadMapper->mapRequestToEntity($lead, $request);
 
-        return $this->leadMapper->entityToDTO($lead);
+            $this->em->persist($lead);
+            $this->em->flush();
+
+            $manager = $this->security->getUser();
+            $event = new LeadUpdateEvent($oldLead, $lead, $manager);
+            $this->eventDispatcher->dispatch($event);
+
+            return $this->leadMapper->entityToDTO($lead);
+        });
     }
 
     public function createLead(LeadRequestDTO $request): LeadDTO {
-        $lead = new Lead();
+        return $this->em->wrapInTransaction(function () use ($request) {
+            $lead = new Lead();
+            $this->leadMapper->mapRequestToEntity($lead, $request);
+            $lead->setStatus(LeadStatus::ACTIVE);
+            if($lead->getClient() == null && $request->client) {
+                $client = new Client();
+                $this->clientMapper->mapRequestLeadToEntity($client, $request->client);
+                $lead->setClient($client);
+                $this->em->persist($client);
+            }
+            $this->em->persist($lead);
+            $this->em->flush();
 
-        $this->leadMapper->mapRequestToEntity($lead, $request);
-        $lead->setStatus(LeadStatus::ACTIVE);
-        if($lead->getClient() == null && $request->client) {
-            $client = new Client();
-            $this->clientMapper->mapRequestLeadToEntity($client, $request->client);
-            $lead->setClient($client);
-            $this->em->persist($client);
-        }
-        $this->em->persist($lead);
-        $this->em->flush();
+            $manager = $this->security->getUser();
+            $event = new LeadCreatedEvent($lead, $manager);
+            $this->eventDispatcher->dispatch($event);
 
-        return $this->leadMapper->entityToDTO($lead);
+            return $this->leadMapper->entityToDTO($lead);
+        });
     }
 
     public function deleteLead(int $id)

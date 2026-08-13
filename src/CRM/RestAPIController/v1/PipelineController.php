@@ -12,8 +12,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/crm')]
 final class PipelineController extends APIController

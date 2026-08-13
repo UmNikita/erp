@@ -17,7 +17,7 @@ final class CRMController extends AbstractController
         return $this->render('services/crm/index.html.twig');
     }
 
-    #[Route('/crm/{vueRoute}', name: 'app_crm_route')]
+    #[Route('/crm/{vueRoute}', name: 'app_crm_route', requirements: ['vueRoute' => '.*'])]
     public function crm(): Response
     {
         $this->denyAccessUnlessGranted(Permission::CRM_ACCESS->value);

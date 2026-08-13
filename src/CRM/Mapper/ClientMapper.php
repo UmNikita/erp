@@ -6,6 +6,8 @@ use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use App\CRM\DTO\Client\ClientDetailDTO;
 use App\CRM\DTO\Client\ClientDTO;
 use App\CRM\DTO\Client\ClientMetricsDTO;
+use App\CRM\DTO\Client\ClientPaginationDTO;
+use App\CRM\DTO\Client\ClientResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
@@ -54,11 +56,32 @@ class ClientMapper extends AbstractMapper {
         );
     }
 
-    public function entityToListResponse(array $values): ClientListResponseDTO {
+    public function entityToResponseDTO(Client $client): ClientDTO {
+        $amountCount = 0;
+        foreach ($client->getLeads() as $lead) {
+            $amountCount += $lead->getBudget();
+        }
+        return new ClientResponseDTO(
+            $client->getId(),
+            $client->getName(),
+            $client->getInn(),
+            $client->getFieldOfActivity(),
+            $client->getWebsite(),
+            $client->getPhone(),
+            $client->getEmail(),
+            $client->getCity(),
+            $client->getChannel(),
+            $client->getDateCreate(),
+            count($client->getLeads()),
+            $amountCount
+        );
+    }
+
+    public function entityToListResponse(array $values, ?ClientPaginationDTO $pagination = null): ClientListResponseDTO {
         $clients = $this->mapList($values, function ($client) {
-            return $this->entityToDTO($client);
+            return $this->entityToResponseDTO($client);
         });
-        return new ClientListResponseDTO($clients);
+        return new ClientListResponseDTO($clients, $pagination);
     }
 
     public function mapMetricsToClientDetailDTO(ClientDetailDTO $client, ClientMetricsDTO $metrics) {

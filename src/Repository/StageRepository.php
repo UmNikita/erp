@@ -89,6 +89,17 @@ class StageRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findStagesWithPipelinesHashTable(array $stageIds): array
+    {
+        return $this->createQueryBuilder('s')
+            ->addSelect('p')
+            ->join('s.pipeline', 'p')
+            ->where('s.id IN (:ids)')
+            ->setParameter('ids', $stageIds)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Stage[] Returns an array of Stage objects
     //     */

@@ -3,6 +3,7 @@ namespace App\CRM\DTO\Lead;
 
 use App\CRM\DTO\Client\ClientDetailDTO;
 use App\CRM\DTO\ResponsibleDTO;
+use App\CRM\DTO\Stage\LeadStageDTO;
 use App\CRM\Enums\LeadStatus;
 use OpenApi\Attributes as OA;
 
@@ -54,8 +55,11 @@ class LeadDetailDTO
         )]
         public LeadStatus $status,
 
-        #[OA\Property(type: 'integer', example: '3')]
-        public ?int $stage_id,
+        #[OA\Property(
+            property: 'stage',
+            ref: '#/components/schemas/LeadStage'
+        )]
+        public ?LeadStageDTO $stage,
 
         #[OA\Property(
             property: 'responsible',

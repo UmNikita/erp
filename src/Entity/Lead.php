@@ -60,10 +60,17 @@ class Lead
     #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class, cascade: ['remove'])]
     private Collection $lead_messages;
 
+    /**
+     * @var Collection<int, LeadHistory>
+     */
+    #[ORM\OneToMany(targetEntity: LeadHistory::class, mappedBy: 'lead')]
+    private Collection $lead_history_records;
+
     public function __construct()
     {
         $this->date_start = new \DateTime();
         $this->lead_messages = new ArrayCollection();
+        $this->lead_history_records = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,6 +242,36 @@ class Lead
         if ($this->lead_messages->removeElement($leadMessage)) {
             if ($leadMessage->getLead() === $this) {
                 $leadMessage->setLead(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LeadHistory>
+     */
+    public function getLeadHistoryRecords(): Collection
+    {
+        return $this->lead_history_records;
+    }
+
+    public function addLeadHistoryRecord(LeadHistory $record): static
+    {
+        if (!$this->lead_history_records->contains($record)) {
+            $this->lead_history_records->add($record);
+            $record->setLead($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLeadHistoryRecord(LeadHistory $record): static
+    {
+        if ($this->lead_history_records->removeElement($record)) {
+            // set the owning side to null (unless already changed)
+            if ($record->getLead() === $this) {
+                $record->setLead(null);
             }
         }
 

@@ -14,7 +14,7 @@ class LoginSubscriber implements EventSubscriberInterface
     public function __construct(
         private JWTTokenManagerInterface $jwtManager,
         private RefreshTokenGeneratorInterface $refreshTokenGenerator,
-    private RefreshTokenManagerInterface $refreshTokenManager
+        private RefreshTokenManagerInterface $refreshTokenManager
     ) {
     }
 

@@ -6,12 +6,15 @@ use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
 use App\CRM\Mapper\LeadMapper;
 use App\CRM\RestAPIController\APIController;
+use App\CRM\Services\History\JsonManager;
 use App\CRM\Services\LeadService;
+use App\Repository\LeadHistoryRepository;
 use App\Repository\LeadRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class LeadController extends APIController
@@ -21,6 +24,18 @@ final class LeadController extends APIController
     #[OA\Get(
         summary: 'Получить список сделок',
         tags: ['CRM / Lead'],
+        parameters: [
+            new OA\Parameter(
+                name: 'client_id',
+                description: 'Найти по клиенту',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 1
+                )
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -31,9 +46,10 @@ final class LeadController extends APIController
             )
         ]
     )]
-    public function index(LeadRepository $leadRepository, LeadMapper $leadMapper): Response
+    public function index(Request $request, LeadRepository $leadRepository, LeadMapper $leadMapper): Response
     {
-        $leads = $leadMapper->entityToListResponse($leadRepository->findAllWithClientAndResponsible());
+        $clientId = $request->query->get('client_id');
+        $leads = $leadMapper->entityToListResponse($leadRepository->findAllWithClientAndResponsible($clientId));
         return $this->response($leads);
     }
 
@@ -133,5 +149,39 @@ final class LeadController extends APIController
     {
         $leadService->deleteLead($id);
         return $this->response(["status" => "Lead deleted!"], 204);
+    }
+
+    #[Route('/lead/{id}/history', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Получить историю лида',
+        tags: ['CRM / Lead'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'История лида',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'history',
+                            type: 'array',
+                            items: new OA\Items(
+                                ref: '#/components/schemas/History'
+                            )
+                        )
+                    ],
+                    type: 'object'
+                )
+            )
+        ]
+    )]
+    public function history(int $id, LeadRepository $repository, JsonManager $jsonManager): Response
+    {
+        $lead = $repository->find($id);
+        if(!$lead)
+            throw new NotFoundHttpException('Lead not found!');
+
+        $records = $lead->getLeadHistoryRecords()->toArray();
+        $results = $jsonManager->getMessagesLead($records);
+        return $this->response(["history" => $results]);
     }
 }

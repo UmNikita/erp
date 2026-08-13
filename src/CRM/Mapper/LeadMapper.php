@@ -3,12 +3,13 @@
 namespace App\CRM\Mapper;
 
 use App\CRM\DTO\Client\ClientDetailDTO;
-use App\CRM\DTO\Client\ClientMetricsDTO;
 use App\CRM\DTO\Lead\LeadDetailDTO;
 use App\CRM\DTO\Lead\LeadDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
+use App\CRM\DTO\Pipeline\PipelineDTO;
+use App\CRM\DTO\Stage\LeadStageDTO;
 use App\CRM\Enums\LeadStatus;
 use App\Entity\Contact;
 use App\Entity\Lead;
@@ -55,6 +56,8 @@ class LeadMapper extends AbstractMapper {
     }
 
     public function entityToDTO(Lead $lead): LeadDTO {
+        $pipeline = new PipelineDTO($lead->getStage()->getPipeline()->getId(), $lead->getStage()->getPipeline()->getName());
+        $stage = new LeadStageDTO($lead->getStage()->getId(), $lead->getStage()->getName(), $pipeline);
         return new LeadDTO(
             $lead->getId(),
             $lead->getName(),
@@ -66,13 +69,15 @@ class LeadMapper extends AbstractMapper {
             $lead->getDateNextAction(),
             $lead->getComment(),
             $lead->getStatus(),
-            $lead->getStage()->getId(),
+            $stage,
             $lead->getResponsible() ? $this->userMapper->entityToResponsibleDTO($lead->getResponsible()) : null,
             $lead->getClient() ? $this->clientMapper->entityToDTO($lead->getClient()) : null
         );
     }
 
     public function entityToDetailDTO(Lead $lead, ?ClientDetailDTO $clientDTO): LeadDetailDTO {
+        $pipeline = new PipelineDTO($lead->getStage()->getPipeline()->getId(), $lead->getStage()->getPipeline()->getName());
+        $stage = new LeadStageDTO($lead->getStage()->getId(), $lead->getStage()->getName(), $pipeline);
         return new LeadDetailDTO(
             $lead->getId(),
             $lead->getName(),
@@ -84,7 +89,7 @@ class LeadMapper extends AbstractMapper {
             $lead->getDateNextAction(),
             $lead->getComment(),
             $lead->getStatus(),
-            $lead->getStage() ? $lead->getStage()->getId() : null,
+            $stage,
             $lead->getResponsible() ? $this->userMapper->entityToResponsibleDTO($lead->getResponsible()) : null,
             $clientDTO
         );

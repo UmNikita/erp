@@ -6,7 +6,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 .request-error {
     width: calc(100% - 44px);
     min-height: 420px;

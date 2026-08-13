@@ -54,11 +54,25 @@ class Client
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Contact::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $contacts;
 
+    /**
+     * @var Collection<int, ClientHistory>
+     */
+    #[ORM\OneToMany(targetEntity: ClientHistory::class, mappedBy: 'client')]
+    private Collection $client_history_records;
+
+    /**
+     * @var Collection<int, EmailLog>
+     */
+    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'client')]
+    private Collection $email_logs;
+
     public function __construct()
     {
         $this->date_create = new \DateTime();
         $this->leads = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->client_history_records = new ArrayCollection();
+        $this->email_logs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,6 +234,66 @@ class Client
         if ($this->contacts->removeElement($contact)) {
             if ($contact->getClient() === $this) {
                 $contact->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClientHistory>
+     */
+    public function getClientHistoryRecords(): Collection
+    {
+        return $this->client_history_records;
+    }
+
+    public function addClientHistoryRecord(ClientHistory $clientHistoryRecord): static
+    {
+        if (!$this->client_history_records->contains($clientHistoryRecord)) {
+            $this->client_history_records->add($clientHistoryRecord);
+            $clientHistoryRecord->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClientHistoryRecord(ClientHistory $clientHistoryRecord): static
+    {
+        if ($this->client_history_records->removeElement($clientHistoryRecord)) {
+            // set the owning side to null (unless already changed)
+            if ($clientHistoryRecord->getClient() === $this) {
+                $clientHistoryRecord->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EmailLog>
+     */
+    public function getEmailLogs(): Collection
+    {
+        return $this->email_logs;
+    }
+
+    public function addEmailLog(EmailLog $emailLog): static
+    {
+        if (!$this->email_logs->contains($emailLog)) {
+            $this->email_logs->add($emailLog);
+            $emailLog->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailLog(EmailLog $emailLog): static
+    {
+        if ($this->email_logs->removeElement($emailLog)) {
+            // set the owning side to null (unless already changed)
+            if ($emailLog->getClient() === $this) {
+                $emailLog->setClient(null);
             }
         }
 

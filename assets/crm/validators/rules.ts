@@ -87,6 +87,24 @@ export function phone(message: string) {
     };
 }
 
+export function INN(message: string) {
+    return (value?: string | number): string | null => {
+        if (typeof value === 'number') {
+            value = value.toString();
+        }
+
+        if (!value) {
+            return null;
+        }
+
+        if (!/^\d{10}$|^\d{12}$/.test(value)) {
+            return message;
+        }
+
+        return null;
+    };
+}
+
 export function validate(err: Record<string, string>, key: string, rules: Rule[], value?: string | number) {
     for (const rule of rules) {
         const error = rule(value);

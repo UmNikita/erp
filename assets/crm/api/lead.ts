@@ -37,3 +37,9 @@ export async function deleteLead(id: number): Promise<AxiosResponse>
     const response = await api.delete('/lead/' + id);
     return response;
 }
+
+export async function getLeads(client_id?: number): Promise<LeadResponse[]>
+{
+    const response = await api.get('/leads', {params: {client_id}});
+    return response.data.leads;
+}

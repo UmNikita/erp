@@ -2,17 +2,21 @@
 
 namespace App\CRM\RestAPIController\v1;
 
+use App\CRM\DTO\Client\EmailKPRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
-use App\CRM\Mapper\ClientMapper;
+use App\CRM\Mapper\EmailMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\ClientService;
+use App\CRM\Services\History\JsonManager;
 use App\Repository\ClientRepository;
+use App\Repository\EmailLogRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class ClientController extends APIController
@@ -31,6 +35,26 @@ final class ClientController extends APIController
                     type: 'string',
                     example: 'регион Плюс'
                 )
+            ),
+            new OA\Parameter(
+                name: 'limit',
+                description: 'Ограничение на записи',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 12
+                )
+            ),
+            new OA\Parameter(
+                name: 'page',
+                description: 'Страница пагинации',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 2
+                )
             )
         ],
         responses: [
@@ -43,19 +67,9 @@ final class ClientController extends APIController
             )
         ]
     )]
-    public function index(Request $request, ClientRepository $clientRepository, ClientMapper $clientMapper): Response
+    public function index(Request $request, ClientService $clientService): Response
     {
-        $search = $request->query->get('search');
-        if($search) {
-            if ($search === '')
-                $clients = [];
-            else
-                $clients = $clientRepository->search(trim($search));
-        }
-        else {
-            $clients = $clientRepository->findAll();
-        }
-        $clientsDTO = $clientMapper->entityToListResponse($clients);
+        $clientsDTO = $clientService->getClients($request);
         return $this->response($clientsDTO);
     }
 
@@ -154,5 +168,98 @@ final class ClientController extends APIController
     {
         $clientService->deleteClient($id);
         return $this->response(["status" => "Клиент успешно удален"], 200);
+    }
+
+    #[Route('/client/{id}/history', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Получить историю клиента',
+        tags: ['CRM / Client'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'История лида',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'history',
+                            type: 'array',
+                            items: new OA\Items(
+                                ref: '#/components/schemas/History'
+                            )
+                        )
+                    ],
+                    type: 'object'
+                )
+            )
+        ]
+    )]
+    public function history(int $id, ClientRepository $repository, JsonManager $jsonManager): Response
+    {
+        $client = $repository->find($id);
+        if(!$client)
+            throw new NotFoundHttpException('Client not found!');
+
+        $records = $client->getClientHistoryRecords()->toArray();
+        usort($records, function ($a, $b) {
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
+        });
+
+        $results = $jsonManager->getMessagesClient($records);
+        return $this->response(["history" => $results]);
+    }
+
+    #[Route('/client/{id}/email/history', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Получить историю писем',
+        tags: ['CRM / Client'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Список клиентов',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/EmailListResponse'
+                )
+            )
+        ]
+    )]
+    public function emailHistory(int $id, ClientRepository $clientRepository, EmailMapper $emailMapper): Response
+    {
+        $client = $clientRepository->find($id);
+        if(!$client)
+            throw new NotFoundHttpException('Client not found!');
+
+        $records = $client->getEmailLogs()->toArray();
+
+        usort($records, function ($a, $b) {
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
+        });
+        $response = $emailMapper->entityToListResponse($records);
+        
+        return $this->response($response, 200);
+    }
+
+    #[Route('/client/{id}/email/kp', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Отправить письмом КП клиенту',
+        tags: ['CRM / Client'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                ref: '#/components/schemas/EmailKPRequest'
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Письмо отправлено'
+            )
+            
+        ]
+    )]
+    public function emailKp(int $id, Request $request, ClientService $clientService): Response
+    {
+        $emailRequest = $this->serializeRequest($request, EmailKPRequestDTO::class);
+        $clientService->sendEmailKP($id, $emailRequest);
+        return $this->response(["status" => "КП отправлено!"], 200);
     }
 }

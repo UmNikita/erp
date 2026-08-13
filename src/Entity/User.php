@@ -58,10 +58,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'responsible', targetEntity: Lead::class)]
     private Collection $leads;
 
+    /**
+     * @var Collection<int, LeadHistory>
+     */
+    #[ORM\OneToMany(targetEntity: LeadHistory::class, mappedBy: 'manager')]
+    private Collection $lead_history_records;
+
+    /**
+     * @var Collection<int, ClientHistory>
+     */
+    #[ORM\OneToMany(targetEntity: ClientHistory::class, mappedBy: 'manager')]
+    private Collection $client_history_records;
+
+    /**
+     * @var Collection<int, EmailLog>
+     */
+    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'ManyToOne')]
+    private Collection $email_logs;
+
     public function __construct()
     {
         $this->lead_messages = new ArrayCollection();
         $this->leads = new ArrayCollection();
+        $this->lead_history_records = new ArrayCollection();
+        $this->client_history_records = new ArrayCollection();
+        $this->email_logs = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -247,6 +268,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return false;
+    }
+
+    /**
+     * @return Collection<int, LeadHistory>
+     */
+    public function getLeadHistoryRecords(): Collection
+    {
+        return $this->lead_history_records;
+    }
+
+    public function addLeadHistoryRecord(LeadHistory $leadHistoryRecord): static
+    {
+        if (!$this->lead_history_records->contains($leadHistoryRecord)) {
+            $this->lead_history_records->add($leadHistoryRecord);
+            $leadHistoryRecord->setManager($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLeadHistoryRecord(LeadHistory $leadHistoryRecord): static
+    {
+        if ($this->lead_history_records->removeElement($leadHistoryRecord)) {
+            // set the owning side to null (unless already changed)
+            if ($leadHistoryRecord->getManager() === $this) {
+                $leadHistoryRecord->setManager(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClientHistory>
+     */
+    public function getClientHistoryRecords(): Collection
+    {
+        return $this->client_history_records;
+    }
+
+    public function addClientHistoryRecord(ClientHistory $clientHistoryRecord): static
+    {
+        if (!$this->client_history_records->contains($clientHistoryRecord)) {
+            $this->client_history_records->add($clientHistoryRecord);
+            $clientHistoryRecord->setManager($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClientHistoryRecord(ClientHistory $clientHistoryRecord): static
+    {
+        if ($this->client_history_records->removeElement($clientHistoryRecord)) {
+            // set the owning side to null (unless already changed)
+            if ($clientHistoryRecord->getManager() === $this) {
+                $clientHistoryRecord->setManager(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EmailLog>
+     */
+    public function getEmailLogs(): Collection
+    {
+        return $this->email_logs;
+    }
+
+    public function addEmailLog(EmailLog $emailLog): static
+    {
+        if (!$this->email_logs->contains($emailLog)) {
+            $this->email_logs->add($emailLog);
+            $emailLog->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailLog(EmailLog $emailLog): static
+    {
+        if ($this->email_logs->removeElement($emailLog)) {
+            // set the owning side to null (unless already changed)
+            if ($emailLog->getUser() === $this) {
+                $emailLog->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 }

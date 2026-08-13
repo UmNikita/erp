@@ -17,6 +17,7 @@ nelmio_api_doc:
             
             - { alias: StageUI, type: App\CRM\DTO\Stage\StageUIDTO }
             - { alias: Stage, type: App\CRM\DTO\Stage\StageDTO }
+            - { alias: LeadStage, type: App\CRM\DTO\Stage\LeadStageDTO }
             - { alias: StageRequest, type: App\CRM\DTO\OpenAPI\Stage\StageRequestDTO }
             - { alias: StageRequestEdit, type: App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO }
             - { alias: StageRequestPosition, type: App\CRM\DTO\OpenAPI\Stage\StageRequestPositionDTO }
@@ -34,10 +35,14 @@ nelmio_api_doc:
             - { alias: LeadListResponse, type: App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO }
             
             - { alias: Client, type: App\CRM\DTO\Client\ClientDTO }
+            - { alias: EmailRecord, type: App\CRM\DTO\Client\EmailRecordDTO }
+            - { alias: ClientPagination, type: App\CRM\DTO\Client\ClientPaginationDTO }
             - { alias: ClientDetail, type: App\CRM\DTO\Client\ClientDetailDTO }
             - { alias: ClientCreateLead, type: App\CRM\DTO\Client\ClientCreateLeadDTO }
             - { alias: ClientListResponse, type: App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO }
+            - { alias: EmailListResponse, type: App\CRM\DTO\OpenAPI\Client\EmailListResponseDTO }
             - { alias: ClientRequest, type: App\CRM\DTO\OpenAPI\Client\ClientRequestDTO }
+            - { alias: EmailKPRequest, type: App\CRM\DTO\Client\EmailKPRequestDTO }
 
             - { alias: Contact, type: App\CRM\DTO\Contact\ContactDTO }
             - { alias: ContactListResponse, type: App\CRM\DTO\OpenAPI\Contact\ContactListResponseDTO }
@@ -47,6 +52,8 @@ nelmio_api_doc:
             - { alias: LeadMessagesListResponse, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesListResponseDTO }
             - { alias: LeadMessagesRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO }
             - { alias: LeadMessageEditRequest, type: App\CRM\DTO\OpenAPI\LeadMessages\LeadMessageEditRequestDTO }
+            
+            - { alias: History, type: App\CRM\DTO\HistoryDTO }
 
 when@prod:
     nelmio_api_doc:

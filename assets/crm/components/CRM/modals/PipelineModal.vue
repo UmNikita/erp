@@ -1,5 +1,5 @@
 <template>
-  <CreateModalWrapper title="Создание воронки" subtitle="Заполните информацию о воронке"
+  <CreateModalWrapper title-btn="Создать" title="Создание воронки" subtitle="Заполните информацию о воронке"
   :error="error" @submit="emit('submit')" @close="emit('close')">
     <TextField :required="true" :ico="PipelineIco" title="Название воронки" v-model="name" 
     placeholder="Введите название воронки" :error="errors.name" />

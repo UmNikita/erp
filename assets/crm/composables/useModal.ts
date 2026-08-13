@@ -26,4 +26,7 @@ export const MODALS = {
     SETTINGS_PIPELINE: 'pipeline-settings',
     CREATE_STAGE: 'stage-create',
     CREATE_LEAD: 'lead-create',
+    CREATE_CLIENT: 'client-create',
+    CREATE_CONTACT: 'contact-create',
+    SEND_KP: 'send-kp',
 } as const;;

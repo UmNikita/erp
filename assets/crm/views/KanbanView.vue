@@ -1,7 +1,7 @@
 <template>
     <div v-if="loading"></div>
     <div v-else>
-        <div v-if="error"><KanbanError /></div>
+        <div v-if="error"><Error /></div>
         <div v-else>
             <Kanban v-if="pipelines.length" :pipelines="pipelines" 
             :pipelines-detail="pipelinesDetail" :set-error="setError"
@@ -17,10 +17,10 @@
     import EmptyPipelines from '../components/CRM/Kanban/Empty/EmptyPipelines.vue';
     import { MODALS, useModal } from '../composables/useModal.ts';
     import { usePipelines } from '../composables/CRM/pipelines/usePipelines.ts';
-    import KanbanError from '../components/CRM/Kanban/Kanban/KanbanError.vue';
     import PipelineModals from '../components/CRM/Kanban/Pipeline/PipelineModals.vue';
     import { onMounted, ref } from 'vue';
     import { getPipelines, getPipelinesDetail } from '../api/pipeline.ts';
+    import Error from '../components/Error.vue';
 
     const { openModal } = useModal();
 

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ContactRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
@@ -44,9 +46,16 @@ class Contact
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Client $client = null;
 
+    /**
+     * @var Collection<int, EmailLog>
+     */
+    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'contact')]
+    private Collection $email_logs;
+
     public function __construct()
     {
         $this->date_create = new \DateTime();
+        $this->email_logs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -170,6 +179,36 @@ class Contact
     public function setClient(?Client $client): static
     {
         $this->client = $client;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EmailLog>
+     */
+    public function getEmailLogs(): Collection
+    {
+        return $this->email_logs;
+    }
+
+    public function addEmailLog(EmailLog $emailLog): static
+    {
+        if (!$this->email_logs->contains($emailLog)) {
+            $this->email_logs->add($emailLog);
+            $emailLog->setContact($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailLog(EmailLog $emailLog): static
+    {
+        if ($this->email_logs->removeElement($emailLog)) {
+            // set the owning side to null (unless already changed)
+            if ($emailLog->getContact() === $this) {
+                $emailLog->setContact(null);
+            }
+        }
 
         return $this;
     }
