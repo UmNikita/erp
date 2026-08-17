@@ -67,7 +67,6 @@
 <script setup lang="ts">
     import { LeadResponse } from '../../types/lead';
     import DeleteIco from "../icons/DeleteIco.vue";
-    import ReloadIco from "../icons/ReloadIco.vue";
     import { formatAmount, formatResponseDate, formatStatus } from '../../utils/fields.ts'
 
     const props = defineProps<{

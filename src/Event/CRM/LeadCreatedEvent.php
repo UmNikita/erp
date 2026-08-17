@@ -9,7 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 final class LeadCreatedEvent extends Event {
     public function __construct(
         private Lead $lead,
-        private User $manager
+        private ?User $manager
     )
     {}
 
@@ -17,7 +17,7 @@ final class LeadCreatedEvent extends Event {
         return $this->lead;
     }
 
-    public function getManager(): User {
+    public function getManager(): ?User {
         return $this->manager;
     }
 }

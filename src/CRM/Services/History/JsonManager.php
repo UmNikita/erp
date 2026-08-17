@@ -19,7 +19,7 @@ class JsonManager {
     )
     {}
 
-    public function getLeadHistory(Lead $lead, User $user, TypeLeadHistory $type, ?Lead $oldLead = null): LeadHistory {
+    public function getLeadHistory(Lead $lead, ?User $user, TypeLeadHistory $type, ?Lead $oldLead = null): LeadHistory {
         $record = new LeadHistory();
         $record->setLead($lead);
         $record->setManager($user);
@@ -29,7 +29,7 @@ class JsonManager {
         return $record;
     }
 
-    public function getClientHistory(Client $client, User $user, TypeClientHistory $type, ?Client $oldClient= null, ?Lead $lead = null, ?Contact $contact = null, ?Contact $oldContact = null): ClientHistory {
+    public function getClientHistory(Client $client, ?User $user, TypeClientHistory $type, ?Client $oldClient= null, ?Lead $lead = null, ?Contact $contact = null, ?Contact $oldContact = null): ClientHistory {
         $record = new ClientHistory();
         $record->setClient($client);
         $record->setManager($user);

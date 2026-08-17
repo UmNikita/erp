@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import InDevelop from '../components/InDevelop.vue';
+import Integrations from '../components/Integrations/Integrations.vue';
 
 </script>
 
 <template>
-    <InDevelop />
+    <Integrations />
 </template>

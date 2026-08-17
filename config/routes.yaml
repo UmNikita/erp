@@ -10,6 +10,11 @@
 controllers:
     resource: routing.controllers
 
+public_api:
+    resource: ../src/CRM/RestAPIController/Public/v1/
+    type: attribute
+    prefix: /public-api/v1
+
 api:
     resource: ../src/CRM/RestAPIController/v1/
     type: attribute

@@ -21,9 +21,10 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!str_starts_with($request->getPathInfo(), '/api')) {
+        $path = $request->getPathInfo();
+
+        if (!str_starts_with($path, '/api/v1') && !str_starts_with($path, '/public-api/v1'))
             return;
-        }
 
         $exception = $event->getThrowable();
 

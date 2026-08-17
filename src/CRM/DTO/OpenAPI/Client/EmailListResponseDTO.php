@@ -2,7 +2,6 @@
 
 namespace App\CRM\DTO\OpenAPI\Client;
 
-use App\CRM\DTO\Client\ClientPaginationDTO;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(

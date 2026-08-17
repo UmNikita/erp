@@ -2,6 +2,7 @@
 
 namespace App\CRM\Services;
 
+use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Lead\LeadDetailDTO;
 use App\CRM\DTO\Lead\LeadDTO;
@@ -19,7 +20,6 @@ use App\Repository\ClientRepository;
 use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -78,21 +78,31 @@ class LeadService {
         });
     }
 
-    public function createLead(LeadRequestDTO $request): LeadDTO {
-        return $this->em->wrapInTransaction(function () use ($request) {
+    public function createLead(LeadRequestDTO $request , bool $isPublicApi = false): LeadDTO {
+        return $this->em->wrapInTransaction(function () use ($request, $isPublicApi) {
             $lead = new Lead();
             $this->leadMapper->mapRequestToEntity($lead, $request);
             $lead->setStatus(LeadStatus::ACTIVE);
-            if($lead->getClient() == null && $request->client) {
+            if($lead->getClient() == null && $request->client && !$isPublicApi) {
                 $client = new Client();
                 $this->clientMapper->mapRequestLeadToEntity($client, $request->client);
                 $lead->setClient($client);
                 $this->em->persist($client);
             }
+            if($isPublicApi) {
+                $manager = null;
+                if($request->client) {
+                    $client = $this->getClientPublicAPI($request->client);
+                    $lead->setClient($client);
+                }
+            }
+            else {
+                $manager = $this->security->getUser();
+            }
+            
             $this->em->persist($lead);
             $this->em->flush();
-
-            $manager = $this->security->getUser();
+            
             $event = new LeadCreatedEvent($lead, $manager);
             $this->eventDispatcher->dispatch($event);
 
@@ -109,5 +119,20 @@ class LeadService {
                 
         $this->em->remove($lead);
         $this->em->flush();
+    }
+
+    private function getClientPublicAPI(ClientCreateLeadDTO $clientDTO): Client {
+        $client = $this->clientRepository->findOneBy(['email' => $clientDTO->email]);
+        if($client)
+            return $client;
+
+        $client = $this->clientRepository->findOneBy(['phone' => $clientDTO->email]);
+        if($client)
+            return $client;
+
+        $client = new Client();
+        $this->clientMapper->mapRequestLeadToEntity($client, $clientDTO);
+        $this->em->persist($client);
+        return $client;
     }
 }

@@ -42,6 +42,12 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
+
+        public_api:
+            pattern: ^/public-api
+            stateless: true
+            custom_authenticators:
+                - App\Security\IntegrationTokenAuthenticator
             
         main:
             lazy: true

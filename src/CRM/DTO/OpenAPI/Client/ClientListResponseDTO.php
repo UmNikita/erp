@@ -24,7 +24,7 @@ final readonly class ClientListResponseDTO
         #[OA\Property(
             property: 'pagination',
             description: 'Параметры пагинации',
-            ref: '#/components/schemas/ClientPagination'
+            ref: '#/components/schemas/Pagination'
         )]
         public ?PaginationDTO $pagination
     ) {
