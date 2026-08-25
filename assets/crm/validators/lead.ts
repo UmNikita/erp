@@ -8,8 +8,7 @@ const MAX_COMMENT_STR = 255
 
 export function validateLead(data: LeadRequest, isNewClient: boolean): ValidationResult {
     const errors: Record<string, string> = {};
-    
-    const name = data.name.trim();
+    const name = data.name?.trim();
     validate(errors, 'name', [
         required("Название обязательно"),
         max(`Название должно быть не болше ${MAX_LENGTH_STR} символов`, MAX_LENGTH_STR)
@@ -40,11 +39,6 @@ export function validateLead(data: LeadRequest, isNewClient: boolean): Validatio
         max(`Комментарий должен быть не болше ${MAX_COMMENT_STR} символов`, MAX_COMMENT_STR)
     ], comment);
 
-    const stage_id = data.stage_id;
-    validate(errors, 'stage_id', [
-        required("Не выбран этап воронки")
-    ], stage_id);
-
     const client = data.client;
     if(isNewClient) {
         validate(errors, 'new_client', [
@@ -58,6 +52,7 @@ export function validateLead(data: LeadRequest, isNewClient: boolean): Validatio
         ], client?.phone);
     }
     
+    console
 
     return {isValid: Object.keys(errors).length === 0, errors};
 }

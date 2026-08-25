@@ -19,10 +19,6 @@ const links = [
     {
         name: 'Интеграции',
         path: '/crm/integrations'
-    },
-    {
-        name: 'Роботы',
-        path: '/crm/robots'
     }
 ];
 

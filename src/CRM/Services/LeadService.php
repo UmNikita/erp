@@ -73,7 +73,7 @@ class LeadService {
             $manager = $this->security->getUser();
             $event = new LeadUpdateEvent($oldLead, $lead, $manager);
             $this->eventDispatcher->dispatch($event);
-
+            
             return $this->leadMapper->entityToDTO($lead);
         });
     }

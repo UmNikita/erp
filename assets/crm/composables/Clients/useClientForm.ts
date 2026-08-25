@@ -33,7 +33,6 @@ export function useClientForm() {
 
     async function updateClient(oldData: ClientDetail, data: ClientRequest, errors: Ref<Record<string, string>>, generalError: Ref<string | null>): Promise<Client | null> {
         errors.value = {};
-        console.log(data);
         if(!validate(data, errors))
             return null;
         

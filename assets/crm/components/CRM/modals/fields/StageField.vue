@@ -31,14 +31,17 @@
     }>();
 
     const selectedStageId = defineModel<number | null>('selectedStageId');
-    const selectedPipelineId = ref<number | null>(null);
+    const selectedPipelineId = defineModel<number | null>('selectedPipelineId');
 
     const stages = computed(() => {
         return props.pipelinesDetail.find(p => p.id === selectedPipelineId.value)?.stages ?? [];
     });
 
-    watch(selectedPipelineId, () => {
-        selectedStageId.value = null;
+
+    watch(selectedPipelineId, (newValue, oldValue) => {
+        if (oldValue !== undefined && oldValue !== null) {
+            selectedStageId.value = null;
+        }
     });
 </script>
 

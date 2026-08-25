@@ -36,6 +36,8 @@
   const messenger = ref('');
 
   function setValues() {
+    if(props.contact == null)
+      return;
     name.value = props.contact.name;
     secondname.value = props.contact.secondname;
     thirdname.value = props.contact.thirdname;
@@ -65,7 +67,7 @@
     error?: string | null,
     errors: Record<string, string>,
     isEdit: boolean,
-    contact: Contact
+    contact: Contact | null
   }>();
 
   onMounted(()=>{

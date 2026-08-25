@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import KanbanView from './views/KanbanView.vue';
 import ClientsView from './views/ClientsView.vue';
-import RobotsView from './views/RobotsView.vue';
 import IntegrationsView from './views/IntegrationsView.vue';
 import ArchiveView from './views/ArchiveView.vue';
 import CurrentClient from './components/Clients/page/CurrentClient.vue';
@@ -10,6 +9,7 @@ import LeadsClient from './components/Clients/page/tabs/Leads/LeadsClient.vue';
 import EmailsClient from './components/Clients/page/tabs/Emails/EmailsClient.vue';
 import StoryClient from './components/Clients/page/tabs/Story/StoryClient.vue';
 import ContactsClient from './components/Clients/page/tabs/Contacts/ContactsClient.vue';
+import CurrentLead from './components/Leads/CurrentLead.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -21,6 +21,10 @@ const router = createRouter({
         {
             path: '/crm/clients',
             component: ClientsView
+        },
+        {
+            path: '/crm/lead/:id',
+            component: CurrentLead
         },
         {
             path: '/crm/client/:id',
@@ -58,10 +62,6 @@ const router = createRouter({
                     component: ContactsClient
                 }
             ]
-        },
-        {
-            path: '/crm/robots',
-            component: RobotsView
         },
         {
             path: '/crm/integrations',

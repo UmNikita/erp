@@ -12,8 +12,8 @@
     placeholder="Введите следующие действие" :error="errors.next_action" />
     <TextField :required="false" :ico="CommentIco" title="Комментарий" v-model="comment" 
     placeholder="Введите комментарий" :error="errors.comment" />
-    <StageField title="Комментарий" v-model="comment" :pipelines-detail="pipelinesDetail" 
-    v-model:selected-stage-id="selectedStageId" :error="errors.stage_id" />
+    <StageField title="Этап" v-model="comment" :pipelines-detail="pipelinesDetail" 
+    v-model:selected-stage-id="selectedStageId" v-model:selected-pipeline-id="selectedPipelineId" :error="errors.stage_id" />
     <div v-if="!isNewClient" class="create-modal__btn">
       <button @click="setNewClient">Создать клиента</button>
     </div>
@@ -52,7 +52,8 @@
   const source = ref('');
   const next_action = ref('');
   const comment = ref('');
-  const selectedStageId = ref();
+  const selectedPipelineId = ref(null);
+  const selectedStageId = ref(null);
   const currentClient = ref();
   const newClientName = ref();
   const newClientEmail = ref();

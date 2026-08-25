@@ -60,7 +60,7 @@ class HistorySubscriber implements EventSubscriberInterface
         }
 
         if($event->getLead()->getClient()) {
-            if($event->getLead()->getClient()->getId() != $event->getOldLead()->getClient()->getId()) {
+            if($event->getLead()->getClient() != $event->getOldLead()->getClient()) {
                 $record = $this->jm->getClientHistory($event->getLead()->getClient(), $event->getManager(), TypeClientHistory::LEAD_APPOINTED, lead: $event->getLead());
                 $this->em->persist($record);
             }

@@ -1,10 +1,10 @@
 import { onMounted, ref } from 'vue';
 
-export function useInlineRenameForm(model: Record<string, string>) {
+export function useInlineRenameForm(model: Record<string, string | number>) {
 
     const editing = ref(false);
     const errors = ref<Record<string, string>>({});
-    const data = ref<Record<string, string>>({});
+    const data = ref<Record<string, string | number>>({});
     const generalError = ref();
 
     function startEditing() {
@@ -22,10 +22,10 @@ export function useInlineRenameForm(model: Record<string, string>) {
         Object.assign(model, data.value);
     }
 
-    function accept(): Record<string, unknown> | null {
+    function accept(): Record<string | number, unknown> | null {
         generalError.value = null;
         errors.value = {};
-        const newData: Record<string, unknown> = {};
+        const newData: Record<string | number, unknown> = {};
 
         for (const key in model) {
             if (data.value[key] !== model[key]) {

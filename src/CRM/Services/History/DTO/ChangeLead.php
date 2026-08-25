@@ -22,7 +22,7 @@ class ChangeLead {
         if($oldLead->getName() != $newLead->getName())
             $this->name = $newLead->getName();
 
-        if($oldLead->getClient()->getId() != $newLead->getClient()->getId())
+        if($oldLead->getClient() != $newLead->getClient())
             $this->client_id = $newLead->getClient()->getId();
 
         if($oldLead->getBudget() != $newLead->getBudget())
@@ -43,6 +43,7 @@ class ChangeLead {
         if($oldLead->getComment() != $newLead->getComment())
             $this->comment = $newLead->getComment();
 
+        
         if($oldLead->getResponsible() != $newLead->getResponsible())
             $this->responsible_id = $newLead->getResponsible()->getId();
     }
@@ -57,9 +58,13 @@ class ChangeLead {
             ];
         }
         if($this->client_id) {
+            if($this->oldLead->getClient())
+                $from = $this->oldLead->getClient()->getId();
+            else
+                $from = null;
             $obj['client_id'] = [
                 'to' => $this->client_id,
-                'from' => $this->oldLead->getClient()->getId()
+                'from' => $from
             ];
         }
         if($this->budget) {
@@ -99,12 +104,15 @@ class ChangeLead {
             ];
         }
         if($this->responsible_id) {
+            if($this->oldLead->getResponsible())
+                $from = $this->oldLead->getResponsible()->getId();
+            else
+                $from = null;
             $obj['responsible_id'] = [
                 'to' => $this->responsible_id,
-                'from' => $this->oldLead->getResponsible()->getId()
+                'from' => $from
             ];
         }
-            
         return $obj;
     }
 

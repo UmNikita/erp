@@ -25,15 +25,6 @@ final readonly class LeadMessagesRequestDTO
         public string $message,
 
         #[OA\Property(
-            property: 'user_id',
-            description: 'ID пользователя',
-            type: 'integer',
-            example: '6'
-        )]
-        #[Assert\NotBlank(message: 'user_id required')]
-        public int $user_id,
-
-        #[OA\Property(
             property: 'lead_id',
             description: 'ID сделки',
             type: 'integer',

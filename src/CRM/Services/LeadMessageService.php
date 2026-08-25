@@ -10,6 +10,8 @@ use App\Entity\LeadMessage;
 use App\Repository\LeadMessageRepository;
 use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LeadMessageService {
@@ -18,7 +20,8 @@ class LeadMessageService {
         private EntityManagerInterface $em,
         private LeadRepository $leadRepository,
         private LeadMessageRepository $messageRepository,
-        private LeadMessageMapper $messageMapper
+        private LeadMessageMapper $messageMapper,
+        private Security $security
     ) 
     {}
 
@@ -38,7 +41,8 @@ class LeadMessageService {
 
     public function createMessage(LeadMessagesRequestDTO $dto): MessageDTO {
         $message = new LeadMessage();
-        $this->messageMapper->mapRequestToEntity($message, $dto);
+        $manager = $this->security->getUser();
+        $this->messageMapper->mapRequestToEntity($message, $dto, $manager);
         $this->em->persist($message);
         $this->em->flush();
         return $this->messageMapper->entityToDTO($message);

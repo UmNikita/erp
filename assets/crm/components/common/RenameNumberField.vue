@@ -2,7 +2,7 @@
     <div>
        <label>{{ titleField }}</label>
         <div v-if="!editing">{{ valueField !== null && valueField !== undefined ? valueField : '-' }}</div>
-        <input v-else v-model="value" />
+        <input v-else v-model.number="value" />
         <p class="err" v-if="error">{{ error }}</p> 
     </div>
     

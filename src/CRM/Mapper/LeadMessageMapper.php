@@ -10,6 +10,7 @@ use App\Home\Mapper\AbstractMapper;
 use App\Repository\LeadRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class LeadMessageMapper extends AbstractMapper {
 
@@ -36,13 +37,9 @@ class LeadMessageMapper extends AbstractMapper {
         );
     }
 
-    public function mapRequestToEntity(LeadMessage $message, LeadMessagesRequestDTO $request) {
+    public function mapRequestToEntity(LeadMessage $message, LeadMessagesRequestDTO $request, UserInterface $user) {
         
         $message->setMessage($request->message);
-
-        $user = $this->userRepository->find($request->user_id);
-        if (!$user)
-            throw new NotFoundHttpException('User not found');
         $message->setUser($user);
 
         $lead = $this->leadRepository->find($request->lead_id);

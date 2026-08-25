@@ -125,6 +125,6 @@ final readonly class LeadUpdateRequestDTO
     #[Ignore]
     public function isEmpty(): bool
     {
-        return $this->name === null && $this->stage_id === null && $this->client_id === null && $this->budget === null && $this->product === null && $this->source === null && $this->next_action === null && $this->date_next_action === null && $this->comment === null && $this->status === null;
+        return $this->name === null && $this->stage_id === null && $this->client_id === null && $this->budget === null && $this->product === null && $this->source === null && $this->next_action === null && $this->date_next_action === null && $this->comment === null && $this->status === null && $this->responsible_id === null;
     }
 }

@@ -1,31 +1,33 @@
 <template>
-    <article class="deal" draggable="true" @dragstart="onDragStart">
-        <div class="deal-top">
-            <div class="deal-title">{{lead.name}}</div>
-            <time class="deal-date">{{ lead.date }}</time>
-        </div>
-        <div class="deal-person">{{lead.client}}</div>
-        <div class="deal-bottom">
-            <div class="deal-amount">{{ formatNumber(lead.moneyAmount) }} ₽</div>
-            <div class="assignee">{{lead.manager}}</div>
-        </div>
-    </article>
+  <router-link :to="getCurrentLead(lead.id)" class="deal" draggable="true" @dragstart="onDragStart">
+    <div class="deal-top">
+      <div class="deal-title">{{lead.name}}</div>
+      <time class="deal-date">{{ lead.date }}</time>
+    </div>
+    <div class="deal-person">{{lead.client}}</div>
+    <div class="deal-bottom">
+      <div class="deal-amount">{{ formatNumber(lead.moneyAmount) }} ₽</div>
+      <div class="assignee">{{lead.manager}}</div>
+    </div>
+  </router-link>
 </template>
 
 <script setup lang="ts">
-    import { Lead } from '../../../../types/lead';
-    import { formatNumber } from '../../../../utils/fields';
-    
-    const props = defineProps<{lead: Lead, stageId: number}>();
+  import { getCurrentLead } from '../../../../routes/lead';
+  import { Lead } from '../../../../types/lead';
+  import { formatNumber } from '../../../../utils/fields';
+  
+  const props = defineProps<{lead: Lead, stageId: number}>();
 
-    function onDragStart(event: DragEvent) {
-      event.dataTransfer?.setData('leadId', String(props.lead.id));
-      event.dataTransfer?.setData('stageId', String(props.stageId));
-    }
+  function onDragStart(event: DragEvent) {
+    event.dataTransfer?.setData('leadId', String(props.lead.id));
+    event.dataTransfer?.setData('stageId', String(props.stageId));
+  }
 </script>
 
 <style>
     .deal {
+      display: block;
       padding: 18px 16px 15px;
       border: 1px solid #e6e9ee;
       border-radius: 11px;

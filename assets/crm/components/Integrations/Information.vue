@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
   import { Token } from '../../types/integration';
-import { formatResponseDate } from '../../utils/fields';
+  import { formatResponseDate } from '../../utils/fields';
 
   const props = defineProps<{
     token: Token;
