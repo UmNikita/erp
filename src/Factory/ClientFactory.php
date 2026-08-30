@@ -34,8 +34,20 @@ final class ClientFactory extends PersistentObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'date_create' => self::faker()->dateTime(),
-            'name' => self::faker()->text(50),
+            'name' => self::faker()->company(),
+            'inn' => self::faker()->numerify('############'),
+            'field_of_activity' => self::faker()->word(),
+            'website' => self::faker()->domainName(),
+            'phone' => self::faker()->phoneNumber(),
+            'email' => self::faker()->safeEmail(),
+            'city' => self::faker()->city(),
+            'channel' => self::faker()->randomElement([
+                'site',
+                'phone',
+                'recommendation',
+                'advertising',
+            ]),
+            'date_create' => self::faker()->dateTimeBetween('-2 years'),
         ];
     }
 

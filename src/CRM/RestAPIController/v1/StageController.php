@@ -7,7 +7,7 @@ use App\CRM\DTO\OpenAPI\Stage\StageRequestEditDTO;
 use App\CRM\DTO\OpenAPI\Stage\StageRequestPositionDTO;
 use App\CRM\Mapper\StageMapper;
 use App\CRM\RestAPIController\APIController;
-use App\CRM\Services\StageService;
+use App\CRM\Services\Stage\StageService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -93,7 +93,7 @@ final class StageController extends APIController
     public function delete(int $id, StageService $stageService): Response
     {
         $stageService->deleteStage($id);
-        return $this->response(["status" => "Stage deleted!"], 204);
+        return $this->response(["status" => "Stage deleted!"], 200);
     }
 
     #[Route('/stage/{id}/position', methods: ['POST'])]

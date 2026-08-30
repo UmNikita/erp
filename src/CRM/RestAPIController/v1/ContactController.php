@@ -7,14 +7,12 @@ use App\CRM\DTO\OpenAPI\Contact\ContactUpdateRequestDTO;
 use App\CRM\Mapper\ContactMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\ContactService;
-use App\Repository\ClientRepository;
-use App\Repository\ContactRepository;
+use App\Storages\CRM\ClientStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class ContactController extends APIController
@@ -33,13 +31,10 @@ final class ContactController extends APIController
             )
         ]
     )]
-    public function index(int $id, ClientRepository $clientRepository, ContactRepository $contactRepository, ContactMapper $contactMapper): Response
+    public function index(int $id, ClientStorage $clientStorage, ContactMapper $contactMapper): Response
     {
-        $client = $clientRepository->find($id);
-        if(!$client)
-            throw new NotFoundHttpException('Client not found!');
-        $contacts = $contactRepository->findBy(['client' => $client]);
-        $contactsDTO = $contactMapper->entityToListResponse($contacts);
+        $client = $clientStorage->getClient($id);
+        $contactsDTO = $contactMapper->entityToListResponse($client->getContacts()->toArray());
         return $this->response($contactsDTO);
     }
 
@@ -118,6 +113,6 @@ final class ContactController extends APIController
     public function delete(int $id, ContactService $contactService): Response
     {
         $contactService->deleteContact($id);
-        return $this->response(["status" => "Контакт успешно удален"], 204);
+        return $this->response(["status" => "Контакт успешно удален"]);
     }
 }

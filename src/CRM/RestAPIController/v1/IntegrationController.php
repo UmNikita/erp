@@ -6,11 +6,9 @@ use App\CRM\Mapper\IntegrationMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\IntegrationService;
 use App\Repository\IntegrationTokenRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class IntegrationController extends APIController
@@ -71,15 +69,9 @@ final class IntegrationController extends APIController
             )
         ]
     )]
-    public function reissue(int $id, IntegrationTokenRepository $repository, IntegrationService $integrationService, EntityManagerInterface $em, IntegrationMapper $mapper): Response
+    public function reissue(int $id, IntegrationService $integrationService): Response
     {
-        $integration = $repository->find($id);
-        if (!$integration)
-            throw new NotFoundHttpException('Integration not found!');
-        $integration->setToken($integrationService->generateToken());
-        $em->persist($integration);
-        $em->flush();
-        $response = $mapper->entityToDTO($integration);
+        $response = $integrationService->updateToken($id);
         return $this->response($response);
     }
 
@@ -97,9 +89,9 @@ final class IntegrationController extends APIController
             )
         ]
     )]
-    public function revoke(int $id, IntegrationTokenRepository $repository, EntityManagerInterface $em, IntegrationMapper $mapper): Response
+    public function revoke(int $id, IntegrationService $integrationService): Response
     {
-        $response = $this->setActiveToken($repository, $em, $mapper, $id, false);
+        $response = $integrationService->setActiveToken($id, false);
         return $this->response($response);
     }
 
@@ -117,19 +109,9 @@ final class IntegrationController extends APIController
             )
         ]
     )]
-    public function active(int $id, IntegrationTokenRepository $repository, EntityManagerInterface $em, IntegrationMapper $mapper): Response
+    public function active(int $id, IntegrationService $integrationService): Response
     {
-        $response = $this->setActiveToken($repository, $em, $mapper, $id, true);
+        $response = $integrationService->setActiveToken($id, true);
         return $this->response($response);
-    }
-
-    private function setActiveToken(IntegrationTokenRepository $repository, EntityManagerInterface $em, IntegrationMapper $mapper, int $id, bool $res) {
-        $integration = $repository->find($id);
-        if (!$integration)
-            throw new NotFoundHttpException('Integration not found!');
-        $integration->setIsActive($res);
-        $em->persist($integration);
-        $em->flush();
-        return $mapper->entityToDTO($integration);
     }
 }

@@ -2,28 +2,21 @@
 
 namespace App\CRM\Services;
 
+use App\CRM\DTO\Client\ClientCreateLeadDTO;
 use App\CRM\DTO\Client\ClientDTO;
-use App\CRM\DTO\PaginationDTO;
-use App\CRM\DTO\Client\EmailKPRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientListResponseDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientRequestDTO;
 use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
+use App\CRM\Hydrators\ClientHydrator;
 use App\CRM\Mapper\ClientMapper;
 use App\CRM\Mapper\ContactMapper;
 use App\Entity\Client;
-use App\Event\CRM\ClientUpdateEvent;
-use App\Messages\SendKPEmailMessage;
 use App\Repository\ClientRepository;
-use App\Repository\ContactRepository;
 use App\Shared\Pagination\PaginationFactory;
-use App\Shared\Services\EmailService;
+use App\Storages\CRM\ClientStorage;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ClientService {
 
@@ -31,11 +24,9 @@ class ClientService {
         private EntityManagerInterface $em,
         private ClientMapper $clientMapper,
         private ClientRepository $clientRepository,
-        private ContactRepository $contactRepository,
         private ContactMapper $contactMapper,
-        private Security $security,
-        private EventDispatcherInterface $eventDispatcher,
-        private MessageBusInterface $bus
+        private ClientHydrator $clientHydrator,
+        private ClientStorage $clientStorage,
     ) 
     {}
 
@@ -69,92 +60,47 @@ class ClientService {
 
     public function createClient(ClientRequestDTO $request): ClientDTO {
         $client = new Client();
-        $this->clientMapper->mapRequestToEntity($client, $request);
-        $this->em->persist($client);
-        $this->em->flush();
+        $this->clientHydrator->hydrateClient($client, $request);
+        $this->clientStorage->createClient($client);
         return $this->clientMapper->entityToDTO($client);
     }
+
+     public function createClientLead(ClientCreateLeadDTO $clientDTO, bool $isSearch): Client {
+        if($isSearch) {
+            if($clientDTO->email) {
+                $client = $this->clientRepository->findOneBy(['email' => $clientDTO->email]);
+                if($client)
+                    return $client;
+            }
+            if($clientDTO->phone) {
+                $client = $this->clientRepository->findOneBy(['phone' => $clientDTO->phone]);
+                if($client)
+                    return $client;
+            }
+        }
+        $client = new Client();
+        $this->clientHydrator->hydrateRequestLead($client, $clientDTO);
+        $this->clientStorage->createClient($client);
+        return $client;
+    }
+
 
     public function updateClient(ClientUpdateRequestDTO $request, int $id): ClientDTO | array {
         return $this->em->wrapInTransaction(function () use ($request, $id) {
             if($request->isEmpty())
                 return ["status" => "Empty body"];
 
-            $client = $this->clientRepository->find($id);
-
-            if (!$client)
-                throw new NotFoundHttpException('Client not found!');
-
-            $oldClient = clone $client;
-
-            $this->clientMapper->mapRequestToEntity($client, $request);
-            $this->em->persist($client);
-            $this->em->flush();
-
-            $manager = $this->security->getUser();
-            $event = new ClientUpdateEvent($client, $oldClient, $manager);
-            $this->eventDispatcher->dispatch($event);
+            $client = $this->clientStorage->getClient($id);
+            $this->clientHydrator->hydrateClient($client, $request);
+            $this->clientStorage->updateClient($client);
 
             return $this->clientMapper->entityToDTO($client);
         });
     }
 
-    public function deleteClient(int $clientID) {
-
-        $client = $this->clientRepository->find($clientID);
-
-        if (!$client)
-            throw new NotFoundHttpException('Client not found!');
-
-        $this->em->remove($client);
-        $this->em->flush();
-    }
-
-    // public function sendEmail() {
-    //     return $this->em->wrapInTransaction(function () use ($request, $id) {
-            
-    //         $manager = $this->security->getUser();
-    //         $event = new ClientEmailSendEvent($client, $manager, '');
-    //         $this->eventDispatcher->dispatch($event);
-
-    //         return $this->clientMapper->entityToDTO($client);
-    //     });
-    // }
-
-   public function sendEmailKP(int $id, EmailKPRequestDTO $emailDTO): void
+    public function deleteClient(int $clientID)
     {
-        $client = $this->clientRepository->find($id);
-
-        if (!$client) {
-            throw new NotFoundHttpException('Client not found!');
-        }
-
-        if (!$client->getEmail() && !$emailDTO->contact_id) {
-            throw new NotFoundHttpException('Client have not email!');
-        }
-
-        if ($emailDTO->contact_id) {
-            $contact = $this->contactRepository->find($emailDTO->contact_id);
-
-            if (!$contact) {
-                throw new NotFoundHttpException('Contact not found!');
-            }
-
-            if (!$contact->getEmail()) {
-                throw new NotFoundHttpException('Contact have not email!');
-            }
-        }
-
-        $manager = $this->security->getUser();
-
-        $this->bus->dispatch(
-            new SendKPEmailMessage(
-                clientId: $client->getId(),
-                contactId: $emailDTO->contact_id,
-                managerId: $manager->getId(),
-                managerName: $emailDTO->manager_name,
-                managerPhone: $emailDTO->manager_phone,
-            )
-        );
+        $client = $this->clientStorage->getClient($clientID);
+        $this->clientStorage->deleteClient($client);
     }
 }

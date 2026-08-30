@@ -6,7 +6,7 @@ use App\CRM\DTO\OpenAPI\Pipeline\PipelineRequestDTO;
 use App\CRM\Mapper\PipelineMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\PipelineService;
-use App\Repository\PipelineRepository;
+use App\Storages\CRM\PipelineStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -31,9 +31,9 @@ final class PipelineController extends APIController
             )
         ]
     )]
-    public function index(PipelineRepository $pipelineRepository, PipelineMapper $pipelineMapper): Response
+    public function index(PipelineStorage $pipelineStorage, PipelineMapper $pipelineMapper): Response
     {
-        $pipelines = $pipelineRepository->findAll();
+        $pipelines = $pipelineStorage->getPipelinesWithStages();
         $dto = $pipelineMapper->entityListToResponse($pipelines);
         return $this->response($dto);
     }
@@ -52,9 +52,9 @@ final class PipelineController extends APIController
             )
         ]
     )]
-    public function show(PipelineRepository $pipelineRepository, PipelineMapper $pipelineMapper): Response
+    public function show(PipelineStorage $pipelineStorage, PipelineMapper $pipelineMapper): Response
     {
-        $pipelines = $pipelineRepository->findAllWithStages();
+        $pipelines = $pipelineStorage->getPipelinesWithStages();
         $dto = $pipelineMapper->entityListToDetailResponse($pipelines);
         return $this->response($dto);
     }
@@ -134,7 +134,6 @@ final class PipelineController extends APIController
     public function delete(int $id, PipelineService $pipelineService): Response
     {
         $pipelineService->deletePipeline($id);
-        return $this->response(["status" => "Pipeline deleted!"], 204);
+        return $this->response(["status" => "Pipeline deleted!"], 200);
     }
-
 }

@@ -18,8 +18,8 @@ final readonly class StageRequestDTO
             example: 'Первичный контакт'
         )]
         #[Assert\NotBlank(message: 'Name required')]
-        #[Assert\Length(min: 1, max: 50)]
-        public ?string $name,
+        #[Assert\Length(max: 50)]
+        public string $name,
 
         #[OA\Property(
             property: 'color',
@@ -32,7 +32,7 @@ final readonly class StageRequestDTO
             pattern: '/^#[0-9A-Fa-f]{6}$/',
             message: 'Color must be in format HEX (#FFFFFF)'
         )]
-        public ?string $color,
+        public string $color,
 
         #[OA\Property(
             property: 'pipeline_id',
@@ -41,7 +41,7 @@ final readonly class StageRequestDTO
             example: '4'
         )]
         #[Assert\NotBlank(message: 'Pipeline_id required')]
-        public ?int $pipeline_id
+        public int $pipeline_id
     ) {
     }
 }

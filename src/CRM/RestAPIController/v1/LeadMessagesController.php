@@ -8,10 +8,8 @@ use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\LeadMessageService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[Route('/crm')]
 final class LeadMessagesController extends APIController

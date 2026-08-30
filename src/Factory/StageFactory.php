@@ -36,7 +36,8 @@ final class StageFactory extends PersistentObjectFactory
         return [
             'color' => self::faker()->text(50),
             'name' => self::faker()->text(50),
-            'sequence' => 1
+            'sequence' => self::faker()->numberBetween(1, 15),
+            'pipeline' => PipelineFactory::random(),
         ];
     }
 

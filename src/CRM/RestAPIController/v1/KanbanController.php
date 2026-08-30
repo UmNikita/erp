@@ -5,7 +5,7 @@ namespace App\CRM\RestAPIController\v1;
 use App\CRM\Mapper\KanbanMapper;
 use App\CRM\RestAPIController\APIController;
 use App\Repository\StageRepository;
-use App\Repository\UserRepository;
+use App\Storages\CRM\ResponsibleStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -49,9 +49,9 @@ final class KanbanController extends APIController
             )
         ]
     )]
-    public function responsibles(UserRepository $userRepository, KanbanMapper $kanbanMapper): Response
+    public function responsibles(ResponsibleStorage $responsibleStorage, KanbanMapper $kanbanMapper): Response
     {
-        $responsibles = $userRepository->findAll();
+        $responsibles = $responsibleStorage->getResponsibles();
         return $this->response($kanbanMapper->entityResponsibleToDTO($responsibles));
     }
 }

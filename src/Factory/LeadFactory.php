@@ -35,9 +35,23 @@ final class LeadFactory extends PersistentObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'budget' => self::faker()->randomFloat(),
-            'date_start' => self::faker()->dateTime(),
-            'name' => self::faker()->text(50),
+            'budget' => self::faker()->randomFloat(2, 1000, 1000000),
+            'date_start' => self::faker()->dateTimeBetween('-1 year'),
+            'date_next_action' => self::faker()->optional()->dateTimeBetween('now', '+3 months'),
+
+            'name' => self::faker()->words(3, true),
+            'product' => self::faker()->word(),
+
+            'source' => self::faker()->randomElement([
+                'site',
+                'phone',
+                'advertising',
+                'recommendation',
+            ]),
+
+            'next_action' => self::faker()->optional()->word(),
+            'comment' => self::faker()->optional()->sentence(),
+
             'status' => self::faker()->randomElement(LeadStatus::cases()),
         ];
     }

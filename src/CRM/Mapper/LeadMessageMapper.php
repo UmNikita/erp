@@ -4,21 +4,11 @@ namespace App\CRM\Mapper;
 
 use App\CRM\DTO\LeadMessages\MessageDTO;
 use App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesListResponseDTO;
-use App\CRM\DTO\OpenAPI\LeadMessages\LeadMessagesRequestDTO;
+use App\CRM\DTO\ResponsibleDTO;
 use App\Entity\LeadMessage;
 use App\Home\Mapper\AbstractMapper;
-use App\Repository\LeadRepository;
-use App\Repository\UserRepository;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class LeadMessageMapper extends AbstractMapper {
-
-    public function __construct(
-        private UserRepository $userRepository,
-        private LeadRepository $leadRepository
-    )
-    {}
 
     public function entityListToResponse(array $messages, ?int $limit, ?int $beforeId): LeadMessagesListResponseDTO {
         $messagesDTO = $this->mapList($messages, function ($message) {
@@ -28,23 +18,22 @@ class LeadMessageMapper extends AbstractMapper {
     }
 
     public function entityToDTO(LeadMessage $message): MessageDTO {
+        if($message->getUser()) {
+            $responsible = new ResponsibleDTO(
+                $message->getUser()->getId(),
+                $message->getUser()->getName(),
+                $message->getUser()->getEmail()
+            );
+        }
+        else {
+            $responsible = null;
+        }
+        
         return new MessageDTO(
             $message->getId(),
-            $message->getUser()->getName(),
-            $message->getUser()->getId(),
             $message->getDateSend(),
-            $message->getMessage()
+            $message->getMessage(),
+            $responsible
         );
-    }
-
-    public function mapRequestToEntity(LeadMessage $message, LeadMessagesRequestDTO $request, UserInterface $user) {
-        
-        $message->setMessage($request->message);
-        $message->setUser($user);
-
-        $lead = $this->leadRepository->find($request->lead_id);
-        if (!$lead)
-            throw new NotFoundHttpException('Lead not found');
-        $message->setLead($lead);
     }
 }

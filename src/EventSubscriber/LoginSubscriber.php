@@ -2,6 +2,8 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\RefreshToken;
+use Doctrine\ORM\EntityManagerInterface;
 use Gesdinet\JWTRefreshTokenBundle\Generator\RefreshTokenGeneratorInterface;
 use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -14,7 +16,8 @@ class LoginSubscriber implements EventSubscriberInterface
     public function __construct(
         private JWTTokenManagerInterface $jwtManager,
         private RefreshTokenGeneratorInterface $refreshTokenGenerator,
-        private RefreshTokenManagerInterface $refreshTokenManager
+        private RefreshTokenManagerInterface $refreshTokenManager,
+        private EntityManagerInterface $entityManager
     ) {
     }
 
@@ -38,6 +41,14 @@ class LoginSubscriber implements EventSubscriberInterface
 
         $token = $this->jwtManager->create($user);
 
+        $this->entityManager
+        ->createQueryBuilder()
+        ->delete(RefreshToken::class, 'rt')
+        ->where('rt.username = :username')
+        ->setParameter('username', $user->getUserIdentifier())
+        ->getQuery()
+        ->execute();
+        
         $refreshToken = $this->refreshTokenGenerator->createForUserWithTtl(
             $user,
             2592000

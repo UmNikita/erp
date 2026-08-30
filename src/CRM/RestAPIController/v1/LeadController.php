@@ -4,17 +4,17 @@ namespace App\CRM\RestAPIController\v1;
 
 use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
-use App\CRM\Mapper\LeadMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\History\JsonManager;
 use App\CRM\Services\LeadService;
+use App\Repository\LeadHistoryRepository;
 use App\Repository\LeadRepository;
 use App\Shared\Pagination\PaginationFactory;
+use App\Storages\CRM\LeadStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class LeadController extends APIController
@@ -33,6 +33,17 @@ final class LeadController extends APIController
                 schema: new OA\Schema(
                     type: 'number',
                     example: 1
+                )
+            ),
+            new OA\Parameter(
+                name: 'archive',
+                description: 'Для страницы архива?',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'bool',
+                    example: true,
+                    default: false
                 )
             ),
             new OA\Parameter(
@@ -66,19 +77,9 @@ final class LeadController extends APIController
             )
         ]
     )]
-    public function index(Request $request, LeadRepository $leadRepository, LeadMapper $leadMapper): Response
+    public function index(Request $request, LeadService $leadService): Response
     {
-        $clientId = $request->query->get('client_id');
-        $archive = $request->query->get('archive', false);
-        $allCount = $leadRepository->getCountArchive();
-        $pagination = PaginationFactory::create($request, $leadRepository, 12, $allCount);
-        if(!$archive) {
-            $leads = $leadRepository->findAllWithClientAndResponsible($clientId, $pagination->offset(), $pagination->limit);
-        } else {
-            $leads = $leadRepository->findAllArchiveResponsible($pagination->offset(), $pagination->limit);
-        }
-        $paginationDTO = $pagination->getPaginationDTO($leads);
-        $response = $leadMapper->entityToListResponse($leads, $paginationDTO);
+        $response = $leadService->getAllLead($request);
         return $this->response($response);
     }
 
@@ -177,13 +178,35 @@ final class LeadController extends APIController
     public function delete(int $id, LeadService $leadService): Response
     {
         $leadService->deleteLead($id);
-        return $this->response(["status" => "Lead deleted!"], 204);
+        return $this->response(["status" => "Lead deleted!"]);
     }
 
     #[Route('/lead/{id}/history', methods: ['GET'])]
     #[OA\Get(
         summary: 'Получить историю лида',
         tags: ['CRM / Lead'],
+        parameters: [
+            new OA\Parameter(
+                name: 'limit',
+                description: 'Ограничение на записи',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 12
+                )
+            ),
+            new OA\Parameter(
+                name: 'page',
+                description: 'Страница пагинации',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'number',
+                    example: 2
+                )
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -203,14 +226,13 @@ final class LeadController extends APIController
             )
         ]
     )]
-    public function history(int $id, LeadRepository $repository, JsonManager $jsonManager): Response
+    public function history(int $id, LeadHistoryRepository $leadHistoryRepository, Request $request, LeadRepository $leadRepository, LeadStorage $leadStorage, JsonManager $jsonManager): Response
     {
-        $lead = $repository->find($id);
-        if(!$lead)
-            throw new NotFoundHttpException('Lead not found!');
-
-        $records = $lead->getLeadHistoryRecords()->toArray();
+        $lead = $leadStorage->getLead($id);
+        $pagination = PaginationFactory::create($request, $leadRepository, 12);
+        $records = $leadHistoryRepository->getHistoryLead($lead->getId(), $pagination->offset(), $pagination->limit);
         $results = $jsonManager->getMessagesLead($records);
-        return $this->response(["history" => $results]);
+        $paginationDTO = $pagination->getPaginationDTO($results);
+        return $this->response(["history" => $results, "pagination" => $paginationDTO]);
     }
 }

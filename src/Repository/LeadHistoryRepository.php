@@ -16,6 +16,17 @@ class LeadHistoryRepository extends ServiceEntityRepository
         parent::__construct($registry, LeadHistory::class);
     }
 
+    public function getHistoryLead(int $leadId, int $offset, int $limit): array
+    {
+        return $this->createQueryBuilder('l')
+            ->where('l.lead = :leadId')
+            ->setParameter('leadId', $leadId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return LeadHistory[] Returns an array of LeadHistory objects
 //     */

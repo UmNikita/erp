@@ -92,7 +92,7 @@ class Contact
         return $this->thirdname;
     }
 
-    public function setThirdname(string $thirdname): static
+    public function setThirdname(?string $thirdname): static
     {
         $this->thirdname = $thirdname;
 
@@ -104,7 +104,7 @@ class Contact
         return $this->position;
     }
 
-    public function setPosition(string $position): static
+    public function setPosition(?string $position): static
     {
         $this->position = $position;
 

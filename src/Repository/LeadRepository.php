@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Client;
 use App\Entity\Lead;
 use App\Entity\Stage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -109,28 +110,36 @@ class LeadRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    //    /**
-    //     * @return Client[] Returns an array of Client objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getCountActive(Stage $stage) { 
+        return $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.status = :status')
+            ->andWhere('c.stage = :stage')
+            ->setParameter('status', 'active')
+            ->setParameter('stage', $stage)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Client
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function unbindClient(Client $client) { 
+        $this->createQueryBuilder('d')
+        ->update()
+        ->set('d.client', ':null')
+        ->where('d.client = :client')
+        ->setParameter('client', $client)
+        ->setParameter('null', null)
+        ->getQuery()
+        ->execute();
+    }
+
+    public function unbindStage(Stage $stage) { 
+        $this->createQueryBuilder('d')
+        ->update()
+        ->set('d.stage', ':null')
+        ->where('d.stage = :stage')
+        ->setParameter('stage', $stage)
+        ->setParameter('null', null)
+        ->getQuery()
+        ->execute();
+    }
 }

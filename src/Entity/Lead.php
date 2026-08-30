@@ -107,7 +107,7 @@ class Lead
         return $this->product;
     }
 
-    public function setProduct(string $product): static
+    public function setProduct(?string $product): static
     {
         $this->product = $product;
 
@@ -119,7 +119,7 @@ class Lead
         return $this->source;
     }
 
-    public function setSource(string $source): static
+    public function setSource(?string $source): static
     {
         $this->source = $source;
 
@@ -131,7 +131,7 @@ class Lead
         return $this->next_action;
     }
 
-    public function setNextAction(string $next_action): static
+    public function setNextAction(?string $next_action): static
     {
         $this->next_action = $next_action;
 

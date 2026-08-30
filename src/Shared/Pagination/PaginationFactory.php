@@ -9,8 +9,14 @@ final class PaginationFactory
 {
     public static function create(Request $request,  ServiceEntityRepository $repository, int $defaultLimit = 10, int $all = -1): Pagination
     {
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = max(1, (int) $request->query->get('limit', $defaultLimit));
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->get('limit', $defaultLimit);
+        if (!ctype_digit((string) $page)) {
+            throw new \InvalidArgumentException('page must be an integer');
+        }
+        if (!ctype_digit((string) $limit)) {
+            throw new \InvalidArgumentException('limit must be an integer');
+        }
         if($all == -1)
             $allCount = $repository->createQueryBuilder('c')->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
         else

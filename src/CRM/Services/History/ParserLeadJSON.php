@@ -22,9 +22,6 @@ class ParserLeadJSON {
     
     public function parseToJSON(Lead $lead, TypeLeadHistory $type, ?Lead $oldLead = null): array {
         switch ($type) {
-            case TypeLeadHistory::CREATED: {
-                return [];
-            }
             case TypeLeadHistory::UPDATED: {
                 return $this->parseUpdated($lead, $oldLead);
             }
@@ -64,10 +61,6 @@ class ParserLeadJSON {
         foreach ($records as $record) {
             $message = "";
             switch ($record->getType()) {
-                case TypeLeadHistory::CREATED: {
-                    $message = "Сделка создана!";
-                    break;
-                }
                 case TypeLeadHistory::UPDATED: {
                     $message = "";
                     break;

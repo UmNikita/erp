@@ -27,20 +27,48 @@ abstract class APIController extends AbstractController
         );
     }
 
-    protected function serializeRequest(Request $request, string $className): object {
+    protected function serializeRequest(Request $request, string $className, bool $isNormalize = true): object {
         try {
-            return $this->serializer->deserialize(
-                $request->getContent(),
-                $className,
-                'json'
-            );
-        } 
+            if($isNormalize) {
+                $content = $this->normalizeRequest($request->getContent());
+                return $this->serializer->deserialize(
+                    $content,
+                    $className,
+                    'json'
+                );
+            }
+            else {
+                return $this->serializer->deserialize(
+                    $request->getContent(),
+                    $className,
+                    'json'
+                );
+            }
+            
+        }
         catch (NotNormalizableValueException $e) {
             throw new InvalidRequestException([$e->getPath() => ['Incorrect data type']]);
         } 
         catch (MissingConstructorArgumentsException $e) {
             throw new InvalidRequestException(['message' => 'Required fields are not filled in']);
         }
+    }
+
+    private function normalizeRequest(string $content): string
+    {
+        $data = json_decode($content, true);
+
+        if (!is_array($data)) {
+            return $content;
+        }
+
+        array_walk_recursive($data, function (&$value) {
+            if (is_string($value)) {
+                $value = trim($value);
+            }
+        });
+
+        return json_encode($data, JSON_THROW_ON_ERROR);
     }
 
     protected function validate(object $dto) {

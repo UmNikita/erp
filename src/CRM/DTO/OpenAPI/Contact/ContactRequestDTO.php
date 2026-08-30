@@ -29,8 +29,8 @@ final readonly class ContactRequestDTO
             description: 'ID клиента',
             type: 'integer',
             example: '1',
-            nullable: true
         )]
+        #[Assert\NotBlank(message: 'client_id required')]
         public ?int $client_id,
 
         #[OA\Property(
@@ -38,7 +38,6 @@ final readonly class ContactRequestDTO
             description: 'Фамилия',
             type: 'string',
             example: 'Иванова',
-            nullable: true
         )]
         #[Assert\NotBlank(message: 'Secondname required')]
         #[Assert\Length(

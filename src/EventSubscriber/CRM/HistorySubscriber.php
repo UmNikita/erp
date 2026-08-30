@@ -24,23 +24,12 @@ class HistorySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            LeadCreatedEvent::class => 'logCreateLead',
             LeadUpdateEvent::class => 'logUpdateLead',
             ClientUpdateEvent::class => 'logUpdateClient',
             ContactCreateEvent::class => 'logCreateContact',
             ContactUpdateEvent::class => 'logUpdateContact',
             ContactDeleteEvent::class => 'logDeleteContact'
         ];
-    }
-
-    public function logCreateLead(LeadCreatedEvent $event): void
-    {
-        $record = $this->jm->getLeadHistory($event->getLead(), $event->getManager(), TypeLeadHistory::CREATED);
-        $this->em->persist($record);
-        if($event->getLead()->getClient()) {
-            $record = $this->jm->getClientHistory($event->getLead()->getClient(), $event->getManager(), TypeClientHistory::LEAD_CREATED, lead: $event->getLead());
-            $this->em->persist($record);
-        }
     }
 
     public function logUpdateLead(LeadUpdateEvent $event): void

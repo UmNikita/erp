@@ -3,7 +3,7 @@
 namespace App\Security\Service;
 
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Storages\CRM\ResponsibleStorage;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegistrationService
@@ -11,19 +11,14 @@ class RegistrationService
 
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-        private EntityManagerInterface $entityManager
+        private ResponsibleStorage $responsibleStorage
     )
     {}
 
     public function createRootUser(string $email, string $password) {
         $user = $this->makeUser($email, $password);
         $user->setIsRoot(true);
-        $this->saveUser($user);
-    }
-
-    private function saveUser(User $user) {
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $this->responsibleStorage->createResponsible($user);
     }
 
     private function makeUser(string $email, string $password): User {

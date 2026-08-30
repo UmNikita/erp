@@ -9,6 +9,7 @@ use App\CRM\DTO\OpenAPI\Contact\ContactUpdateRequestDTO;
 use App\Entity\Contact;
 use App\Home\Mapper\AbstractMapper;
 use App\Repository\ClientRepository;
+use App\Shared\Normilizers\CrmNormilizer;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContactMapper extends AbstractMapper {
@@ -73,11 +74,11 @@ class ContactMapper extends AbstractMapper {
 
         $phone = $request->phone;
         if($phone != null)
-            $contact->setPhone($this->normalizePhone($phone));
+            $contact->setPhone(CrmNormilizer::normalizePhone($phone));
 
         $email = $request->email;
         if($email != null)
-            $contact->setEmail($this->normalizeEmail($email));
+            $contact->setEmail(CrmNormilizer::normalizeEmail($email));
 
         $messenger = $request->messenger;
         if($messenger != null)
@@ -86,35 +87,5 @@ class ContactMapper extends AbstractMapper {
         $note = $request->note;
         if($note != null)
             $contact->setNote($note);
-    }
-
-    public function normalizePhone(?string $phone): ?string
-    {
-        if ($phone === null) {
-            return null;
-        }
-
-        $phone = preg_replace('/\D/', '', $phone);
-
-        if ($phone === '') {
-            return null;
-        }
-
-        if (str_starts_with($phone, '8') && strlen($phone) === 11) {
-            $phone = '7' . substr($phone, 1);
-        }
-
-        return $phone;
-    }
-
-    public function normalizeEmail(?string $email): ?string
-    {
-        if ($email === null) {
-            return null;
-        }
-
-        $email = mb_strtolower(trim($email));
-
-        return $email === '' ? null : $email;
     }
 }

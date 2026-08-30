@@ -21,32 +21,8 @@ class PipelineRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->leftJoin('p.stages', 's')
             ->addSelect('s')
+            ->addOrderBy('s.sequence', 'ASC')
             ->getQuery()
             ->getResult();
     }
-
-    //    /**
-    //     * @return Pipeline[] Returns an array of Pipeline objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Pipeline
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

@@ -2,55 +2,91 @@
 
 namespace App\CRM\Services;
 
-use App\CRM\DTO\Client\ClientCreateLeadDTO;
-use App\CRM\DTO\PaginationDTO;
 use App\CRM\DTO\Lead\LeadDetailDTO;
 use App\CRM\DTO\Lead\LeadDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadListResponseDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadRequestDTO;
 use App\CRM\DTO\OpenAPI\Lead\LeadUpdateRequestDTO;
 use App\CRM\Enums\LeadStatus;
-use App\CRM\Mapper\ClientMapper;
+use App\CRM\Hydrators\ClientHydrator;
+use App\CRM\Hydrators\KanbanHydrator;
 use App\CRM\Mapper\LeadMapper;
-use App\Entity\Client;
 use App\Entity\Lead;
-use App\Event\CRM\LeadCreatedEvent;
-use App\Event\CRM\LeadUpdateEvent;
 use App\Repository\ClientRepository;
 use App\Repository\LeadRepository;
+use App\Shared\Pagination\PaginationFactory;
+use App\Storages\CRM\LeadStorage;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class LeadService {
 
     public function __construct(
         private ClientRepository $clientRepository,
         private LeadMapper $leadMapper,
-        private ClientMapper $clientMapper,
         private LeadRepository $leadRepository,
         private EntityManagerInterface $em,
-        private Security $security,
-        private EventDispatcherInterface $eventDispatcher
+        private LeadStorage $leadStorage,
+        private KanbanHydrator $hydrator,
+        private ClientHydrator $clientHydrator,
+        private ClientService $clientService
     ) 
     {}
 
-    public function getDetailLead(int $id): LeadDetailDTO {
-        $lead = $this->leadRepository->findWithClientAndContacts($id);
-
-        if (!$lead)
-            throw new NotFoundHttpException('Lead not found');
+    public function getAllLead(Request $request): LeadListResponseDTO {
+        $clientId = $request->query->get('client_id', null);
+        if ($clientId !== null && !ctype_digit($clientId)) {
+            throw new \InvalidArgumentException('client_id must be an integer');
+        }
+        $archive = $request->query->getBoolean('archive', false);
+        $allCount = $this->leadRepository->getCountArchive();
+        $pagination = PaginationFactory::create($request, $this->leadRepository, 12, $allCount);
         
-        $leadDTO = $this->leadMapper->entityToDetailResponse($lead);
+        if(!$archive)
+            $leads = $this->leadRepository->findAllWithClientAndResponsible($clientId, $pagination->offset(), $pagination->limit);
+        else
+            $leads = $this->leadRepository->findAllArchiveResponsible($pagination->offset(), $pagination->limit);
+        
+        $paginationDTO = $pagination->getPaginationDTO($leads);
+        return $this->leadMapper->entityToListResponse($leads, $paginationDTO);
+    }
 
+    public function getDetailLead(int $id): LeadDetailDTO {
+        
+        $lead = $this->leadStorage->getLeadClientsDetail($id);
+        $leadDTO = $this->leadMapper->entityToDetailResponse($lead);
+        
         if($leadDTO->client != null) {
             $clientID = $leadDTO->client->id;
             $metrics = $this->clientRepository->getMetricsClient($clientID);
-            $this->clientMapper->mapMetricsToClientDetailDTO($leadDTO->client, $metrics);
+            $this->clientHydrator->hydrateMetricsClient($leadDTO->client, $metrics);
         }
         
         return $leadDTO;
+    }
+
+    public function createLead(LeadRequestDTO $request , bool $isPublicApi = false): LeadDTO {
+        return $this->em->wrapInTransaction(function () use ($request, $isPublicApi) {
+            $lead = new Lead();
+            $this->hydrator->hydrateLead($lead, $request);
+            $lead->setStatus(LeadStatus::ACTIVE);
+            if($isPublicApi) {
+                if($request->client) {
+                    $client = $this->clientService->createClientLead($request->client, true);
+                    $lead->setClient($client);
+                }
+                
+            }
+            else {
+                if($lead->getClient() == null && $request->client) {
+                    $client = $this->clientService->createClientLead($request->client, false);
+                    $lead->setClient($client);
+                }
+            }
+            $this->leadStorage->createLead($lead);
+
+            return $this->leadMapper->entityToDTO($lead);
+        });
     }
 
     public function updateLead(int $id, LeadUpdateRequestDTO $request): LeadDTO | array {
@@ -58,53 +94,9 @@ class LeadService {
             if($request->isEmpty())
                 return ["status" => "Empty body"];
 
-            $lead = $this->leadRepository->find($id);
-
-            if (!$lead)
-                throw new NotFoundHttpException('Stage not found!');
-
-            $oldLead = clone $lead;
-
-            $this->leadMapper->mapRequestToEntity($lead, $request);
-
-            $this->em->persist($lead);
-            $this->em->flush();
-
-            $manager = $this->security->getUser();
-            $event = new LeadUpdateEvent($oldLead, $lead, $manager);
-            $this->eventDispatcher->dispatch($event);
-            
-            return $this->leadMapper->entityToDTO($lead);
-        });
-    }
-
-    public function createLead(LeadRequestDTO $request , bool $isPublicApi = false): LeadDTO {
-        return $this->em->wrapInTransaction(function () use ($request, $isPublicApi) {
-            $lead = new Lead();
-            $this->leadMapper->mapRequestToEntity($lead, $request);
-            $lead->setStatus(LeadStatus::ACTIVE);
-            if($lead->getClient() == null && $request->client && !$isPublicApi) {
-                $client = new Client();
-                $this->clientMapper->mapRequestLeadToEntity($client, $request->client);
-                $lead->setClient($client);
-                $this->em->persist($client);
-            }
-            if($isPublicApi) {
-                $manager = null;
-                if($request->client) {
-                    $client = $this->getClientPublicAPI($request->client);
-                    $lead->setClient($client);
-                }
-            }
-            else {
-                $manager = $this->security->getUser();
-            }
-            
-            $this->em->persist($lead);
-            $this->em->flush();
-            
-            $event = new LeadCreatedEvent($lead, $manager);
-            $this->eventDispatcher->dispatch($event);
+            $lead = $this->leadStorage->getLead($id);
+            $this->hydrator->hydrateLead($lead, $request);
+            $this->leadStorage->updateLead($lead);
 
             return $this->leadMapper->entityToDTO($lead);
         });
@@ -112,27 +104,7 @@ class LeadService {
 
     public function deleteLead(int $id)
     {
-
-        $lead = $this->leadRepository->find($id);
-        if (!$lead)
-            throw new NotFoundHttpException('Lead not found!');
-                
-        $this->em->remove($lead);
-        $this->em->flush();
-    }
-
-    private function getClientPublicAPI(ClientCreateLeadDTO $clientDTO): Client {
-        $client = $this->clientRepository->findOneBy(['email' => $clientDTO->email]);
-        if($client)
-            return $client;
-
-        $client = $this->clientRepository->findOneBy(['phone' => $clientDTO->email]);
-        if($client)
-            return $client;
-
-        $client = new Client();
-        $this->clientMapper->mapRequestLeadToEntity($client, $clientDTO);
-        $this->em->persist($client);
-        return $client;
+        $lead = $this->leadStorage->getLead($id);
+        $this->leadStorage->deleteLead($lead);
     }
 }

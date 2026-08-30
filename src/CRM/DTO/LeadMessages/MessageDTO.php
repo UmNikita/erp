@@ -1,6 +1,7 @@
 <?php
 namespace App\CRM\DTO\LeadMessages;
 
+use App\CRM\DTO\ResponsibleDTO;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -11,13 +12,7 @@ class MessageDTO
     public function __construct(
         #[OA\Property(type: 'integer', example: 1)]
         public int $id,
-
-        #[OA\Property(type: 'string', example: 'Мария Иванова')]
-        public string $userName,
-
-        #[OA\Property(type: 'integer', example: 8)]
-        public int $userId,
-
+        
         #[OA\Property(
             type: 'string', 
             format: 'date-time', 
@@ -26,7 +21,13 @@ class MessageDTO
         public \DateTime $date,
 
         #[OA\Property(type: 'string', example: 'Добавила в КП блок по интеграции и примеры отчётов. Проверьте, пожалуйста.')]
-        public string $message
+        public string $message,
+        
+        #[OA\Property(
+            property: 'responsible',
+            ref: '#/components/schemas/Responsible'
+        )]
+        public ?ResponsibleDTO $responsible,
 
     ) {}
 }

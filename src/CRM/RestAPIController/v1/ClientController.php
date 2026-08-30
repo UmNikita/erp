@@ -8,14 +8,14 @@ use App\CRM\DTO\OpenAPI\Client\ClientUpdateRequestDTO;
 use App\CRM\Mapper\EmailMapper;
 use App\CRM\RestAPIController\APIController;
 use App\CRM\Services\ClientService;
+use App\CRM\Services\EmailService;
 use App\CRM\Services\History\JsonManager;
-use App\Repository\ClientRepository;
+use App\Storages\CRM\ClientStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[Route('/crm')]
 final class ClientController extends APIController
@@ -192,12 +192,9 @@ final class ClientController extends APIController
             )
         ]
     )]
-    public function history(int $id, ClientRepository $repository, JsonManager $jsonManager): Response
+    public function history(int $id, ClientStorage $clientStorage, JsonManager $jsonManager): Response
     {
-        $client = $repository->find($id);
-        if(!$client)
-            throw new NotFoundHttpException('Client not found!');
-
+        $client = $clientStorage->getClient($id);
         $records = $client->getClientHistoryRecords()->toArray();
         usort($records, function ($a, $b) {
             return $b->getCreatedAt() <=> $a->getCreatedAt();
@@ -221,14 +218,10 @@ final class ClientController extends APIController
             )
         ]
     )]
-    public function emailHistory(int $id, ClientRepository $clientRepository, EmailMapper $emailMapper): Response
+    public function emailHistory(int $id, ClientStorage $clientStorage, EmailMapper $emailMapper): Response
     {
-        $client = $clientRepository->find($id);
-        if(!$client)
-            throw new NotFoundHttpException('Client not found!');
-
+        $client = $clientStorage->getClient($id);
         $records = $client->getEmailLogs()->toArray();
-
         usort($records, function ($a, $b) {
             return $b->getCreatedAt() <=> $a->getCreatedAt();
         });
@@ -255,10 +248,10 @@ final class ClientController extends APIController
             
         ]
     )]
-    public function emailKp(int $id, Request $request, ClientService $clientService): Response
+    public function emailKp(int $id, Request $request, EmailService $emailService): Response
     {
         $emailRequest = $this->serializeRequest($request, EmailKPRequestDTO::class);
-        $clientService->sendEmailKP($id, $emailRequest);
+        $emailService->sendEmailKP($id, $emailRequest);
         return $this->response(["status" => "КП отправлено!"], 200);
     }
 }
