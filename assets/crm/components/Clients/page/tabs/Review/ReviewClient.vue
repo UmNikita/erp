@@ -1,40 +1,15 @@
-<template>
-    <section>
+<template v-if="loading">
+    <section v-if="!error">
         <div class="grid">
             <Board />
-            <article class="card">
-                <div class="card-head">
-                    <h2>Показатели</h2>
-                </div>
-                <div class="stats">
-                    <div class="stat">
-                        <span>Сделок</span>
-                        <strong>{{ client?.count_leads }}</strong>
-                        <small>На сумму {{ formatAmount(client?.amount_sum_leads) }} ₽</small>
-                    </div>
-                    <div class="stat">
-                        <span>LTV</span>
-                        <strong>{{ formatAmount(client?.ltv) }} ₽</strong>
-                        <small>Средний чек сделки: {{ formatAmount(client?.average_cheque) }} ₽</small>
-                    </div>
-                    <div class="stat">
-                        <span>Последний контакт</span>
-                        <strong>Сегодня</strong>
-                        <small>в 15:40</small>
-                    </div>
-                    <div class="stat">
-                        <span>Количечтво контактов</span>
-                        <strong>{{ client?.contacts.length }}</strong>
-                    </div>
-                </div>
-            </article>
+            <Statistic />
         </div>
 
         <div class="bottom">
             <article class="card">
                 <div class="card-head">
                     <h2>Последние сделки</h2>
-                    <button class="link open-panel" data-target="deals">Все сделки</button>
+                    <router-link class="link open-panel" :to="clientLeadsUrl(clientId)">Все сделки</router-link>
                 </div>
                 <div class="list">
                     <Lead v-for="lead in lastThree" :lead="lead" />
@@ -52,20 +27,42 @@
             </article>
         </div>
     </section>
+    <Error v-else />
 </template>
 
 <script setup lang="ts">
-    import { computed } from 'vue';
-    import { formatAmount } from '../../../../../utils/fields';
+    import { computed, onMounted, ref } from 'vue';
     import Lead from './Lead.vue';
     import Board from './Board.vue';
     import { useCurrentClient } from '../../../../../composables/Clients/useCurrentClient.ts';
     import History from './History.vue';
+    import Error from '../../../../Error.vue';
+    import { useRoute } from 'vue-router';
+    import Statistic from './Statistic.vue';
+    import { clientLeadsUrl } from '../../../../../routes/client.ts';
 
-    const { client, leads, history } = useCurrentClient();
+    const { leads, history, loadReview } = useCurrentClient();
 
     const lastThree = computed(() => leads.value.slice(-3));
-    const lastHistory = computed(() => history.value.slice(-3));
+    const lastHistory = computed(() => history.value.slice(0, 3));
+
+    const error = ref(false);
+    const loading = ref(false);
+
+    const route = useRoute();
+    const clientId = Number(route.params.id);
+
+    onMounted(async ()=>{
+        try{
+            await loadReview(clientId);
+        }
+        catch {
+            error.value = true;
+        }
+        finally {
+            loading.value = true;
+        }
+    });
 
 </script>
 
@@ -109,38 +106,6 @@
         font-weight: 600;
     }
 
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .stat {
-        min-height: 102px;
-        padding: 16px;
-        border: 1px solid #edf0f4;
-        border-radius: 11px;
-        background: #f8f9fb;
-    }
-
-    .stat span {
-        display: block;
-        margin-bottom: 12px;
-        color: var(--muted);
-        font-size: 12px;
-    }
-
-    .stat strong {
-        display: block;
-        font-size: 21px;
-    }
-
-    .stat small {
-        display: block;
-        margin-top: 5px;
-        color: var(--muted);
-    }
-    
     .list {
         display: grid;
         gap: 10px;

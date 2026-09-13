@@ -15,11 +15,11 @@
     const phone = defineModel<string>('phone');
 
     const props = defineProps<{
-        error?: string;
+        error?: string | null;
     }>();
 </script>
 
-<style>
+<style scoped>
     .create-modal__input-wrap input
     {
         width: 100%;

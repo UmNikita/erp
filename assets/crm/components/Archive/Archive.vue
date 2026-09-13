@@ -1,102 +1,52 @@
 <template>
-    <div v-if="loading" class="archive-page">
-        <div v-if="error"><Error /></div>
-        <template v-else>
-            <Header />
-            <div class="archive-page__table-wrap">
-                <table class="archive-page__table">
-                    <thead>
-                        <tr>
-                            <th>Сделка</th>
-                            <th>Клиент</th>
-                            <th>Воронка</th>
-                            <th>Сумма</th>
-                            <th>Менеджер</th>
-                            <th>Результат</th>
-                            <th>Дата архивации</th>
-                            <th></th>
-                        </tr>
-                    </thead>
+    <TableWrapper @set-page="setPage" @to="routeTableUrl" v-if="leads" >
+        <Header />
+        <div class="archive-page__table-wrap">
+            <table class="archive-page__table">
+                <thead>
+                    <tr>
+                        <th>Сделка</th>
+                        <th>Клиент</th>
+                        <th>Воронка</th>
+                        <th>Сумма</th>
+                        <th>Ответственный</th>
+                        <th>Результат</th>
+                        <th>Дата архивации</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        <Row @delete="deleteLead" v-for="lead in leads.leads" :lead="lead" />
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="archive-page__footer">
-                <span>Показано {{ total }} из {{ allCount }} сделок</span>
-
-                <div class="archive-page__pagination">
-                    <router-link v-if="!isStart" class="page-btn" :to="archiveTableUrl(page-1)"><</router-link>
-                    <div v-else class="page-btn deactive"><</div>
-                    <router-link class="page-btn" :class="{ active: page === num }" v-for="num in range" :to="archiveTableUrl(num)">{{ num }}</router-link>
-                    <router-link v-if="!isEnd" class="page-btn" :to="archiveTableUrl(page+1)">></router-link>
-                    <div v-else class="page-btn deactive">></div>
-                </div>
-            </div>
-        </template>
-    </div>
+                <tbody>
+                    <Row v-for="lead in leadTableStore.leads" :lead="lead" />
+                </tbody>
+            </table>
+        </div>
+    </TableWrapper>
 </template>
 
 <script setup lang="ts">
-    import { computed, ref, watch } from 'vue';
-    import { getArchiveLeads, deleteLead as deleteLeadApi } from '../../api/lead';
+    import { ref } from 'vue';
     import Header from './Header.vue';
     import Row from './Row.vue';
-    import { LeadResponse } from '../../types/lead.ts';
-    import { useRoute, useRouter } from 'vue-router';
-    import { usePagination } from '../../composables/usePagination.ts';
-    import Error from '../Error.vue';
+    import { useRouter } from 'vue-router';
     import { archiveTableUrl } from '../../routes/lead.ts';
+    import { useLeadTableStore } from '../../stores/leadArchiveTable.ts';
+    import TableWrapper from '../paginationTable/TableWrapper.vue';
 
-    const LIMIT = 10;
-
-    const leads = ref();
-    const loading = ref(false);
-    const error = ref(false);
-    
-    const total = ref(1);
-    const route = useRoute();
+    const leads = ref([]);
+   
     const router = useRouter();
-    const page = computed(() => Number(route.query.page ?? 1));
+    
+    const leadTableStore = useLeadTableStore();
 
-    const {allCount, isStart, isEnd, range, setStates} = usePagination(page);
-
-    async function setLeads(page: number) {
-        try{
-            leads.value = await getArchiveLeads();
-            total.value = leads.value.pagination.count;
-            if(page > 1)
-                total.value += page * LIMIT;
-
-            setStates(leads.value.pagination.allCount);
-        }
-        catch {
-            error.value = true;
-        }
-        finally {
-            loading.value = true;
-        }
+    async function setPage(newPage: number, setStates: (allCount: number) => void) {
+        await leadTableStore.loadLeads(newPage);
+        setStates(leadTableStore.allCount);
     }
 
-    async function deleteLead(value: LeadResponse) {
-        try {
-            await deleteLeadApi(value.id);
-            router.go(0);
-        } catch {
-            alert("Возникла ошибка!");
-        }   
+    function routeTableUrl(page: number = 1) {
+        router.push(archiveTableUrl(page));
     }
-
-    watch(
-        page,
-        async (newPage) => {
-            await setLeads(newPage);
-        },
-        { immediate: true }
-    );
-
 </script>
 
 <style scoped>

@@ -15,17 +15,16 @@
 </template>
 
 <script setup lang="ts">
-    import { deleteLead as deleteLeadApi, lostLead, successLead } from '../../../../api/lead';
-    import { usePipelineKanban } from '../../../../composables/CRM/pipelines/usePipelineKanban';
+    import { useKanbanStore } from '../../../../stores/kanban';
+    import { Status } from '../../../../types/lead';
 
-    const { deleteLead } = usePipelineKanban();
+    const kanbanStore = useKanbanStore();
 
     async function dropLostLead(event: DragEvent) {
         const leadId = Number(event.dataTransfer?.getData('leadId'));
         const leadStageId = Number(event.dataTransfer?.getData('stageId'));
         try {
-            await lostLead(leadId);
-            deleteLead(leadId, leadStageId);
+            await kanbanStore.deleteLead(leadId, leadStageId, false, Status.lost);
         }
         catch {
             alert("Возникла ошибка! Попробуйте позже");
@@ -36,8 +35,7 @@
         const leadId = Number(event.dataTransfer?.getData('leadId'));
         const leadStageId = Number(event.dataTransfer?.getData('stageId'));
         try {
-            await successLead(leadId);
-            deleteLead(leadId, leadStageId);
+            await kanbanStore.deleteLead(leadId, leadStageId, false, Status.won);
         }
         catch {
             alert("Возникла ошибка! Попробуйте позже");
@@ -48,8 +46,7 @@
         const leadId = Number(event.dataTransfer?.getData('leadId'));
         const leadStageId = Number(event.dataTransfer?.getData('stageId'));
         try {
-            await deleteLeadApi(leadId);
-            deleteLead(leadId, leadStageId);
+            await kanbanStore.deleteLead(leadId, leadStageId, true);
         }
         catch {
             alert("Возникла ошибка! Попробуйте позже");

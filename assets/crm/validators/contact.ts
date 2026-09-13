@@ -1,4 +1,4 @@
-import { ContactRequest } from '../types/contact';
+import { ContactErrors, ContactRequest } from '../types/contact';
 import { INN, phone as validatePhone, email as validateEmail, max, required, validate } from './rules';
 import { ValidationResult } from './validationResult';
 
@@ -12,8 +12,17 @@ interface a {
     email?: string;
     messenger?: string;
 }
-export function validateContact(data: ContactRequest): ValidationResult {
-    const errors: Record<string, string> = {};
+export function validateContact(data: ContactRequest): ValidationResult<ContactErrors> {
+    const errors: ContactErrors = {
+        name: null,
+        secondname: null,
+        thirdname: null,
+        position: null,
+        phone: null,
+        email: null,
+        messenger: null,
+        client_id: null
+    };
     const name = data.name?.trim();
     const secondname = data.secondname?.trim();
     const thirdname = data.thirdname?.trim();
@@ -44,5 +53,5 @@ export function validateContact(data: ContactRequest): ValidationResult {
     validate(errors, 'messenger', [
         max(`Название мессенджера должно быть не больше ${MAX_LENGTH_NAME} символов`, MAX_LENGTH_NAME),
     ], messenger);
-    return {isValid: Object.keys(errors).length === 0, errors};
+    return {isValid: !Object.values(errors).some(error => error !== null), errors};
 }

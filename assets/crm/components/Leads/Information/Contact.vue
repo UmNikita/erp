@@ -42,15 +42,13 @@
 <script setup lang="ts">
   import { useInlineRenameForm } from '../../../composables/useInlineRenameForm.ts';
   import { Contact } from '../../../types/contact.ts';
-  import { formatPhone } from '../../../utils/fields.ts';
   import RenameField from '../../common/RenameField.vue';
-  import {useContactForm} from '../../../composables/Clients/useContactForm.ts';
 
   const props = defineProps<{
     contact: Contact;
   }>();
 
-  const {updateContact} = useContactForm();
+  //const {updateContact} = useContactForm();
 
   const {editing, errors, data, generalError, 
     startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm(props.contact);

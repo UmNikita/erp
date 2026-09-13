@@ -14,9 +14,10 @@ export function clientContactsUrl(id: number) {
     return `/crm/client/${id}/contacts`;
 }
 
-export function clientStoryUrl(id: number) {
-    return `/crm/client/${id}/story`;
+export function clientHistoryUrl(id: number) {
+    return `/crm/client/${id}/history`;
 }
+
 export function clientTableUrl(page: number = 1) {
     return `/crm/clients?page=${page}`;
 }

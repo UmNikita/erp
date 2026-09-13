@@ -1,4 +1,4 @@
-import { Pipeline, PipelineDetail, PipelineRequest } from "../types/pipeline";
+import { Pipeline, PipelineDetail } from "../types/pipeline";
 import { Stage } from "../types/stage";
 
 export function pipelineToDetail(pipeline: Pipeline, stages: Stage[] = []): PipelineDetail {
@@ -7,20 +7,6 @@ export function pipelineToDetail(pipeline: Pipeline, stages: Stage[] = []): Pipe
         name: pipeline.name,
         stages: stages
     }
-}
-
-export function pipelineToRequest(pipeline: Pipeline | PipelineDetail): PipelineRequest {
-    return {
-        name: pipeline.name
-    }
-}
-
-export function pipelineDetailToPipelineList(pipelines: PipelineDetail[]): Pipeline[] {
-    let arr: Pipeline[] = []
-    pipelines.forEach(element => {
-        arr.push(pipelineDetailToPipeline(element));
-    });
-    return arr;
 }
 
 export function pipelineDetailToPipeline(pipeline: PipelineDetail): Pipeline {

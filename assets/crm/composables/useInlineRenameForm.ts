@@ -1,11 +1,11 @@
 import { onMounted, ref } from 'vue';
 
-export function useInlineRenameForm(model: Record<string, string | number>) {
+export function useInlineRenameForm<T extends object, E extends object>(model: T) {
 
     const editing = ref(false);
-    const errors = ref<Record<string, string>>({});
-    const data = ref<Record<string, string | number>>({});
-    const generalError = ref();
+    const errors = ref<E>({} as E);
+    const data = ref<T>({... model});
+    const generalError = ref<string | null>(null);
 
     function startEditing() {
         editing.value = true;
@@ -13,7 +13,7 @@ export function useInlineRenameForm(model: Record<string, string | number>) {
 
     function cancelEditing() {
         generalError.value = null;
-        errors.value = {};
+        errors.value = {} as E;
         editing.value = false;
         data.value = { ...model };
     }
@@ -22,10 +22,11 @@ export function useInlineRenameForm(model: Record<string, string | number>) {
         Object.assign(model, data.value);
     }
 
-    function accept(): Record<string | number, unknown> | null {
+    function accept(): Partial<T> | null {
         generalError.value = null;
-        errors.value = {};
-        const newData: Record<string | number, unknown> = {};
+        errors.value = {} as E;
+
+        const newData: Partial<T> = {};
 
         for (const key in model) {
             if (data.value[key] !== model[key]) {
@@ -37,6 +38,7 @@ export function useInlineRenameForm(model: Record<string, string | number>) {
             editing.value = false;
             return null;
         }
+
         return newData;
     }
 

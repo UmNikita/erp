@@ -1,6 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router.ts';
+import { createPinia } from 'pinia';
 
+const app = createApp(App);
 
-createApp(App).use(router).mount('#crm-app');
+app.use(createPinia());
+app.use(router);
+app.mount('#crm-app');

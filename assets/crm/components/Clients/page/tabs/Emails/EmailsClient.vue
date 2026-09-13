@@ -1,56 +1,62 @@
 <template>
-    <section>
-        <div class="section-head">
-            <div>
-                <h2>Письма клиенту</h2>
-                <p>Отправленные письма, черновики и ошибки доставки</p>
+    <template v-if="loading">
+        <section v-if="!error">
+            <div class="section-head">
+                <div>
+                    <h2>Письма клиенту</h2>
+                    <p>Отправленные письма, черновики и ошибки доставки</p>
+                </div>
+                <div>
+                    <!-- <button class="btn btn-primary open-mail">+ Написать письмо</button> -->
+                    <button class="btn btn-primary open-mail" @click="openModal(MODALS.SEND_KP)">Отправить КП</button>
+                </div>
             </div>
-            <div>
-                <button class="btn btn-primary open-mail">+ Написать письмо</button>
-                <button class="btn btn-primary open-mail" @click="openModal(MODALS.SEND_KP)">Отправить КП</button>
+            <!-- <div class="mail-filters">
+                <button class="mail-filter active">Все</button>
+                <button class="mail-filter">Отправленные</button>
+                <button class="mail-filter">Черновики</button>
+                <button class="mail-filter">Ошибки</button>
+            </div> -->
+            <div class="mail-list">
+                <Email v-for="email in historyEmails" :email="email" />
             </div>
-        </div>
-        <div class="mail-filters">
-            <button class="mail-filter active">Все</button>
-            <button class="mail-filter">Отправленные</button>
-            <button class="mail-filter">Черновики</button>
-            <button class="mail-filter">Ошибки</button>
-        </div>
-        <div class="mail-list">
-            <Email v-for="email in historyEmails" :email="email" />
-        </div>
-    </section>
-    <KpModal v-if="activeModal === MODALS.SEND_KP" :error="generalError" :errors="errors" 
-    :contacts="client?.contacts" @close="closeModalKp" @submit="acceptSendKp"
-    />
+        </section>
+        <Error v-else />
+        <KpModal v-if="activeModal === MODALS.SEND_KP" @close="closeModal" />
+    </template>
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import { LeadRequest } from '../../../../../types/lead';
+    import { onMounted, ref } from 'vue';
     import KpModal from '../../../modals/KpModal.vue';
     import { MODALS, useModal } from '../../../../../composables/useModal.ts';
     import { useCurrentClient } from '../../../../../composables/Clients/useCurrentClient.ts';
-    import { useEmailForm } from '../../../../../composables/Clients/useEmailForm.ts';
     import Email from './Email.vue';
+    import { useRoute } from 'vue-router';
+    import Error from '../../../../Error.vue';
 
-    const {activeModal, generalError, closeModal, openModal} = useModal();
-    const { sendKP } = useEmailForm();
-    const errors = ref<Record<string, string>>({});
+    const {activeModal, closeModal, openModal} = useModal();
 
-    const { client, historyEmails  } = useCurrentClient();
+    const { historyEmails  } = useCurrentClient();
 
-    function closeModalKp() {
-        errors.value = {};
-        closeModal();
-    }
+    const { loadEmails } = useCurrentClient();
+    const error = ref(false);
+    const loading = ref(false);
 
-    async function acceptSendKp(data: LeadRequest) {
-        const res = await sendKP(client.value, data, errors, generalError);
-        if(res == null)
-            return;
-        closeModal();
-    }
+    const route = useRoute();
+    const clientId = Number(route.params.id);
+
+    onMounted(async ()=>{
+        try{
+            await loadEmails(clientId);
+        }
+        catch {
+            error.value = true;
+        }
+        finally {
+            loading.value = true;
+        }
+    });
 
 </script>
 

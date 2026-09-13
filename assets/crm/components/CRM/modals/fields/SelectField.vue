@@ -18,13 +18,13 @@
         ico: Component;
         title: string;
         firstElement: string;
-        error?: string;
+        error?: string | null;
         required: boolean;
         elements: Responsible[];
     }>();
 </script>
 
-<style>
+<style scoped>
     .create-modal__input-wrap select
     {
         width: 100%;

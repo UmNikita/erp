@@ -27,15 +27,15 @@ export async function createClient(data: ClientRequest): Promise<Client>
     return response.data;
 }
 
-export async function updateClient(id: number, data: ClientRequest): Promise<Client>
+export async function updateClient(id: number, data: Partial<ClientRequest>): Promise<Client>
 {
     const response = await api.patch('/client/'+id, data);
     return response.data;
 }
 
-export async function deleteClient(client: Client): Promise<void>
+export async function deleteClient(clientId: number): Promise<void>
 {
-    const response = await api.delete('/client/'+client.id);
+    const response = await api.delete('/client/'+clientId);
     return response.data;
 }
 

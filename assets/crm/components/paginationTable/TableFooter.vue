@@ -1,18 +1,19 @@
 <template>
     <footer class="footer">
-        <span>Показано {{ count }} из {{clientCount}} клиентов</span>
+        <span>Показано {{ count }} из {{clientCount}}</span>
         <div class="pages">
-            <router-link v-if="!isStart" class="page-btn" :to="clientTableUrl(page-1)"><</router-link>
+            <button v-if="!isStart" class="page-btn" @click="emit('to', props.page-1)"><</button>
             <div v-else class="page-btn deactive"><</div>
-            <router-link class="page-btn" :class="{ active: page === num }" v-for="num in range" :to="clientTableUrl(num)">{{ num }}</router-link>
-            <router-link v-if="!isEnd" class="page-btn" :to="clientTableUrl(page+1)">></router-link>
+            <button class="page-btn" :class="{ active: props.page === num }" v-for="num in range" @click="emit('to', num)">{{ num }}</button>
+            <button v-if="!isEnd" class="page-btn" @click="emit('to', props.page+1)">></button>
             <div v-else class="page-btn deactive">></div>
         </div>
     </footer>
 </template>
 
 <script setup lang="ts">
-    import { clientTableUrl } from '../../../routes/client';
+
+    const emit = defineEmits(['to']);
 
     const props = defineProps<{
         clientCount: number;
@@ -22,6 +23,7 @@
         isStart: boolean;
         isEnd: boolean;
     }>();
+    
 </script>
 
 <style scoped>

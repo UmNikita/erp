@@ -3,7 +3,7 @@
         <div class="item-icon">₽</div>
         <div class="item-text">
             <strong>{{ lead.name }}</strong>
-            <span>{{ lead.stage.pipeline.name }} · {{ lead.stage.name }}</span>
+            <span v-if="lead.stage">{{ lead.stage.pipeline.name }} · {{ lead.stage.name }}</span>
         </div>
         <span class="amount">{{ formatAmount(lead.budget) }} ₽</span>
     </div>

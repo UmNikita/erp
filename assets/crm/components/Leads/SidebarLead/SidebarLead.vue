@@ -18,7 +18,7 @@
         </div>
       </section>
 
-      <ChatLead :lead-messages="leadMessages" :lead="lead" />
+      <ChatLead :lead="lead" />
     </aside>
 </template>
 
@@ -29,7 +29,6 @@
 
   const props = defineProps<{
     lead: LeadDetail;
-    leadMessages: Message[];
   }>();
 
 </script>

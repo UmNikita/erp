@@ -42,7 +42,7 @@
 <script setup lang="ts">
   import { ClientDetail } from '../../../types/client.ts';
   import { formatPhone } from '../../../utils/fields.ts';
-  import { useClientForm } from '../../../composables/Clients/useClientForm.ts';
+  // import { useClientForm } from '../../../composables/Clients/useClientForm.ts';
   import { useInlineRenameForm } from '../../../composables/useInlineRenameForm.ts';
   import RenameField from '../../common/RenameField.vue';
 
@@ -51,7 +51,7 @@
   }>();
 
   
-  const { updateClient } = useClientForm();
+  //const { updateClient } = useClientForm();
 
   const {editing, errors, data, generalError, 
     startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm(props.client);
@@ -62,11 +62,11 @@
       return;
     if(!props.client)
       return;
-    const res = await updateClient(props.client, data.value, errors, generalError);
-    if(res) {
-      editing.value = false;
-      setNewData();
-    }
+    //const res = await updateClient(props.client, data.value, errors, generalError);
+    // if(res) {
+    //   editing.value = false;
+    //   setNewData();
+    // }
   }
 
 </script>

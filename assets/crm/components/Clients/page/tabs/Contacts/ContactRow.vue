@@ -9,7 +9,7 @@
         <td>{{ contact.messenger ? contact.messenger : '-' }}</td>
         <td>
             <div class="actions">
-                <button class="pipeline-settings__delete" @click="deleteContact">
+                <button class="pipeline-settings__delete" @click="acceptDeleteContact">
                     <DeleteIco />
                 </button>
                 <button class="pipeline-settings__settings" @click="edit">
@@ -21,19 +21,42 @@
 </template>
 
 <script setup lang="ts">
-    import { Contact } from "../../../../../types/contact.ts";
+    import { deleteContact } from "../../../../../api/contacts.ts";
+    import { useCurrentClient } from "../../../../../composables/Clients/useCurrentClient.ts";
+    import { Contact, ContactRequest } from "../../../../../types/contact.ts";
     import { formatPhone } from "../../../../../utils/fields.ts";
     import DeleteIco from "../../../../icons/DeleteIco.vue";
     import SettingsIco from "../../../../icons/SettingsIco.vue";
 
-    const emit = defineEmits(['edit', 'delete']);
+    const emit = defineEmits(['edit']);
+    const { client } = useCurrentClient();
 
     function edit() {
         emit("edit", props.contact.id);
     }
 
-    function deleteContact() {
-        emit("delete", props.contact.id);
+    // async function acceptEditContact(data: ContactRequest, id: number) {
+    //     const obj = client.value?.contacts.find(contact => contact.id === id);
+    //     if(!obj)
+    //         return;
+    //     const contact = await updateContact(obj, data, errors, generalError);
+    //     if(contact == null) return;
+    //     Object.assign(obj, contact);
+    //     closeModal();
+    // }
+
+    async function acceptDeleteContact() {
+        if (!confirm("Вы действительно хотите удалить контакт"))
+            return;
+        try {
+            await deleteContact(props.contact.id);
+            if(client.value)
+                client.value.contacts = client.value.contacts.filter(value => value.id !== props.contact.id);
+        }
+        catch {
+            alert("Возникла ошибка");
+            return;
+        }
     }
 
     const props = defineProps<{

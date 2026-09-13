@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { ClientHistory } from '../../../../../types/client';
-import { formatResponseDate } from '../../../../../utils/fields';
+    import { ClientHistory } from '../../../../../types/client';
+    import { formatResponseDate } from '../../../../../utils/fields';
 
     const props = defineProps<{
         record: ClientHistory;

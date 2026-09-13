@@ -16,11 +16,11 @@
             </div>
         </td>
 
-        <td>{{ lead.client?.name }}</td>
+        <td>{{ lead.client ? lead.client?.name : '-' }}</td>
 
         <td>
             <span class="archive-page__pipeline">
-                {{ lead.stage.pipeline.name }}
+                {{ lead.stage ? lead.stage.pipeline.name : '-' }}
             </span>
         </td>
 
@@ -30,10 +30,15 @@
             </strong>
         </td>
 
-        <td>
+        <td v-if="lead.responsible">
             <div class="archive-page__manager">
-            <span class="archive-page__avatar">M</span>
-                {{ lead.responsible?.name }}
+            <span class="archive-page__avatar">{{ lead.responsible.name[0] }}</span>
+                {{ lead.responsible.name }}
+            </div>
+        </td>
+        <td v-else>
+            <div class="archive-page__manager">
+                -
             </div>
         </td>
 
@@ -68,16 +73,24 @@
     import { LeadResponse } from '../../types/lead';
     import DeleteIco from "../icons/DeleteIco.vue";
     import { formatAmount, formatResponseDate, formatStatus } from '../../utils/fields.ts'
+    import { deleteLead as deleteLeadApi } from '../../api/lead.ts';
+    import { useLeadTableStore } from '../../stores/leadArchiveTable.ts';
 
     const props = defineProps<{
         lead: LeadResponse;
     }>();
 
-    const emit = defineEmits(['delete', 'active']);
+    const leadTableStore = useLeadTableStore();
 
-    function deleteLead() {
-        if(confirm("Вы действительно хотите удалить?"))
-            emit('delete', props.lead);
+    async function deleteLead() {
+        if(!confirm("Вы действительно хотите удалить?"))
+            return;
+        try {
+            await deleteLeadApi(props.lead.id);
+            leadTableStore.refresh();
+        } catch {
+            alert("Возникла ошибка!");
+        }
     }
 
 </script>

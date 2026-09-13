@@ -1,6 +1,6 @@
 <template>
-  <CreateModalWrapper title-btn="Создать" title="Создание сделки" subtitle="Заполните информацию о сделки"
-  :error="error" @submit="submit" @close="close">
+  <CreateModalWrapper :accepting="accepting" title-btn="Создать" title="Создание сделки" subtitle="Заполните информацию о сделки"
+  :error="generalError" @submit="accept" @close="emit('close')">
     <TextField :required="true" :ico="LeadIco" title="Название сделки" v-model="name" 
     placeholder="Введите название сделки" :error="errors.name" />
     <NumberField :required="false" :ico="LeadIco" title="Бюджет сделки" v-model="budget" :error="errors.budget" />
@@ -12,7 +12,7 @@
     placeholder="Введите следующие действие" :error="errors.next_action" />
     <TextField :required="false" :ico="CommentIco" title="Комментарий" v-model="comment" 
     placeholder="Введите комментарий" :error="errors.comment" />
-    <StageField title="Этап" v-model="comment" :pipelines-detail="pipelinesDetail" 
+    <StageField title="Этап" v-model="comment" :pipelines-detail="pipelineStore.pipelinesDetail" 
     v-model:selected-stage-id="selectedStageId" v-model:selected-pipeline-id="selectedPipelineId" :error="errors.stage_id" />
     <div v-if="!isNewClient" class="create-modal__btn">
       <button @click="setNewClient">Создать клиента</button>
@@ -21,7 +21,7 @@
     <ClientDataField v-if="isNewClient" v-model:name="newClientName" 
     v-model:email="newClientEmail" v-model:phone="newClientPhone" :error="errors.new_client" />
     <SelectField :required="false" :ico="ClientIco" title="Менеджер" v-model="currentManager" 
-    :elements="responsibles" firstElement="Выбирите менеджера" :error="errors.comment" />
+    :elements="responsilesStore.responsibles" firstElement="Выбирите менеджера" :error="errors.responsible_id" />
   </CreateModalWrapper>
 </template>
 
@@ -38,13 +38,34 @@
   import CreateModalWrapper from './CreateModalWrapper.vue'
   import NumberField from './fields/NumberField.vue';
   import StageField from './fields/StageField.vue';
-  import { PipelineDetail } from '../../../types/pipeline.ts';
   import ClientSearchField from './fields/ClientSearchField.vue';
   import { Client } from '../../../types/client.ts';
   import ClientDataField from './fields/ClientDataField.vue';
-  import { Responsible } from '../../../types/kanban.ts';
+  import { useResponsiblesStore } from '../../../stores/responsibles.ts';
+  import { usePipelineStore } from '../../../stores/pipelines.ts';
+  import { LeadErrors, LeadRequest } from '../../../types/lead.ts';
+  import { validateLead } from '../../../validators/lead.ts';
+  import { useKanbanStore } from '../../../stores/kanban.ts';
 
-  const emit = defineEmits(['close', 'submit'])
+  const emit = defineEmits(['close']);
+
+  const responsilesStore = useResponsiblesStore();
+  const pipelineStore = usePipelineStore();
+  const kanbanStore = useKanbanStore();
+  const errors = ref<LeadErrors>({
+    name: null,
+    budget: null,
+    product: null,
+    source: null,
+    next_action: null,
+    comment: null,
+    stage_id: null,
+    client_id: null,
+    new_client: null,
+    responsible_id: null
+  });
+
+  const accepting = ref(false);
 
   const name = ref('');
   const budget = ref(0);
@@ -60,12 +81,7 @@
   const newClientPhone = ref();
   const currentManager = ref();
   const isNewClient = ref(false);
-  const props = defineProps<{ 
-    error?: string | null,
-    pipelinesDetail: PipelineDetail[],
-    responsibles: Responsible[],
-    errors: Record<string, string>
-  }>();
+  const generalError = ref<string | null>(null);
 
   function setClient(client: Client) {
     currentClient.value = client.id;
@@ -76,11 +92,7 @@
     currentClient.value = null;
   }
 
-  function close() {
-    emit('close')
-  }
-
-  function submit() {
+  async function accept() {
     let newClient;
     if(newClientName.value || newClientPhone.value || newClientEmail.value) {
       newClient = {
@@ -89,7 +101,7 @@
         phone: newClientPhone.value 
       }
     }
-    const data = {
+    const data: LeadRequest = {
       name: name.value,
       budget: budget.value,
       product: product.value,
@@ -101,10 +113,26 @@
       client: newClient,
       responsible_id: currentManager.value
     };
-    emit('submit', data, isNewClient.value);
+    const validationErrors = validateLead(data, isNewClient.value);
+    if (!validationErrors.isValid) {
+      errors.value = validationErrors.errors;
+      return false;
+    }
+    accepting.value = true;
+    try {
+      await kanbanStore.createLead(data);
+    }
+    catch {
+      generalError.value = 'Не удалось создать сделку. Попробуйте чуть позже';
+      return;
+    }
+    finally {
+      accepting.value = false;
+    }
+    emit('close');
   }
 </script>
-<style>
+<style scoped>
 .create-modal__btn {
   display: flex;
   justify-content: center;

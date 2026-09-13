@@ -93,12 +93,24 @@ class LeadRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('l')
             ->addSelect('s', 'p')
-            ->join('l.stage', 's')
-            ->join('s.pipeline', 'p')
+            ->leftJoin('l.stage', 's')
+            ->leftJoin('s.pipeline', 'p')
             ->where('l.id IN (:ids)')
             ->setParameter('ids', $leadIds)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getCount(?int $clientId = null): int
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('COUNT(l.id)');
+        if ($clientId !== null) {
+            $qb
+            ->where('l.client = :clientId')
+            ->setParameter('clientId', $clientId);
+        }
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function getCountArchive() { 

@@ -36,6 +36,12 @@ export async function updateLead(leadId: number, data: LeadRequest): Promise<Axi
     return response;
 }
 
+export async function renameLead(leadId: number, newName: string): Promise<AxiosResponse>
+{
+    const response = await api.patch('/lead/' + leadId, {name: newName});
+    return response;
+}
+
 export async function setClientLead(leadId: number, clientId: number): Promise<AxiosResponse>
 {
     const response = await api.patch('/lead/' + leadId, {
@@ -93,8 +99,8 @@ export async function getLeadDetail(id?: number): Promise<LeadDetail>
 }
 
 
-export async function getArchiveLeads(): Promise<GetLeadsResponse>
+export async function getArchiveLeads(limit: number = 10, page: number = 1): Promise<GetLeadsResponse>
 {
-    const response = await api.get('/leads', {params: {archive: true}});
+    const response = await api.get('/leads', {params: {archive: true, limit, page}});
     return response.data;
 }

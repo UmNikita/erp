@@ -30,7 +30,7 @@
     }
 
     const props = defineProps<{
-        error?: string;
+        error?: string | null;
     }>();
 
     const emit = defineEmits<{
@@ -72,7 +72,20 @@
     }
 </script>
 
-<style>
+<style scoped>
+    .create-modal__input-wrap input
+    {
+        width: 100%;
+        height: 45px;
+        padding: 0 16px;
+        border: 1px solid #dfe3e9;
+        border-radius: 8px;
+        outline: none;
+        background: #ffffff;
+        color: #171b24;
+        font: inherit;
+        font-size: 14px;
+    }
     .client-results {
         width: 400px;
         max-height: 250px;

@@ -1,53 +1,53 @@
 <template>
-    <div class="documentation">
-        <div class="documentation__header">
-            <div>
-                <h2 class="documentation__title">Документация API</h2>
-                <p class="documentation__description">Основные методы для работы с CRM через внешний сервис.</p>
-            </div>
-        </div>
-
-        <div class="documentation__base">
-            <span class="documentation__base-label">Base URL</span>
-            <code>{{ baseURL }}</code>
-        </div>
-
-        <div class="documentation__grid">
-            <div class="endpoints">
-              <button class="endpoint" :class="route.route == currentRoute.route ? 'active' : ''" v-for="route in api.api" @click="setCurrentRoute(route)">
-                  <span class="endpoint__method endpoint__method--post">{{ route.method }}</span>
-                  <span class="endpoint__path">{{ route.route }}</span>
-              </button>
-            </div>
-
-            <div class="documentation__content">
-              <h3>{{ currentRoute.title }}</h3>
-              <p>{{ currentRoute.desctiption }}</p>
-
-              <div class="request-body" v-if="currentRoute.body">
-                  <span class="request-body__label">Body</span>
-                  <pre>{{ JSON.stringify(currentRoute.body, null, 2) }}</pre>
-              </div>
-
-              <div class="code-block">
-                  <span class="code-block__label">Пример запроса</span>
-                  <pre>
-<code>curl -X {{ currentRoute.method }} "{{ baseURL + currentRoute.route }}" \
-  -H "Authorization: Bearer {{ token.token }}" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  <span v-if="currentRoute.body">\
-  -d '{{ JSON.stringify(currentRoute.bodyExample, null, 2) }}'</span>
-</code>
-                  </pre>
-              </div>
-
-              <div class="docs-note">
-                  Передавайте токен в заголовке <strong>Authorization</strong> в формате <strong>Bearer TOKEN</strong>.
-              </div>
-            </div>
-        </div>
+  <div class="documentation">
+    <div class="documentation__header">
+      <div>
+        <h2 class="documentation__title">Документация API</h2>
+        <p class="documentation__description">Основные методы для работы с CRM через внешний сервис.</p>
+      </div>
     </div>
+
+    <div class="documentation__base">
+      <span class="documentation__base-label">Base URL</span>
+      <code>{{ baseURL }}</code>
+    </div>
+
+    <div class="documentation__grid">
+      <div class="endpoints">
+      <button class="endpoint" :class="route.route == currentRoute.route ? 'active' : ''" v-for="route in api.api" @click="setCurrentRoute(route)">
+        <span class="endpoint__method endpoint__method--post">{{ route.method }}</span>
+        <span class="endpoint__path">{{ route.route }}</span>
+      </button>
+      </div>
+
+      <div class="documentation__content">
+        <h3>{{ currentRoute.title }}</h3>
+        <p>{{ currentRoute.desctiption }}</p>
+
+        <div class="request-body" v-if="currentRoute.body">
+          <span class="request-body__label">Body</span>
+          <pre>{{ JSON.stringify(currentRoute.body, null, 2) }}</pre>
+        </div>
+
+        <div class="code-block">
+          <span class="code-block__label">Пример запроса</span>
+          <pre>
+<code>curl -X {{ currentRoute.method }} "{{ baseURL + currentRoute.route }}" \
+-H "Authorization: Bearer {{ token.token }}" \
+-H "Accept: application/json" \
+-H "Content-Type: application/json" \
+<span v-if="currentRoute.body">\
+-d '{{ JSON.stringify(currentRoute.bodyExample, null, 2) }}'</span>
+</code>
+            </pre>
+        </div>
+
+        <div class="docs-note">
+          Передавайте токен в заголовке <strong>Authorization</strong> в формате <strong>Bearer TOKEN</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -64,7 +64,6 @@
   function setCurrentRoute(route: any) {
     currentRoute.value = route;
   }
-
 </script>
 
 <style scoped> 

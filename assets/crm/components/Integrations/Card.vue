@@ -46,7 +46,7 @@
     </div>
 
     <div class="token-actions">
-      <button class="integrations-button integrations-button--secondary"  @click="emit('reissue')">
+      <button class="integrations-button integrations-button--secondary"  @click="reissueToken">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M5 8V4M5 4H9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
           <path d="M5.8 6.2A8 8 0 1 1 4.5 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
@@ -54,8 +54,8 @@
         Выпустить новый токен
       </button>
 
-      <button class="integrations-button integrations-button--danger" @click="emit('revoke')" v-if="token.is_active">Отозвать токен</button>
-      <button class="integrations-button integrations-button--active" @click="emit('active')" v-else>Активировать токен</button>
+      <button class="integrations-button integrations-button--danger" @click="revokeToken" v-if="token.is_active">Отозвать токен</button>
+      <button class="integrations-button integrations-button--active" @click="activeToken" v-else>Активировать токен</button>
     </div>
 
     <div class="integrations-divider"></div>
@@ -70,12 +70,53 @@
 
 <script setup lang="ts">
   import { Token } from '../../types/integration';
+  import { reissue, revoke, active } from '../../api/integration.ts';
 
-  const emit = defineEmits(['reissue', 'revoke', 'active']);
+  const emit = defineEmits(['setToken']);
+
+  function setToken(value: Token) {
+    emit('setToken', value);
+  }
 
   const props = defineProps<{
     token: Token;
   }>();
+
+  async function reissueToken() {
+    try{
+      if(!confirm("Вы уверены что хотите обновить токен?"))
+        return
+      const res = await reissue(props.token.id);
+      setToken(res);
+    }
+    catch {
+      alert("Возникла ошибка!");
+    }
+  }
+
+  async function revokeToken() {
+    try{
+      if(!confirm("Вы уверены что хотите отозвать токен?"))
+        return
+      const res = await revoke(props.token.id);
+      setToken(res);
+    }
+    catch {
+      alert("Возникла ошибка!");
+    }
+  }
+  
+  async function activeToken() {
+    try{
+      if(!confirm("Вы уверены что хотите активировать токен?"))
+        return
+      const res = await active(props.token.id);
+      setToken(res);
+    }
+    catch {
+      alert("Возникла ошибка!");
+    }
+  }
 
   async function copyToken() {
     await navigator.clipboard.writeText(props.token.token);

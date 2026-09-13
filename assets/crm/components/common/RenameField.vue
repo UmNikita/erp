@@ -16,6 +16,6 @@
         titleField: string;
         valueField: string | number | null;
         editing: boolean;
-        error?: string;
+        error?: string | null;
     }>();
 </script>

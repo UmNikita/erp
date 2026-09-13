@@ -1,4 +1,4 @@
-export interface ValidationResult {
+export interface ValidationResult<T> {
     isValid: boolean;
-    errors: Record<string, string>;
+    errors: T;
 }

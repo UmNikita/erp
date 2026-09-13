@@ -2,10 +2,10 @@
   <div class="deal-page" v-if="loading">
     <Error v-if="error" />
     <template v-else>
-      <HeaderLead :responsibles="responsibles" :lead="lead" :pipelines="pipelines" />
+      <HeaderLead :lead="lead" />
       <div class="deal-layout">
         <InformationLead :lead="lead" />
-        <SidebarLead :lead-messages="leadMessages" :lead="lead" />
+        <SidebarLead :lead="lead" />
       </div>
     </template>
   </div>
@@ -14,33 +14,31 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue';
   import { LeadDetail, Message } from '../../types/lead';
-  import HeaderLead from './HeaderLead.vue';
+  import HeaderLead from './Header/HeaderLead.vue';
   import InformationLead from './Information/InformationLead.vue';
   import SidebarLead from './SidebarLead/SidebarLead.vue';
-  import { getLeadDetail, getLeadMessages } from '../../api/lead.ts';
+  import { getLeadDetail } from '../../api/lead.ts';
   import { useRoute } from 'vue-router';
   import Error from '../Error.vue';
-  import { PipelineDetail } from '../../types/pipeline.ts';
-  import { getPipelinesDetail } from '../../api/pipeline.ts';
-  import { Responsible } from '../../types/kanban.ts';
-  import {getResponsibles} from '../../api/kanban.ts';
+  import { usePipelineStore } from '../../stores/pipelines.ts';
+  import { useResponsiblesStore } from '../../stores/responsibles.ts';
 
   const lead = ref<LeadDetail>();
   const loading = ref(false);
   const error = ref(false);
-  const pipelines = ref<PipelineDetail[]>([]);
-  const responsibles = ref<Responsible[]>([]);
   const leadMessages = ref<Message[]>([]);
 
   const route = useRoute();
   const leadId = Number(route.params.id);
 
+  const pipelineStore = usePipelineStore();
+  const responsiblesStore = useResponsiblesStore();
+
   onMounted(async ()=> {
     try{
       lead.value = await getLeadDetail(leadId);
-      pipelines.value = await getPipelinesDetail();
-      responsibles.value = await getResponsibles();
-      leadMessages.value = await getLeadMessages(lead.value.id);
+      await responsiblesStore.loadResponsibles();
+      await pipelineStore.loadPipelines();
     }
     catch {
       error.value = true;

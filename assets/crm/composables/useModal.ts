@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 
 const activeModal = ref<string | null>(null);
-const generalError = ref<string | null>(null);
 
 export function useModal() {
 
@@ -11,11 +10,9 @@ export function useModal() {
 
     function closeModal() {
         activeModal.value = null;
-        generalError.value = null;
     }
     return {
         activeModal,
-        generalError,
         openModal,
         closeModal
     };

@@ -199,7 +199,7 @@ final class ClientController extends APIController
         usort($records, function ($a, $b) {
             return $b->getCreatedAt() <=> $a->getCreatedAt();
         });
-
+        
         $results = $jsonManager->getMessagesClient($records);
         return $this->response(["history" => $results]);
     }

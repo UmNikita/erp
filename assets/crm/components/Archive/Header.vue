@@ -6,7 +6,7 @@
         </div>
     </div>
 
-    <div class="archive-page__toolbar">
+    <!-- <div class="archive-page__toolbar">
         <div class="archive-page__search">
             <svg viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
@@ -27,12 +27,12 @@
         </button>
 
         <button class="archive-page__filter" type="button">
-            Менеджер
+            Ответственный
             <svg viewBox="0 0 24 24" fill="none">
                 <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
-    </div>
+    </div> -->
 </template>
 
 

@@ -1,17 +1,16 @@
 <template>
-    <div class="activity-date">{{ leadMessage[0].date }}</div>
+    <div class="activity-date">{{ formatResponseDate(leadMessage[0].date) }}</div>
     <Message :message="message" v-for="message in leadMessage" />
 </template>
 
 <script setup lang="ts">
     import { Message as MessageChat } from '../../../types/lead.ts';
+    import { formatResponseDate } from '../../../utils/fields.ts';
     import Message from './Message.vue';
 
     const props = defineProps<{
         leadMessage: Record<string, MessageChat[]>[];
     }>();
-
-    console.log(props.leadMessage)
 
 </script>
 

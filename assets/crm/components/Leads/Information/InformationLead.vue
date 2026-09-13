@@ -5,51 +5,53 @@
       <Lead :lead="lead" />
       <template v-if="lead.client">
         <Client :client="lead.client" />
-        <Contact :contact="contact" v-for="contact in lead.client.contacts" />
+        <!-- <Contact :contact="contact" v-for="contact in lead.client.contacts" /> -->
       </template>
-      <div class="info-card info-card--empty">
+      <div class="info-card info-card--empty" v-if="!lead.client">
         <button class="add-card-button" @click="addBtn">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <PlusIco />
         </button>
       </div>
     </div>
   </section>
-  <ClientModal 
-    v-if="activeModal === MODALS.CREATE_CLIENT" :error="generalError" :errors="errors"
-    @close="closeModalClient" @submit="acceptAddClient"
-  />
-  <ContactModal 
+  <ClientModal :is-submit="true" v-if="activeModal === MODALS.CREATE_CLIENT"  
+    @submit="acceptAddClient" @close="closeModal" />
+  <!-- <ContactModal 
     v-if="activeModal === MODALS.CREATE_CONTACT" :error="generalError" :errors="errors"
     @close="closeModalClient" @submit="acceptAddContact" :is-edit="false" :contact="null"
-  />
+  /> -->
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { MODALS, useModal } from '../../../composables/useModal.ts';
   import { LeadDetail } from '../../../types/lead.ts';
   import ClientModal from '../../Clients/modals/ClientModal.vue';
-  import ContactModal from '../../Clients/modals/ContactModal.vue';
   import Client from './Client.vue';
-  import Contact from './Contact.vue';
   import Lead from './Lead.vue';
+  import PlusIco from '../../icons/PlusIco.vue';
   import { ClientRequest } from '../../../types/client.ts';
   import { setClientLead } from '../../../api/lead.ts';
-  import { useClientForm } from '../../../composables/Clients/useClientForm.ts';
   import { newClientToDetail } from '../../../mappers/clientMapper.ts';
-  import { ContactRequest } from '../../../types/contact.ts';
-  import { useContactForm } from '../../../composables/Clients/useContactForm.ts';
+  import { createClient } from '../../../api/client.ts';
 
-  const {activeModal, generalError, closeModal, openModal} = useModal();
-  const errors = ref<Record<string, string>>({});
-  const {createClient} = useClientForm();
-  const {createContact} = useContactForm();
+  const {activeModal, closeModal, openModal} = useModal();
   const props = defineProps<{
     lead: LeadDetail;
   }>();
 
+  // async function acceptAddContact(data: ContactRequest) {
+  //   data.client_id = props.lead.client.id;
+  //   //const contact = await createContact(data, errors, generalError);
+  //   if(contact == null) return;
+  //   if(props.lead.client?.contacts)
+  //     props.lead.client?.contacts.push(contact);
+  //   else
+  //     props.lead.client.contacts = [contact];
+  //   closeModal();
+  // }
+
   async function acceptAddClient(data: ClientRequest) {
-    const client = await createClient(data, errors, generalError);
+    const client = await createClient(data);
     if(client) {
       await setClientLead(props.lead.id, client.id);
       props.lead.client = newClientToDetail(client, props.lead);
@@ -57,23 +59,8 @@
     }
   }
 
-  async function acceptAddContact(data: ContactRequest) {
-    data.client_id = props.lead.client.id;
-    const contact = await createContact(data, errors, generalError);
-    if(contact == null) return;
-    if(props.lead.client?.contacts)
-      props.lead.client?.contacts.push(contact);
-    else
-      props.lead.client.contacts = [contact];
-    closeModal();
-  }
-
-  function closeModalClient() {
-    errors.value = {};
-    closeModal();
-  }
-
   function addBtn() {
+
     if(props.lead.client) {
       openModal(MODALS.CREATE_CONTACT);
     } else {
@@ -85,14 +72,14 @@
 
 <style scoped> 
   .deal-information {
-      background: #fff;
-      border: 1px solid #e4e8ee;
-      border-radius: 13px;
-      box-shadow: 0 2px 8px rgba(28,39,56,.025);
+    background: #fff;
+    border: 1px solid #e4e8ee;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(28,39,56,.025);
   }
 
   .deal-information {
-      padding: 18px;
+    padding: 18px;
   }
 
   .section-title {

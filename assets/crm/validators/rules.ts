@@ -1,4 +1,4 @@
-type Rule = (value?: string | number) => string | null;
+type Rule = (value?: string | number) => any;
 
 export function required(message: string) {
     return (value?: string | number): string | null => {
@@ -75,10 +75,38 @@ export function phone(message: string) {
         if(typeof value === "number") {
             return message;
         }
-        if(value) {
+        if (value) {
+            if (!/^[\d\s()+\-]+$/.test(value)) {
+                return message;
+            }
+
             const digits = value.replace(/\D/g, '');
 
             if (digits.length < 10 || digits.length > 15) {
+                return message;
+            }
+        }
+
+        return null;
+    };
+}
+
+export function url(message: string) {
+    return (value?: string | number): string | null => {
+
+        if (typeof value === "number") {
+            return message;
+        }
+
+        if (value) {
+            try {
+                const url = new URL(value);
+
+                if (!['http:', 'https:'].includes(url.protocol)) {
+                    return message;
+                }
+
+            } catch {
                 return message;
             }
         }
@@ -105,7 +133,7 @@ export function INN(message: string) {
     };
 }
 
-export function validate(err: Record<string, string>, key: string, rules: Rule[], value?: string | number) {
+export function validate<T extends object>(err: T, key: keyof T, rules: Rule[], value?: string | number) {
     for (const rule of rules) {
         const error = rule(value);
 

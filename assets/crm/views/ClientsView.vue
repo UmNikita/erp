@@ -1,101 +1,39 @@
 <template>
-    <div v-if="loading"></div>
+    <div v-if="clientTableStore.loading"></div>
     <div v-else>
-        <div v-if="error"><Error /></div>
-        <section v-else class="shell">
-            <ClientHeader />
-            <ClientTable @delete="deleteClient" :clients="clients" />
-            <ClientFooter :page="page" :range="range" :is-start="isStart()" 
-            :is-end="isEnd()" :count="total" :client-count="allCount" />
-        </section>
+        <div v-if="clientTableStore.error"><Error /></div>
+        <TableWrapper @set-page="setPage" @to="routeTableUrl">
+            <ClientTableHeader @btn-click="openModal(MODALS.CREATE_CLIENT)" />
+            <ClientTable />
+        </TableWrapper>
     </div>
-    
-    <ClientModal 
-        v-if="activeModal === MODALS.CREATE_CLIENT" :error="generalError" :errors="errors"
-        @close="closeModalClient" @submit="acceptAddClient"
-    />
-    
+    <ClientModal :is-submit="false" v-if="activeModal === MODALS.CREATE_CLIENT" @close="closeModal" />
 </template>
 
 <script setup lang="ts">
-    import { computed, ref, watch } from 'vue';
-    import ClientFooter from '../components/Clients/table/ClientFooter.vue';
-    import ClientHeader from '../components/Clients/table/ClientHeader.vue';
     import ClientTable from '../components/Clients/table/ClientTable.vue';
-    import { Client, ClientRequest } from '../types/client.ts';
-    import { getAllClients, deleteClient as deleteClientApi } from '../api/client.ts';
+    import ClientTableHeader from '../components/Clients/table/ClientTableHeader.vue';
     import Error from '../components/Error.vue';
-    import { useRoute } from 'vue-router';
-    import { usePagination } from '../composables/usePagination.ts';
-    import ClientModal from '../components/Clients/modals/ClientModal.vue';
+    import TableWrapper from '../components/paginationTable/TableWrapper.vue';
     import { MODALS, useModal } from '../composables/useModal.ts';
-    import { useClientForm } from '../composables/Clients/useClientForm.ts';
+    import { useClientTableStore } from '../stores/clientTable.ts';
+    import ClientModal from '../components/Clients/modals/ClientModal.vue';
+    import { clientTableUrl } from '../routes/client.ts';
+    import { useRouter } from 'vue-router';
 
-    const {activeModal, generalError, closeModal} = useModal();
-    const errors = ref<Record<string, string>>({});
-    const {createClient} = useClientForm();
+    const clientTableStore = useClientTableStore();
+    const router = useRouter();
 
-    async function acceptAddClient(data: ClientRequest) {
-        let client = await createClient(data, errors, generalError);
-        if(client == null)
-            return;
-        clients.value.push(client);
-        closeModal();
+    const { closeModal, activeModal, openModal } = useModal();
+
+    function routeTableUrl(page: number = 1) {
+        router.push(clientTableUrl(page));
     }
 
-    function closeModalClient() {
-        errors.value = {};
-        closeModal();
+    async function setPage(newPage: number, setStates: (allCount: number) => void) {
+        await clientTableStore.loadClients(newPage);
+        setStates(clientTableStore.allCount);
     }
-
-    const LIMIT = 10;
-
-    const clients = ref<Client[]>([]);
-    const loading = ref(true);
-    const error = ref(false);
-
-    const total = ref(1);
-    const route = useRoute();
-    const page = computed(() => Number(route.query.page ?? 1));
-
-    const {allCount, isStart, isEnd, range, setStates} = usePagination(page);
-
-    async function setClients(page: number) {
-        try{
-            const clientsResponse = await getAllClients(LIMIT, page);
-            clients.value = clientsResponse.clients;
-            total.value = clientsResponse.pagination.count;
-            if(page > 1)
-                total.value += page * LIMIT;
-
-            setStates(clientsResponse.pagination.allCount);
-        }
-        catch {
-            error.value = true;
-        }
-    }
-
-    async function deleteClient(client: Client) {
-        if(!confirm("Вы действительно хотите удалить?"))
-            return;
-        try {
-            await deleteClientApi(client);
-        } catch (err) {
-            alert("Возникла ошибка");
-            return;
-        }
-        clients.value = clients.value.filter(value => value.id !== client.id);
-    }
-
-    watch(
-        page,
-        async (newPage) => {
-            loading.value = true;
-            await setClients(newPage);
-            loading.value = false;
-        },
-        { immediate: true }
-    );
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
-  <CreateModalWrapper :title-btn="isEdit ? 'Обновить' : 'Создать'" title="Создание клиентп" subtitle="Заполните информацию о клиенте"
-  :error="error" @submit="submit" @close="emit('close')">
+  <CreateModalWrapper :accepting="accepting" :title-btn="isEdit ? 'Обновить' : 'Создать'" title="Создание клиентп" subtitle="Заполните информацию о клиенте"
+  :error="generalError" @submit="submit" @close="emit('close')">
     <TextField :required="true" :ico="ClientIco" title="Имя контакта"
     placeholder="Введите имя контакта" :error="errors.name" v-model="name" />
     <TextField :required="true" :ico="ClientIco" title="Фамилия контакта"
@@ -23,9 +23,26 @@
   import TextField from '../../CRM/modals/fields/TextField.vue';
   import CreateModalWrapper from '../../CRM/modals/CreateModalWrapper.vue';
   import { onMounted, ref } from 'vue';
-  import { Contact } from '../../../types/contact.ts';
+  import { Contact, ContactErrors, ContactRequest } from '../../../types/contact.ts';
+  import { createContact, updateContact } from '../../../api/contacts.ts';
+  import { validateContact } from '../../../validators/contact.ts';
+  import { useCurrentClient } from '../../../composables/Clients/useCurrentClient.ts';
 
-  const emit = defineEmits(['close', 'submit', 'edit']);
+  const emit = defineEmits(['close']);
+  const { client } = useCurrentClient();
+
+  const accepting = ref(false);
+  const generalError = ref<string | null>(null);
+  const errors = ref<ContactErrors>({
+    name: null,
+    secondname: null,
+    thirdname: null,
+    position: null,
+    phone: null,
+    email: null,
+    messenger: null,
+    client_id: null,
+  });
 
   const name = ref('');
   const secondname = ref('');
@@ -48,7 +65,9 @@
   }
 
   function submit() {
-    const data = {
+    if(!client.value)
+      return;
+    const data: ContactRequest = {
       name: name.value,
       secondname: secondname.value,
       thirdname: thirdname.value,
@@ -56,18 +75,88 @@
       phone: phone.value,
       email: email.value,
       messenger: messenger.value,
+      client_id: client.value.id
     }
     if(props.isEdit == true)
-      emit("edit", data, props.contact.id);
+      edit(data);
     else
-      emit("submit", data);
+      create(data);
+  }
+
+  async function edit(data: ContactRequest) {
+    const contact = client.value?.contacts.find(
+      contact => contact.id == props.contact?.id
+    );
+
+    if (!contact || !props.contact)
+      return;
+
+    const validationErrors = validateContact(data);
+
+    if (!validationErrors.isValid) {
+      errors.value = validationErrors.errors;
+      return false;
+    }
+
+    accepting.value = true;
+
+    try {
+      const changes: Partial<ContactRequest> = {};
+
+      for (const key of Object.keys(data) as (keyof ContactRequest)[]) {
+        if (data[key] !== props.contact[key]) {
+          changes[key] = data[key];
+        }
+      }
+
+      if (Object.keys(changes).length === 0) {
+        emit('close');
+        return null;
+      }
+
+      const updatedContact = await updateContact(changes, props.contact.id);
+
+      if (updatedContact == null)
+        return;
+
+      Object.assign(contact, updatedContact);
+    }
+    catch {
+      generalError.value = 'Не удалось обновить контакт. Попробуйте чуть позже';
+      return null;
+    }
+    finally {
+      accepting.value = false;
+    }
+
+    emit('close');
+  }
+
+  async function create(data: ContactRequest) {
+    const validationErrors = validateContact(data);
+    if (!validationErrors.isValid) {
+      errors.value = validationErrors.errors;
+      return false;
+    }
+    accepting.value = true;
+    try {
+      const contact = await createContact(data);
+      if(contact == null) return;
+      client.value?.contacts.push(contact);
+    }
+    catch {
+      generalError.value = 'Не удалось создать контакт. Попробуйте чуть позже';
+      return null;
+    }
+    finally {
+      accepting.value = false;
+    }
+    emit('close');
   }
 
   const props = defineProps<{
-    error?: string | null,
-    errors: Record<string, string>,
     isEdit: boolean,
-    contact: Contact | null
+    contact: Contact | undefined
   }>();
 
   onMounted(()=>{

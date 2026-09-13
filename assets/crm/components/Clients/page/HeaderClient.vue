@@ -1,6 +1,6 @@
 <template>
     <router-link class="back" :to="clientTableUrl(1)">
-        <svg viewBox="0 0 24 24" fill="none"><path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="1.8"/></svg>
+        <BackIco />
         Назад к клиентам
     </router-link>
 
@@ -11,10 +11,10 @@
                 <p>Дата создания: {{ client?.date_create ? formatResponseDate(client.date_create) : '-' }}</p>
             </div>
         </div>
-        <div class="actions">
+        <!-- <div class="actions">
             <button class="btn btn-secondary">Запланировать (временно неактивно)</button>
             <button class="btn btn-primary">+ Создать задачу (временно неактивно)</button>
-        </div>
+        </div> -->
     </header>
 </template>
 
@@ -22,6 +22,7 @@
     import { useCurrentClient } from '../../../composables/Clients/useCurrentClient';
     import { clientTableUrl } from '../../../routes/client';
     import { formatResponseDate } from '../../../utils/fields';
+import BackIco from '../../icons/BackIco.vue';
 
     const { client } = useCurrentClient();
 

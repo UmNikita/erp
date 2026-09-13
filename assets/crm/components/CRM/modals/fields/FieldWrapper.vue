@@ -17,16 +17,17 @@
     const props = defineProps<{
         ico: Component;
         title: string;
-        error?: string;
+        error?: string | null;
         required: boolean;
     }>();
 </script>
 
-<style>
+<style scoped>
     .create-modal__field {
         display: grid;
         grid-template-columns: 225px 1fr;
         align-items: center;
+        margin-top: 5px;
     }
     .create-modal__label {
         display: flex;

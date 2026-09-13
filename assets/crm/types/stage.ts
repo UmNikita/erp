@@ -19,6 +19,11 @@ export interface StageResponse {
     pipeline_id: number;
 }
 
+export interface StageErrors {
+    name: string | null;
+    color: string | null;
+}
+
 export interface StageRequest {
     name: string;
     color: string;

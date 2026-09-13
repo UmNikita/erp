@@ -12,7 +12,7 @@
 
           <input type="text" placeholder="Написать сообщение..." v-model="message">
 
-          <button class="activity-compose__send" type="button" @click="sendMessage">
+          <button class="activity-compose__send" @click="sendMessage">
             <svg viewBox="0 0 24 24" fill="none"><path d="M21 3L10 14M21 3L14 21L10 14L3 10L21 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
@@ -22,40 +22,41 @@
 <script setup lang="ts">
   import { LeadDetail, Message } from '../../../types/lead.ts';
   import DayMessages from './DayMessages.vue';
-  import { sendLeadMessage } from '../../../api/lead.ts';
+  import { getLeadMessages, sendLeadMessage } from '../../../api/lead.ts';
   import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+  import { useRouter } from 'vue-router';
 
   const props = defineProps<{
-      lead: LeadDetail;
-      leadMessages: Message[];
+    lead: LeadDetail;
   }>();
 
   const message = defineModel<string>();
   const leadMessages = ref<Record<string, Message[]>>();
-
-  const router = useRouter();
-
+  const allMessages = ref<Message[]>([]);
+  
   async function sendMessage() {
     if(message.value?.length == 0 || !message.value)
       return;
     try {
       const lead = await sendLeadMessage(message.value, props.lead.id);
+      allMessages.value.push(lead);
+      leadMessages.value = getGroupMessages();
       message.value = '';
     }
     catch {
       alert("Произошла ошибка отправки!");
       return;
     }
-    router.go(0);
+    //router.go(0);
   }
 
-  onMounted(()=> {
+  onMounted(async ()=> {
+    allMessages.value = await getLeadMessages(props.lead.id);
     leadMessages.value = getGroupMessages();
   });
 
 function getGroupMessages() {
-  const groups = props.leadMessages.reduce((groups, item) => {
+  const groups = allMessages.value.reduce((groups, item) => {
     const day = item.date.split('T')[0];
 
     if (!groups[day]) {
@@ -152,6 +153,7 @@ function getGroupMessages() {
     background: #0878f9;
     border: 0;
     border-radius: 7px;
+    cursor: pointer;
   }
 
   .activity-compose__send:hover {

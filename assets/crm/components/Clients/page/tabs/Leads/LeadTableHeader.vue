@@ -1,15 +1,15 @@
 <template>
     <header class="header">
         <div>
-            <h1>Клиенты</h1>
-            <p>Контакты, сделки и история взаимодействия с клиентами</p>
+            <h1>Сделки клиента</h1>
+            <p>{{`Все сделки, связанные с «${name}»`}}</p>
         </div>
-        <button class="primary" @click="openModal(MODALS.CREATE_CLIENT)">
+        <button class="primary" @click="emit('btnClick')">
             <PlusIco />
-            Добавить клиента
+            Создать сделку
         </button>
     </header>
-
+<!-- 
     <div class="toolbar">
         <label class="search">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m16.2 16.2 4.8 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -18,14 +18,17 @@
         <div class="filters">
             <button class="filter">Фильтры</button>
         </div>
-    </div>
+    </div> -->
 </template>
 
 <script setup lang="ts">
-    import { MODALS, useModal } from "../../../composables/useModal.ts";
-    import PlusIco from "../../icons/PlusIco.vue"
-
-     const { openModal } = useModal();
+    import PlusIco from "../../../../icons/PlusIco.vue";
+    
+    const emit = defineEmits(['btnClick']);
+    
+    const props = defineProps<{
+        name: string;
+    }>();
 </script>
 
 <style scoped>

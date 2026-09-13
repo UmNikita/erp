@@ -121,8 +121,15 @@ class ParserClientJSON {
                     if(!$data["lead_id"])
                         throw new \RuntimeException("Invalid data!");
                     
-                    $lead = $leadIds[$data["lead_id"]];
-                    $message = "Сделка  «". $lead->getName() ."» создана в этапе «". $lead->getStage()->getName() ."» в воронке «". $lead->getStage()->getPipeline()->getName() ."»!";
+                    $lead = $leadIds[$data["lead_id"]] ?? null;;
+                    if(!isset($lead))
+                        $message = "Сделка (".$data["lead_id"].") создана!";
+                    else {
+                        if($lead->getStage())
+                            $message = "Сделка  «". $lead->getName() ."» создана в этапе «". $lead->getStage()->getName() ."» в воронке «". $lead->getStage()->getPipeline()->getName() ."»!";
+                        else
+                            $message = "Сделка  «". $lead->getName() ."» создана!";
+                    }
                     break;
                 }
                 case TypeClientHistory::LEAD_APPOINTED: {
@@ -130,8 +137,15 @@ class ParserClientJSON {
                     if(!$data["lead_id"])
                         throw new \RuntimeException("Invalid data!");
 
-                    $lead = $leadIds[$data["lead_id"]];
-                    $message = "Сделка  «". $lead->getName() ."» создана в этапе «". $lead->getStage()->getName() ."» в воронке «". $lead->getStage()->getPipeline()->getName() ."»!";
+                    $lead = $leadIds[$data["lead_id"]] ?? null;;
+                    if(!isset($lead))
+                        $message = "Сделка (".$data["lead_id"].") создана!";
+                    else {
+                        if($lead->getStage())
+                            $message = "Сделка  «". $lead->getName() ."» в этапе «". $lead->getStage()->getName() ."» в воронке «". $lead->getStage()->getPipeline()->getName() ."» назначена клиенту!";
+                        else
+                            $message = "Сделка  «". $lead->getName() ."» назначена клиенту!";
+                    }
                     break;
                 }
                 case TypeClientHistory::LEAD_FINISH: {
@@ -140,7 +154,7 @@ class ParserClientJSON {
                         throw new \RuntimeException("Invalid data!");
                     
                     if(!isset($leadIds[$data['lead_id']]))
-                        $lead = "Сделка (".$data["lead_id"].") создана!";
+                        $lead = $data["lead_id"];
                     else {
                         $obj = $leadIds[$data['lead_id']];
                         $lead = $obj->getName();

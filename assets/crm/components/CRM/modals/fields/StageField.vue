@@ -26,7 +26,7 @@
 
     const props = defineProps<{
         title: string;
-        error?: string;
+        error?: string | null;
         pipelinesDetail: PipelineDetail[];
     }>();
 
@@ -45,7 +45,7 @@
     });
 </script>
 
-<style>
+<style scoped>
     .create-modal__select-wrap select
     {
         width: 100%;
@@ -59,11 +59,53 @@
         font: inherit;
         font-size: 14px;
         margin-top: 25px;
+        cursor: pointer;
     }
+    
     .create-modal__field-select {
         display: grid;
         grid-template-columns: 0.7fr 0.7fr;
         gap: 15px;
         align-items: center;
+    }
+
+    .create-modal__input-wrap {
+        width: 100%;
+        display: flex;
+        flex-direction: column;   
+        gap: 7px;
+    }
+
+    .create-modal__error {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: #d93d42;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 500;
+    }
+
+    .create-modal__req {
+        color: #d93d42;
+    }
+
+    .create-modal__error::before {
+        content: "!";
+        width: 16px;
+        height: 16px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 16px;
+
+        color: #ffffff;
+        background: #e5484d;
+        border-radius: 50%;
+
+        font-size: 11px;
+        font-weight: 700;
     }
 </style>

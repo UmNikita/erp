@@ -3,14 +3,14 @@
         <td>
             <strong>{{ lead.name }}</strong>
         </td>
-        <td>{{ lead.stage.pipeline.name }}</td>
-        <td>{{ lead.stage.name }}</td>
+        <td>{{ lead.stage ? lead.stage.pipeline.name : '-' }}</td>
+        <td>{{ lead.stage ? lead.stage.name : '-' }}</td>
         <td>{{ formatAmount(lead.budget) }} ₽</td>
         <td class="stage">{{ formatStatus(lead.status) }}</td>
         <td>{{ lead.responsible?.name }}</td>
         <td>{{ formatResponseDate(lead.dateStart) }}</td>
         <td>
-            <router-link class="icon-btn" to="/">
+            <router-link class="icon-btn" :to="getCurrentLead(lead.id)">
                 <svg viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="1.8"/></svg>
             </router-link>
         </td>   
@@ -20,6 +20,7 @@
 <script setup lang="ts">
     import { LeadResponse } from '../../../../../types/lead';
     import { formatAmount, formatResponseDate, formatStatus } from '../../../../../utils/fields';
+    import { getCurrentLead } from '../../../../../routes/lead';
 
     const props = defineProps<{
         lead: LeadResponse;

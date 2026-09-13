@@ -35,7 +35,6 @@
   const props = defineProps<{
     token: Token;
   }>();
-
 </script>
 
 <style scoped> 

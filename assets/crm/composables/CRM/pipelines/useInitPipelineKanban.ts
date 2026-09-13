@@ -1,36 +1,42 @@
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { Pipeline } from '../../../types/pipeline';
+import { useKanbanStore } from '../../../stores/kanban';
+import { useResponsiblesStore } from '../../../stores/responsibles';
+import { usePipelineStore } from '../../../stores/pipelines';
 
-export function useInitPipelineKanban(pipelines: Pipeline[], getAllResponsibles: any, loadKanban: any, setError: any) {
+export function useInitPipelineKanban() {
   
+  const kanbanStore = useKanbanStore();
+  const pipelineStore = usePipelineStore();
+  const responsiblesStore = useResponsiblesStore();
   const route = useRoute();  
   const pipelineId = computed(() => {
-      const queryId = Number(route.query.pipeline_id);
+    const queryId = Number(route.query.pipeline_id);
 
-      if (queryId) {
-          return queryId;
-      }
+    if (queryId) {
+      return queryId;
+    }
 
-      return pipelines[0]?.id ?? null;
+    return pipelineStore.pipelines[0]?.id ?? null;
   });
 
-  onMounted(() => {
+  onMounted(async () => {
     try {
-      getAllResponsibles();
       if (pipelineId.value) {
-          loadKanban(pipelineId.value);
+        await responsiblesStore.loadResponsibles();
+        await kanbanStore.loadKanban(pipelineId.value);
       }
     }
     catch {
-      setError();
+      kanbanStore.error = true;
     }
   });
 
-  watch(pipelineId, (id) => {
-      if (id) {
-        loadKanban(id);
-      }
+  watch(pipelineId, async (id) => {
+    if (id) {
+      await kanbanStore.loadKanban(id);
+    }
   });
 
   return { pipelineId };

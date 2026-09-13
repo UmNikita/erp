@@ -1,10 +1,10 @@
 import { moveStage } from '../../../api/stage.ts';
+import { useKanbanStore } from '../../../stores/kanban.ts';
 import { StageUI } from '../../../types/stage.ts';
-import { usePipelineKanban } from '../pipelines/usePipelineKanban.ts';
 
 export function useMoveStage() {
 
-    const { kanban } = usePipelineKanban();
+    const kanbanStore = useKanbanStore();
 
     async function moveForwardStage(stage: StageUI) {
         const seq = uiForwardStage(stage);
@@ -33,10 +33,10 @@ export function useMoveStage() {
     }
 
     function uiForwardStage(stage: StageUI) {
-        if (!kanban.value)
+        if (!kanbanStore.kanban)
             return;
 
-        const stages = kanban.value.stages;
+        const stages = kanbanStore.kanban.stages;
         const index = stages.findIndex(s => s.id === stage.id);
 
         if (index === -1 || index === stages.length - 1)
@@ -55,10 +55,10 @@ export function useMoveStage() {
     }
     
     function uiBackStage(stage: StageUI) {
-        if (!kanban.value)
+        if (!kanbanStore.kanban)
             return;
 
-        const stages = kanban.value.stages;
+        const stages = kanbanStore.kanban.stages;
         const index = stages.findIndex(s => s.id === stage.id);
 
         if (index <= 0)

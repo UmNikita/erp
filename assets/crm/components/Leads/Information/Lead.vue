@@ -1,13 +1,13 @@
 <template>
   <div class="info-card">
     <div class="info-card__header">
-      <span class="info-card__title">Контактное лицо</span>
+      <span class="info-card__title">Информация о сделке</span>
       <button v-if="!editing" @click="startEditing" class="info-card__edit">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M14 5L19 10M4 20L7.5 19.3L19 7.8A2.1 2.1 0 0 0 16.2 5L4.7 16.5L4 20Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <EditIco />
       </button>
       <div v-else>
-          <button class="link accept" @click="acceptEditing">Принять</button>
-          <button class="link" @click="cancelEditing">Отменить</button>
+        <button class="link accept" @click="acceptEditing">Принять</button>
+        <button class="link" @click="cancelEditing">Отменить</button>
       </div>
     </div>
 
@@ -31,33 +31,42 @@
 </template>
 
 <script setup lang="ts">
-  import { LeadDetail } from '../../../types/lead.ts';
-  import { formatAmount, formatDate } from '../../../utils/fields.ts';
-  import { useLeadForm } from '../../../composables/CRM/leads/useLeadForm.ts';
+  import { LeadDetail, LeadErrors, LeadRequest } from '../../../types/lead.ts';
   import { useInlineRenameForm } from '../../../composables/useInlineRenameForm.ts';
   import RenameField from '../../common/RenameField.vue';
   import RenameNumberField from '../../common/RenameNumberField.vue';
+  import EditIco from '../../icons/EditIco.vue';
+  import { validateLeadEdit } from '../../../validators/lead.ts';
+  import { updateLead } from '../../../api/lead.ts';
+  import { useKanbanStore } from '../../../stores/kanban.ts';
 
   const props = defineProps<{
     lead: LeadDetail;
   }>();
 
-  const { updateLead } = useLeadForm();
+  const kanbanStore = useKanbanStore();
 
   const {editing, errors, data, generalError, 
-    startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm(props.lead);
-
+    startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm<LeadRequest, LeadErrors>(props.lead);
   
   async function acceptEditing() {
     const newData = accept();
-    if(newData == null)
+    if(newData == null || !props.lead)
       return;
-    if(!props.lead)
+    const validationErrors = validateLeadEdit(data.value);
+    if (!validationErrors.isValid) {
+      errors.value = validationErrors.errors;
       return;
-    const res = await updateLead(props.lead, data.value, errors, generalError);
-    if(res) {
-      editing.value = false;
-      setNewData();
+    }
+    try {
+      const res = await updateLead(props.lead.id, data.value);
+      if(res) {
+        editing.value = false;
+        setNewData();
+        kanbanStore.clear();
+      }
+    } catch {
+      alert("Не удалось изменить сделку! Попробуйте позже");
     }
   }
 
@@ -155,7 +164,7 @@
     border: none;
     outline: none;
     border-bottom: 1px solid #303744;
-    width: 200px;
+    width: 150px;
   }
 
   :deep(.err) {

@@ -5,8 +5,8 @@ export interface Pipeline {
     name: string;
 }
 
-export interface PipelineRequest {
-    name: string;
+export interface PipelineErrors {
+    name: string | null;
 }
 
 export interface PipelineModalUpdateListElementDTO {

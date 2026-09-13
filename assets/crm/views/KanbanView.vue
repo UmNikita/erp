@@ -1,13 +1,12 @@
 <template>
-    <div v-if="loading"></div>
+    <div v-if="pipelineStore.loading"></div>
     <div v-else>
-        <div v-if="error"><Error /></div>
+        <div v-if="pipelineStore.error || kanbanStore.error || responsibleStore.error"><Error /></div>
         <div v-else>
-            <Kanban v-if="pipelines.length" :pipelines="pipelines" 
-            :pipelines-detail="pipelinesDetail" :set-error="setError"
-            />
+            <Kanban v-if="pipelineStore.pipelines.length" />
             <EmptyPipelines v-else @open-pipeline-modal="openModal(MODALS.CREATE_PIPELINE)" />
-            <PipelineModals :pipelines-detail="pipelinesDetail" />
+            <PipelineModal v-if="activeModal === MODALS.CREATE_PIPELINE" @close="closeModal" />
+            <PipelineSettingsModal v-if="activeModal === MODALS.SETTINGS_PIPELINE" @close="closeModal" />
         </div>
     </div>
 </template>
@@ -16,33 +15,23 @@
     import Kanban from '../components/CRM/Kanban/Kanban/Kanban.vue';
     import EmptyPipelines from '../components/CRM/Kanban/Empty/EmptyPipelines.vue';
     import { MODALS, useModal } from '../composables/useModal.ts';
-    import { usePipelines } from '../composables/CRM/pipelines/usePipelines.ts';
-    import PipelineModals from '../components/CRM/Kanban/Pipeline/PipelineModals.vue';
-    import { onMounted, ref } from 'vue';
-    import { getPipelines, getPipelinesDetail } from '../api/pipeline.ts';
+    import { onMounted } from 'vue';
     import Error from '../components/Error.vue';
+    import { usePipelineStore } from '../stores/pipelines.ts';
+    import PipelineModal from '../components/CRM/modals/PipelineModal.vue';
+    import { useKanbanStore } from '../stores/kanban.ts';
+    import { useResponsiblesStore } from '../stores/responsibles.ts';
+    import PipelineSettingsModal from '../components/CRM/modals/PipelineSettingsModal.vue';
 
     const { openModal } = useModal();
 
-    const loading = ref(true);
-    const error = ref(false);
+    const {activeModal, closeModal} = useModal();
+
+    const pipelineStore = usePipelineStore();
+    const kanbanStore = useKanbanStore();
+    const responsibleStore = useResponsiblesStore();
 
     onMounted(async () => {
-        try{
-            pipelines.value = await getPipelines();
-            pipelinesDetail.value = await getPipelinesDetail();
-        }
-        catch {
-            error.value = true;
-        }
-        finally {
-            loading.value = false;
-        }
+        await pipelineStore.loadPipelines();
     })
-    
-    const {pipelines, pipelinesDetail} = usePipelines();
-
-    function setError() {
-        error.value = true;
-    }
 </script>

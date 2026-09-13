@@ -1,29 +1,29 @@
 <template>
-    <div class="activity-item">
-        <div class="activity-avatar">
-            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M5 20C5.4 15.8 7.8 14 12 14C16.2 14 18.6 15.8 19 20H5Z"/></svg>
-        </div>
+  <div class="activity-item">
+    <div class="activity-avatar">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M5 20C5.4 15.8 7.8 14 12 14C16.2 14 18.6 15.8 19 20H5Z"/></svg>
+    </div>
 
-        <div class="activity-item__body">
-            <div class="activity-item__header">
-            <span class="activity-item__name">{{ message.userName }}</span>
-            <span class="activity-item__time">{{ message.date }}</span>
-            </div>
+    <div class="activity-item__body">
+      <div class="activity-item__header">
+      <span class="activity-item__name">{{ message.responsible.name }}</span>
+      <span class="activity-item__time">{{ formatResponseDate(message.date) }}</span>
+      </div>
 
-            <div class="activity-message activity-message--green">
-              {{ message.message }}
-            </div>
-        </div>
-        </div>
+      <div class="activity-message activity-message--green">
+        {{ message.message }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
   import { Message } from '../../../types/lead.ts';
+  import { formatResponseDate } from '../../../utils/fields.ts';
 
   const props = defineProps<{
     message: Message;
   }>();
-
 </script>
 
 <style scoped>

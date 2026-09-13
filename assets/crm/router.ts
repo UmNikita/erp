@@ -7,7 +7,7 @@ import CurrentClient from './components/Clients/page/CurrentClient.vue';
 import ReviewClient from './components/Clients/page/tabs/Review/ReviewClient.vue';
 import LeadsClient from './components/Clients/page/tabs/Leads/LeadsClient.vue';
 import EmailsClient from './components/Clients/page/tabs/Emails/EmailsClient.vue';
-import StoryClient from './components/Clients/page/tabs/Story/StoryClient.vue';
+import HistoryClient from './components/Clients/page/tabs/History/HistoryClient.vue';
 import ContactsClient from './components/Clients/page/tabs/Contacts/ContactsClient.vue';
 import CurrentLead from './components/Leads/CurrentLead.vue';
 
@@ -52,9 +52,9 @@ const router = createRouter({
                     component: EmailsClient
                 },
                 {
-                    path: 'story',
-                    name: 'client-story',
-                    component: StoryClient
+                    path: 'history',
+                    name: 'client-history',
+                    component: HistoryClient
                 },
                 {
                     path: 'contacts',

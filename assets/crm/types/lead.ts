@@ -11,6 +11,25 @@ export interface Lead {
     moneyAmount: number;
 }
 
+export interface LeadErrors {
+    name: string | null;
+    budget: string | null;
+    product: string | null;
+    source: string | null;
+    next_action: string | null;
+    comment: string | null;
+    stage_id: string | null;
+    client_id: string | null;
+    new_client: string | null;
+    responsible_id: string | null;
+}
+
+export enum Status {
+    won = 'won',
+    lost = 'lost',
+    active = 'active'
+}
+
 export interface LeadRequest {
     name: string;
     budget: number;
@@ -69,7 +88,7 @@ export interface GetLeadsResponse {
 
 export interface Message {
     id: number;
-    userName: string;
+    responsible: Responsible;
     userId: number;
     date: string;
     message: string;

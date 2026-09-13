@@ -12,12 +12,12 @@
     const props = defineProps<{
         ico: Component;
         title: string;
-        error?: string;
+        error?: string | null;
         required: boolean;
     }>();
 </script>
 
-<style>
+<style scoped>
     .create-modal__input-wrap input
     {
         width: 100%;

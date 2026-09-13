@@ -9,7 +9,7 @@
                 <router-link class="tab" :class="{ active: routeName == 'client-emails' }" :to="clientEmailUrl(clientId)">Почта</router-link>
                 <router-link class="tab" :class="{ active: routeName == 'client-leads' }" :to="clientLeadsUrl(clientId)">Сделки</router-link>
                 <router-link class="tab" :class="{ active: routeName == 'client-contacts' }" :to="clientContactsUrl(clientId)">Контакты</router-link>
-                <router-link class="tab" :class="{ active: routeName == 'client-story' }" :to="clientStoryUrl(clientId)">История</router-link>
+                <router-link class="tab" :class="{ active: routeName == 'client-history' }" :to="clientHistoryUrl(clientId)">История</router-link>
             </nav>
 
             <RouterView />
@@ -23,7 +23,7 @@
 
     import { useRoute } from 'vue-router';
     import HeaderClient from './HeaderClient.vue';
-    import { clientContactsUrl, clientEmailUrl, clientLeadsUrl, clientStoryUrl, clientUrl } from '../../../routes/client.ts';
+    import { clientContactsUrl, clientEmailUrl, clientLeadsUrl, clientHistoryUrl, clientUrl } from '../../../routes/client.ts';
     import { computed, onMounted, ref } from 'vue';
     import Error from "../../Error.vue";
     import { useCurrentClient } from '../../../composables/Clients/useCurrentClient.ts';

@@ -39,7 +39,10 @@ class LeadService {
             throw new \InvalidArgumentException('client_id must be an integer');
         }
         $archive = $request->query->getBoolean('archive', false);
-        $allCount = $this->leadRepository->getCountArchive();
+        if($archive)
+            $allCount = $this->leadRepository->getCountArchive($clientId);
+        else
+            $allCount = $this->leadRepository->getCount($clientId);
         $pagination = PaginationFactory::create($request, $this->leadRepository, 12, $allCount);
         
         if(!$archive)

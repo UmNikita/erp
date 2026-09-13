@@ -1,12 +1,13 @@
-import { Ref } from 'vue';
-import { Kanban } from '../../../types/kanban';
 import { updateStageLead } from '../../../api/lead';
+import { useKanbanStore } from '../../../stores/kanban';
 
-export function useMoveLead(kanban: Ref<Kanban | null>) {
+export function useMoveLead() {
+
+    const kanbanStore = useKanbanStore();
 
     function moveLead(leadId: number, fromStageId: number, toStageId: number) {
-        const fromStage = kanban.value?.stages.find(stage => stage.id === fromStageId);
-        const toStage = kanban.value?.stages.find(stage => stage.id === toStageId);
+        const fromStage = kanbanStore.kanban?.stages.find(stage => stage.id === fromStageId);
+        const toStage = kanbanStore.kanban?.stages.find(stage => stage.id === toStageId);
 
         if (!fromStage || !toStage) {
             return;

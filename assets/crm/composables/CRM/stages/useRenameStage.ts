@@ -1,26 +1,23 @@
 import { nextTick, ref } from 'vue';
-import { renameStage  } from '../../../api/stage.ts';
-import { usePipelines } from '../pipelines/usePipelines.ts';
+import { useKanbanStore } from '../../../stores/kanban.ts';
 
-export function useRenameStage(stageName: string, pipelineId: number) {
-
-    const {renameStageForDetailPipeline} = usePipelines();
+export function useRenameStage(stageName: string) {
 
     const editingName = ref<boolean>(false);
     const name = ref(stageName);
     const nameInput = ref<HTMLInputElement | null>(null);
+    const kanbanStore = useKanbanStore();
 
-    async function acceptRenameStage(prop: any, value: string, pipelineId: number) {
+    async function acceptRenameStage(prop: any, value: string) {
         const oldName = prop.stage.name;
         try {
             prop.stage.name = value;
-            await renameStage(value, prop.stage.id);
+            await kanbanStore.renameStage(prop.stage.id, value);
         }
         catch {
             alert("Не удалось обновить название. Попробуйте позже!")
             prop.stage.name = oldName;
         }
-        renameStageForDetailPipeline(pipelineId, prop.stage.id, value);
     }
 
     async function startEditName(props: any) {
@@ -32,7 +29,7 @@ export function useRenameStage(stageName: string, pipelineId: number) {
         nameInput.value?.focus();
     }
 
-    async function saveName(props: any, emit: any) {
+    async function saveName(props: any) {
         if (!editingName.value) {
             return;
         }
@@ -46,7 +43,7 @@ export function useRenameStage(stageName: string, pipelineId: number) {
         editingName.value = false;
 
         if (name.value !== props.stage.name) {
-            acceptRenameStage(props, name.value, pipelineId);
+            acceptRenameStage(props, name.value);
         }
     }
 

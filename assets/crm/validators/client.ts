@@ -1,11 +1,20 @@
-import { ClientRequest, KpRequest } from '../types/client';
-import { INN, phone as validatePhone, email as validateEmail, max, required, validate } from './rules';
+import { ClientErrors, ClientRequest, KPErrors, KpRequest } from '../types/client';
+import { INN, phone as validatePhone, email as validateEmail, max, required, validate, url } from './rules';
 import { ValidationResult } from './validationResult';
 
 const MAX_LENGTH_NAME = 50
 
-export function validateClient(data: ClientRequest): ValidationResult {
-    const errors: Record<string, string> = {};
+export function validateClient(data: ClientRequest): ValidationResult<ClientErrors> {
+    const errors: ClientErrors = {
+        name: null,
+        inn: null,
+        field_of_activity: null,
+        website: null,
+        phone: null,
+        email: null,
+        city: null,
+        channel: null
+    };
     const name = data.name?.trim();
     const inn = data.inn?.trim();
     const field_of_activity = data.field_of_activity?.trim();
@@ -26,6 +35,7 @@ export function validateClient(data: ClientRequest): ValidationResult {
     ], field_of_activity);
     validate(errors, 'website', [
         max("Вебсайт не должен быть болше 50 символов", MAX_LENGTH_NAME),
+        url("Неправильная ссылка")
     ], website);
     validate(errors, 'phone', [
         validatePhone("Неправильный телефон")
@@ -39,11 +49,16 @@ export function validateClient(data: ClientRequest): ValidationResult {
     validate(errors, 'channel', [
         max("Название канала должно быть не болше 50 символов", MAX_LENGTH_NAME),
     ], channel);
-    return {isValid: Object.keys(errors).length === 0, errors};
+    return {isValid: !Object.values(errors).some(error => error !== null), errors};
 }
 
-export function validateKP(data: KpRequest): ValidationResult {
-    const errors: Record<string, string> = {};
+export function validateKP(data: KpRequest): ValidationResult<KPErrors> {
+    const errors: KPErrors = {
+        manager_name: null,
+        manager_phone: null,
+        contact_email: null,
+        contact_id: null
+    };
     const manager_name = data.manager_name?.trim();
     const manager_phone = data.manager_phone?.trim();
     validate(errors, 'manager_name', [
@@ -54,5 +69,5 @@ export function validateKP(data: KpRequest): ValidationResult {
         required("Телефон обязателен"),
         validatePhone("Неправильный телефон")
     ], manager_phone);
-    return {isValid: Object.keys(errors).length === 0, errors};
+    return {isValid: !Object.values(errors).some(error => error !== null), errors};
 }

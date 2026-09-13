@@ -1,6 +1,6 @@
 <template>
-    <div class="table-wrap">
-        <table v-if="clients.length > 0" class="table">
+    <div class="table-wrap" v-if="clientTableStore.clients">
+        <table v-if="clientTableStore.clients.length > 0" class="table">
             <colgroup>
                 <col style="width:30%">
                 <col style="width:25%">
@@ -13,12 +13,12 @@
                     <th>Клиент</th>
                     <th>Контакты компании</th>
                     <th>Сделки</th>
-                    <th>Последняя активность</th>
+                    <th>Дата создани</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <ClientRow @delete="deleteClient" v-for="client in clients" :client="client" />
+                <ClientRow v-for="client in clientTableStore.clients" :client="client" />
             </tbody>
         </table>
         <ClientEmpty v-else />
@@ -26,19 +26,11 @@
 </template>
 
 <script setup lang="ts">
-    import { Client } from '../../../types/client.ts';
+    import { useClientTableStore } from '../../../stores/clientTable.ts';
     import ClientEmpty from './ClientEmpty.vue';
     import ClientRow from './ClientRow.vue';
 
-    const emit = defineEmits(['delete']);
-
-    function deleteClient(data: Client) {
-        emit("delete", data);
-    }
-
-    const props = defineProps<{
-        clients: Client[];
-    }>();
+    const clientTableStore = useClientTableStore();
 
 </script>
 

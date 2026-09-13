@@ -30,6 +30,8 @@ class StageService {
     ) 
     {}
 
+    private int $maxStagesCount = 20;
+
     public function createStage(StageRequestDTO $stageDto): StageUIDTO
     {
         return $this->em->wrapInTransaction(function () use ($stageDto) {
@@ -37,7 +39,7 @@ class StageService {
             $pipeline = $this->pipelineStorage->getPipeline($stageDto->pipeline_id, true);
             $stagesCount = count($pipeline->getStages());
             
-            if($stagesCount > 20 || $stagesCount == 20) {
+            if($stagesCount > $this->maxStagesCount || $stagesCount == $this->maxStagesCount) {
                 throw new BadRequestHttpException('Achived limit stages!');
             }
 

@@ -15,6 +15,24 @@ export interface Client {
     leads_amount?: number;
 }
 
+export interface ClientErrors {
+    name: string | null;
+    inn: string | null;
+    field_of_activity: string | null;
+    website: string | null;
+    phone: string | null;
+    email: string | null;
+    city: string | null;
+    channel: string | null;
+}
+
+export interface KPErrors {
+    manager_name: string | null;
+    manager_phone: string | null;
+    contact_id: string | null;
+    contact_email: string | null;
+}
+
 export interface ClientRequest {
     name: string;
     inn?: string;

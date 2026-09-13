@@ -1,6 +1,6 @@
 <template>
-  <CreateModalWrapper title-btn="Создать" title="Создание клиента" subtitle="Заполните информацию о клиенте"
-  :error="error" @submit="submit" @close="emit('close')">
+  <CreateModalWrapper :accepting="accepting" title-btn="Создать" title="Создание клиента" subtitle="Заполните информацию о клиенте"
+  :error="generalError" @submit="submit" @close="emit('close')">
     <TextField :required="true" :ico="ClientIco" title="Имя клиента"
     placeholder="Введите имя клиента" :error="errors.name" v-model="name" />
     <TextField :required="false" :ico="ClientIco" title="ИНН клиента"
@@ -25,8 +25,31 @@
   import TextField from '../../CRM/modals/fields/TextField.vue';
   import CreateModalWrapper from '../../CRM/modals/CreateModalWrapper.vue';
   import { ref } from 'vue';
+  import { ClientErrors } from '../../../types/client.ts';
+  import { validateClient } from '../../../validators/client.ts';
+  import { useClientTableStore } from '../../../stores/clientTable.ts';
 
   const emit = defineEmits(['close', 'submit']);
+
+  const clientTableStore = useClientTableStore();
+  
+  const props = defineProps<{
+    isSubmit: boolean
+  }>();
+
+
+  const accepting = ref(false);
+  const generalError = ref<string | null>(null);
+  const errors = ref<ClientErrors>({
+    name: null,
+    inn: null,
+    field_of_activity: null,
+    website: null,
+    phone: null,
+    email: null,
+    city: null,
+    channel: null
+  });
 
   const name = ref('');
   const inn = ref('');
@@ -37,7 +60,7 @@
   const city = ref('');
   const channel = ref('');
 
-  function submit() {
+  async function submit() {
     const data = {
       name: name.value,
       inn: inn.value,
@@ -48,11 +71,27 @@
       city: city.value,
       channel: channel.value
     }
-    emit("submit", data);
+    const validationErrors = validateClient(data);
+    if (!validationErrors.isValid) {
+      errors.value = validationErrors.errors;
+      return false;
+    }
+    accepting.value = true;
+    if(props.isSubmit) {
+      emit('submit', data);
+    }
+    else {
+      try {
+        await clientTableStore.createClient(data);
+      }
+      catch {
+        generalError.value = 'Не удалось создать клиента. Попробуйте чуть позже';
+        return;
+      }
+      finally {
+        accepting.value = false;
+      }
+    }
+    emit('close');
   }
-
-  const props = defineProps<{
-    error?: string | null,
-    errors: Record<string, string>
-  }>();
 </script>

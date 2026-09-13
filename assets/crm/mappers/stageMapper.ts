@@ -1,5 +1,5 @@
 import { Lead } from "../types/lead";
-import { Stage, StageResponse, StageUI } from "../types/stage";
+import { Stage, StageRequest, StageResponse, StageUI } from "../types/stage";
 
 export function stageResponseToUi(stage: StageResponse, leads: Lead[] = []): StageUI {
     let amount = 0;
@@ -12,14 +12,27 @@ export function stageResponseToUi(stage: StageResponse, leads: Lead[] = []): Sta
         color: stage.color,
         leadCount: leads.length,
         moneyAmount: amount,
-        leads: leads
+        leads: leads,
+        sequence: stage.sequence
     }
 }
 
-export function responseToStage(stage: StageResponse): Stage {
+export function responseToStage(stage: StageResponse): StageUI {
     return {
         id: stage.id,
         name: stage.name,
-        sequence: stage.sequence
+        color: stage.color,
+        sequence: stage.sequence,
+        leadCount: 0,
+        moneyAmount: 0,
+        leads: []
     }
+}
+
+export function getStageRequest(name: string, color: string, pipelineId: number): StageRequest {
+    return {
+      name: name,
+      color: color,
+      pipeline_id: pipelineId
+    };
 }

@@ -32,16 +32,17 @@
 </template>
 
 <script setup lang="ts">
-    import { useClientForm } from '../../../../../composables/Clients/useClientForm';
     import { useCurrentClient } from '../../../../../composables/Clients/useCurrentClient';
     import { useInlineRenameForm } from '../../../../../composables/useInlineRenameForm';
+    import { Client, ClientErrors, ClientRequest } from '../../../../../types/client.ts';
+    import { validateClient } from '../../../../../validators/client.ts';
     import RenameField from '../../../../common/RenameField.vue';
+    import {updateClient as updateClientApi} from "../../../../../api/client";
 
-    const { updateClient } = useClientForm();
-    const { client } = useCurrentClient();
+    const { client, changeClientTable } = useCurrentClient();
 
     const {editing, errors, data, generalError, 
-        startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm(client.value);
+        startEditing, cancelEditing, accept, setNewData} = useInlineRenameForm<ClientRequest, ClientErrors>(client.value);
 
     async function acceptEditing() {
         const newData = accept();
@@ -49,14 +50,32 @@
             return;
         if(!client.value)
             return;
-        const res = await updateClient(client.value, data.value, errors, generalError);
+        const res = await updateClient(newData);
         if(res) {
             editing.value = false;
             setNewData();
+            changeClientTable(res);
         }
     }
 
-
+    async function updateClient(clientData: Partial<ClientRequest>): Promise<Client | null> {
+        if(!client.value)
+            return null;
+        const validationErrors = validateClient(data.value);
+        if (!validationErrors.isValid) {
+            errors.value = validationErrors.errors;
+            return null;
+        }
+        
+        try {
+            const res = await updateClientApi(client.value.id, clientData);
+            return res;
+        }
+        catch {
+            generalError.value = 'Не удалось обновить клиента. Попробуйте чуть позже';
+            return null;
+        }
+    }
 </script>
 
 <style scoped>

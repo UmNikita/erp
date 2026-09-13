@@ -1,4 +1,4 @@
-import { Pipeline, PipelineDetail, PipelineRequest } from '../types/pipeline';
+import { Pipeline, PipelineDetail } from '../types/pipeline';
 import api from './axios'
 
 export async function getPipelines(): Promise<Pipeline[]>
@@ -13,10 +13,10 @@ export async function getPipelinesDetail(): Promise<PipelineDetail[]>
     return response.data.pipelines;
 }
 
-export async function createPipeline(pipeline: PipelineRequest): Promise<Pipeline>
+export async function createPipeline(pipeline: string): Promise<Pipeline>
 {
     const response = await api.post('/pipeline', {
-        name: pipeline.name
+        name: pipeline
     });
     return response.data;
 }

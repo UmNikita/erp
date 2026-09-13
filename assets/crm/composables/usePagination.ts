@@ -7,6 +7,8 @@ export function usePagination(page: Ref<number>) {
     const allCount = ref(1);
     const range = computed(() => getPages(page.value));
     const totalPages = ref(1);
+    const totalRecords = ref();
+    const init = ref(false);
 
     function getPages(currentPage: number, visible = 5): number[] {
         let start = Math.max(1, currentPage - Math.floor(visible / 2));
@@ -33,9 +35,16 @@ export function usePagination(page: Ref<number>) {
 
     function setStates(count: number) {
         allCount.value = count;
-        if(allCount.value > LIMIT) {
-            totalPages.value = Math.ceil(allCount.value / LIMIT);
+        totalPages.value = Math.ceil(count / LIMIT);
+        if(allCount.value < LIMIT)
+            totalRecords.value = allCount.value;
+        else {
+            if(page.value > allCount.value/10)
+                totalRecords.value = allCount.value;
+            else
+                totalRecords.value = page.value * LIMIT;
         }
+        init.value = true;
     }
 
     return {
@@ -44,5 +53,7 @@ export function usePagination(page: Ref<number>) {
         isEnd,
         allCount,
         range,
+        totalRecords,
+        init
     };
 }

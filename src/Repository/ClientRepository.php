@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\CRM\DTO\Client\ClientMetricsDTO;
 use App\Entity\Client;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -59,13 +60,14 @@ class ClientRepository extends ServiceEntityRepository
 
     public function findClients(int $offset, int $limit): array
     {
-        return $this->createQueryBuilder('c')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
+        $query = $this->createQueryBuilder('c')
             ->leftJoin('c.leads', 'l')
             ->addSelect('l')
-            ->getQuery()
-            ->getResult();
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return iterator_to_array(new Paginator($query));
     }
 
     //    /**

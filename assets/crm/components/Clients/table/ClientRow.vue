@@ -23,7 +23,7 @@
             </div>
         </td>
         <td>
-            <span class="date">Сегодня, 15:40</span>
+            <span class="date">{{ formatResponseDate(client.date_create) }}</span>
         </td>
         <td>
             <div class="actions">
@@ -42,23 +42,41 @@
 <script setup lang="ts">
     import { clientUrl } from '../../../routes/client.ts';
     import { Client } from '../../../types/client.ts';
-    import { formatAmount, formatPhone } from '../../../utils/fields.ts';
+    import { formatAmount, formatPhone, formatResponseDate } from '../../../utils/fields.ts';
     import { getPluralizeLead } from '../../../utils/words.ts';
     import DeleteIco from '../../icons/DeleteIco.vue';
+    import {deleteClient as deleteClientApi} from '../../../api/client.ts';
+    import { useClientTableStore } from '../../../stores/clientTable.ts';
+    import { ref } from 'vue';
+
+    const clientTableStore = useClientTableStore();
+    const accepting = ref(false);
 
     const props = defineProps<{
         client: Client;
     }>();
 
-    const emit = defineEmits(['delete']);
-
     async function deleteClient() {
+        if(accepting.value)
+            return;
+        accepting.value = true;
         if(props.client.leads_count && props.client.leads_count > 0) {
             alert("Нельзя удалить клиента со сделками!");
             return;
         }
 
-        emit("delete", props.client);
+        if(!confirm("Вы действительно хотите удалить?"))
+            return;
+        try {
+            await deleteClientApi(props.client.id);
+            clientTableStore.refresh();
+
+        } catch (err) {
+            alert("Возникла ошибка");
+            return;
+        } finally {
+            accepting.value = false;
+        }
     }
 
 </script>
