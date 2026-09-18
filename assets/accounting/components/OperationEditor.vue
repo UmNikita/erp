@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import type { AccountingOperation, OperationPayload, OperationType } from '../types';
+import { toLocalIso } from '../utils/dateRange';
 
 const props = defineProps<{ operation?: AccountingOperation | null; busy?: boolean }>();
-const emit = defineEmits<{ save: [payload: OperationPayload]; cancel: [] }>();
+const emit = defineEmits<{ save: [payload: OperationPayload]; cancel: []; remove: [] }>();
 
-const today = new Date().toISOString().slice(0, 10);
+const today = toLocalIso(new Date());
 const form = reactive<OperationPayload>({
     type: props.operation?.type ?? 'income',
     amount: props.operation?.amount ?? 0,
@@ -58,6 +59,10 @@ function submit(): void {
             <input v-model="form.included" type="checkbox">
             <span>Учитывать операцию в итогах</span>
         </label>
+
+        <div v-if="operation" class="editor-secondary-actions operation-editor-secondary">
+            <button class="danger-text" type="button" :disabled="busy" @click="emit('remove')">Удалить операцию</button>
+        </div>
 
         <div class="editor-actions">
             <button class="button muted" type="button" @click="emit('cancel')">Отмена</button>

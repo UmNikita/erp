@@ -67,6 +67,11 @@ async function patch(operation: AccountingOperation, field: string, value: unkno
     await store.updateOperation(operation.id, { [field]: value });
 }
 
+async function removeOperation(operation: AccountingOperation): Promise<void> {
+    if (!window.confirm('Удалить эту операцию? Её можно будет восстановить через аудит.')) return;
+    await store.deleteOperation(operation.id);
+}
+
 function exportCsv(): void {
     const rows = [
         ['Дата', 'Тип', 'Сумма', 'Контрагент', 'Статья', 'Комментарий', 'Добавил', 'В итогах'],
@@ -133,7 +138,7 @@ function exportCsv(): void {
         <div class="section-row"><strong>Операции</strong><span>Показано: {{ filteredOperations.length }}</span></div>
         <div class="data-table-wrap">
             <table class="data-table">
-                <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>От кого / кому</th><th>Статья</th><th>Комментарий</th><th>Добавил</th><th>В итогах</th></tr></thead>
+                <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>От кого / кому</th><th>Статья</th><th>Комментарий</th><th>Добавил</th><th>В итогах</th><th></th></tr></thead>
                 <tbody>
                     <tr v-for="operation in filteredOperations" :key="operation.id">
                         <td><input :value="operation.date" type="date" @change="patch(operation, 'date', ($event.target as HTMLInputElement).value)"></td>
@@ -144,8 +149,9 @@ function exportCsv(): void {
                         <td><input :value="operation.comment || ''" @change="patch(operation, 'comment', ($event.target as HTMLInputElement).value)"></td>
                         <td><select :value="operation.createdBy?.id || 0" @change="patch(operation, 'createdById', Number(($event.target as HTMLSelectElement).value) || null)"><option :value="0">Не указан</option><option v-for="user in store.users" :key="user.id" :value="user.id">{{ user.name }}</option></select></td>
                         <td class="check-cell"><input :checked="operation.included" type="checkbox" @change="patch(operation, 'included', ($event.target as HTMLInputElement).checked)"></td>
+                        <td class="row-actions"><button type="button" title="Удалить операцию" @click="removeOperation(operation)">Удалить</button></td>
                     </tr>
-                    <tr v-if="!filteredOperations.length"><td colspan="8" class="empty-table">Операций по выбранным условиям нет</td></tr>
+                    <tr v-if="!filteredOperations.length"><td colspan="9" class="empty-table">Операций по выбранным условиям нет</td></tr>
                 </tbody>
             </table>
         </div>

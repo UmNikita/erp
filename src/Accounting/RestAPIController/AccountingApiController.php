@@ -89,7 +89,7 @@ final class AccountingApiController extends AbstractController
     ): JsonResponse {
         $this->assertAccess();
         $transaction = $transactions->find($id);
-        if (!$transaction) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
+        if (!$transaction || $transaction->isDeleted()) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
 
         $data = $this->requestData($request);
         $before = $this->transactionSnapshot($transaction);
@@ -137,6 +137,26 @@ final class AccountingApiController extends AbstractController
         return $this->json($this->transactionData($transaction));
     }
 
+    #[Route('/transactions/{id}', methods: ['DELETE'])]
+    public function deleteTransaction(
+        int $id,
+        AccountingTransactionRepository $transactions,
+        EntityManagerInterface $em,
+    ): JsonResponse {
+        $this->assertAccess();
+        $transaction = $transactions->find($id);
+        if (!$transaction || $transaction->isDeleted()) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
+
+        $snapshot = $this->transactionSnapshot($transaction);
+        $transaction->softDelete();
+        $this->recordAudit($em, 'transaction.deleted', 'transaction', $transaction->getId(), [
+            'snapshot' => $snapshot,
+        ]);
+        $em->flush();
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
+    }
+
     #[Route('/transactions/{id}/allocate', methods: ['POST'])]
     public function allocate(
         int $id,
@@ -147,7 +167,7 @@ final class AccountingApiController extends AbstractController
     ): JsonResponse {
         $this->assertAccess();
         $transaction = $transactions->find($id);
-        if (!$transaction) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
+        if (!$transaction || $transaction->isDeleted()) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
 
         $data = $this->requestData($request);
         $category = $categories->find((int) ($data['categoryId'] ?? 0));
@@ -245,6 +265,37 @@ final class AccountingApiController extends AbstractController
     {
         $this->assertAccess();
         return $this->json(array_map($this->auditData(...), $audit->findRecent(500)));
+    }
+
+    #[Route('/audit/{id}/restore', methods: ['POST'])]
+    public function restoreAuditEntry(
+        int $id,
+        AccountingAuditRepository $audit,
+        AccountingTransactionRepository $transactions,
+        EntityManagerInterface $em,
+    ): JsonResponse {
+        $this->assertAccess();
+        $entry = $audit->find($id);
+        if (!$entry || $entry->getAction() !== 'transaction.deleted' || $entry->getEntityType() !== 'transaction') {
+            return $this->json(['error' => 'This audit entry cannot be restored'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        if ($entry->getRestoredAt()) {
+            return $this->json(['error' => 'Operation has already been restored'], Response::HTTP_CONFLICT);
+        }
+
+        $transaction = $entry->getEntityId() ? $transactions->find($entry->getEntityId()) : null;
+        if (!$transaction || !$transaction->isDeleted()) {
+            return $this->json(['error' => 'Deleted operation not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $transaction->restore();
+        $entry->markRestored();
+        $this->recordAudit($em, 'transaction.restored', 'transaction', $transaction->getId(), [
+            'sourceAuditId' => $entry->getId(),
+        ]);
+        $em->flush();
+
+        return $this->json($this->transactionData($transaction));
     }
 
     private function assertAccess(): void { $this->denyAccessUnlessGranted(Permission::ACCOUNTING_ACCESS->value); }
@@ -379,6 +430,7 @@ final class AccountingApiController extends AbstractController
             'id' => $audit->getId(), 'user' => $this->userData($audit->getUser()), 'action' => $audit->getAction(),
             'entityType' => $audit->getEntityType(), 'entityId' => $audit->getEntityId(), 'payload' => $audit->getPayload(),
             'createdAt' => $audit->getCreatedAt()->format(DATE_ATOM),
+            'restoredAt' => $audit->getRestoredAt()?->format(DATE_ATOM),
         ];
     }
 }

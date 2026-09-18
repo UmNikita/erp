@@ -45,6 +45,7 @@ export interface AuditEntry {
     entityId: number | null;
     payload: Record<string, unknown>;
     createdAt: string;
+    restoredAt: string | null;
 }
 
 export interface BootstrapPayload {

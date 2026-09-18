@@ -20,11 +20,15 @@ const from = ref(store.period.from);
 const to = ref(store.period.to);
 
 const unallocated = computed(() => store.operations.filter((operation) => store.remaining(operation) > 0.001));
+const draggedOperation = computed(() => store.operations.find((operation) => operation.id === draggedOperationId.value) ?? null);
 const selectedCategory = computed(() => store.categories.find((category) => category.id === selectedCategoryId.value) ?? null);
 const selectedOperations = computed(() => selectedCategory.value
     ? store.operations.filter((operation) => operation.allocations.some((allocation) => allocation.categoryId === selectedCategory.value?.id))
     : []);
 const visibleCategories = computed(() => {
+    if (draggedOperation.value) {
+        return store.activeCategories.filter((category) => category.type === draggedOperation.value?.type);
+    }
     const list = editingCategories.value ? store.categories : store.activeCategories;
     return list.filter((category) => categoryFilter.value === 'all' || category.type === categoryFilter.value);
 });
@@ -58,6 +62,10 @@ function startDrag(operation: AccountingOperation): void {
     draggedOperationId.value = operation.id;
 }
 
+function stopDrag(): void {
+    draggedOperationId.value = null;
+}
+
 async function dropOn(category: Category): Promise<void> {
     const operation = store.operations.find((item) => item.id === draggedOperationId.value);
     draggedOperationId.value = null;
@@ -73,6 +81,12 @@ function openCategory(category: Category): void {
 function editOperation(operation: AccountingOperation): void {
     editingOperationId.value = operation.id;
     createOpen.value = false;
+}
+
+async function removeOperation(operation: AccountingOperation): Promise<void> {
+    if (!window.confirm('Удалить эту операцию? Её можно будет восстановить через аудит.')) return;
+    await store.deleteOperation(operation.id);
+    editingOperationId.value = null;
 }
 
 async function toggleArchive(category: Category): Promise<void> {
@@ -120,12 +134,14 @@ async function removeCategory(category: Category): Promise<void> {
                             :busy="store.saving"
                             @save="saveOperation"
                             @cancel="editingOperationId = null"
+                            @remove="removeOperation(operation)"
                         />
                         <article
                             v-else
                             class="operation-pill"
                             draggable="true"
                             @dragstart="startDrag(operation)"
+                            @dragend="stopDrag"
                         >
                             <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
                             <strong :class="operation.type">{{ operation.type === 'income' ? '+' : '−' }}{{ formatMoney(store.remaining(operation)) }}</strong>
@@ -137,7 +153,7 @@ async function removeCategory(category: Category): Promise<void> {
                 </div>
             </section>
 
-            <section class="category-column">
+            <section class="category-column" :class="{ 'drag-mode': draggedOperation }">
                 <template v-if="selectedCategory">
                     <div class="category-detail-head">
                         <article class="category-pill selected" :style="{ '--category-color': selectedCategory.color }">
@@ -157,6 +173,7 @@ async function removeCategory(category: Category): Promise<void> {
                                 :busy="store.saving"
                                 @save="saveOperation"
                                 @cancel="editingOperationId = null"
+                                @remove="removeOperation(operation)"
                             />
                             <article v-else class="operation-pill">
                                 <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
@@ -172,10 +189,10 @@ async function removeCategory(category: Category): Promise<void> {
                 <template v-else>
                     <div class="category-topline">
                         <div class="column-heading">
-                            <strong>{{ editingCategories ? 'Редактирование статей' : 'Статьи распределения' }}</strong>
-                            <small>{{ editingCategories ? 'Нажмите на статью, чтобы изменить её' : 'Все статьи за выбранный период' }}</small>
+                            <strong>{{ draggedOperation ? `Выберите статью ${draggedOperation.type === 'income' ? 'дохода' : 'расхода'}` : (editingCategories ? 'Редактирование статей' : 'Статьи распределения') }}</strong>
+                            <small>{{ draggedOperation ? 'Подходящие статьи готовы принять операцию' : (editingCategories ? 'Нажмите на статью, чтобы изменить её' : 'Все статьи за выбранный период') }}</small>
                         </div>
-                        <div v-if="!editingCategories" class="segmented-filter">
+                        <div v-if="!editingCategories && !draggedOperation" class="segmented-filter">
                             <button :class="{ active: categoryFilter === 'all' }" @click="categoryFilter = 'all'">Все</button>
                             <button :class="{ active: categoryFilter === 'income' }" @click="categoryFilter = 'income'">Доходы</button>
                             <button :class="{ active: categoryFilter === 'expense' }" @click="categoryFilter = 'expense'">Расходы</button>
@@ -204,7 +221,7 @@ async function removeCategory(category: Category): Promise<void> {
                             v-for="category in visibleCategories"
                             :key="category.id"
                             class="category-pill"
-                            :class="{ archived: !category.active }"
+                            :class="{ archived: !category.active, 'drop-ready': draggedOperation }"
                             :style="{ '--category-color': category.color }"
                             @click="openCategory(category)"
                             @dragover.prevent

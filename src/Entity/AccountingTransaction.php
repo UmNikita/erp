@@ -46,6 +46,9 @@ class AccountingTransaction
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletedAt = null;
+
     /** @var Collection<int, AccountingAllocation> */
     #[ORM\OneToMany(mappedBy: 'transaction', targetEntity: AccountingAllocation::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $allocations;
@@ -82,6 +85,10 @@ class AccountingTransaction
     public function setCreatedBy(?User $createdBy): self { $this->createdBy = $createdBy; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
+    public function getDeletedAt(): ?\DateTimeImmutable { return $this->deletedAt; }
+    public function isDeleted(): bool { return $this->deletedAt !== null; }
+    public function softDelete(): self { $this->deletedAt = new \DateTimeImmutable(); return $this; }
+    public function restore(): self { $this->deletedAt = null; return $this; }
     /** @return Collection<int, AccountingAllocation> */
     public function getAllocations(): Collection { return $this->allocations; }
     public function addAllocation(AccountingAllocation $allocation): self { if (!$this->allocations->contains($allocation)) { $this->allocations->add($allocation); $allocation->setTransaction($this); } return $this; }

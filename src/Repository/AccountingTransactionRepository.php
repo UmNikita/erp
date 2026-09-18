@@ -18,6 +18,7 @@ final class AccountingTransactionRepository extends ServiceEntityRepository
             ->leftJoin('accountingTransaction.allocations', 'allocation')->addSelect('allocation')
             ->leftJoin('allocation.category', 'category')->addSelect('category')
             ->leftJoin('accountingTransaction.createdBy', 'createdBy')->addSelect('createdBy')
+            ->andWhere('accountingTransaction.deletedAt IS NULL')
             ->orderBy('accountingTransaction.occurredAt', 'DESC')
             ->addOrderBy('accountingTransaction.id', 'DESC');
 

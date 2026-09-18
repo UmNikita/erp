@@ -83,6 +83,10 @@ export const useAccountingStore = defineStore('accounting', () => {
         await mutate(() => api.patch(`/transactions/${id}`, payload));
     }
 
+    async function deleteOperation(id: number): Promise<void> {
+        await mutate(() => api.delete(`/transactions/${id}`));
+    }
+
     async function allocateOperation(operation: AccountingOperation, categoryId: number): Promise<void> {
         const amount = remaining(operation);
         if (amount <= 0) return;
@@ -106,10 +110,14 @@ export const useAccountingStore = defineStore('accounting', () => {
         audit.value = data;
     }
 
+    async function restoreAuditEntry(id: number): Promise<void> {
+        await mutate(() => api.post(`/audit/${id}/restore`));
+    }
+
     return {
         categories, operations, audit, users, currentUser, period, loading, saving, error,
         activeCategories, archivedCategories, totalIncome, totalExpense, balance,
-        load, allocated, remaining, createOperation, updateOperation, allocateOperation,
-        createCategory, updateCategory, deleteCategory, reloadAudit,
+        load, allocated, remaining, createOperation, updateOperation, deleteOperation, allocateOperation,
+        createCategory, updateCategory, deleteCategory, reloadAudit, restoreAuditEntry,
     };
 });

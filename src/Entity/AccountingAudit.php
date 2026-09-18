@@ -34,6 +34,9 @@ class AccountingAudit
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $restoredAt = null;
+
     public function __construct(?User $user, string $action, string $entityType, ?int $entityId, array $payload = [])
     {
         $this->user = $user;
@@ -51,4 +54,6 @@ class AccountingAudit
     public function getEntityId(): ?int { return $this->entityId; }
     public function getPayload(): array { return $this->payload; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getRestoredAt(): ?\DateTimeImmutable { return $this->restoredAt; }
+    public function markRestored(): self { $this->restoredAt = new \DateTimeImmutable(); return $this; }
 }
