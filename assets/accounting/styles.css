@@ -14,29 +14,11 @@
 
 .accounting-layout {
     display: grid;
-    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
     min-height: 100vh;
     background: var(--acc-bg);
     color: var(--acc-text);
 }
-
-.accounting-sidebar {
-    padding: 24px 14px;
-    background: #fff;
-    border-right: 1px solid var(--acc-line);
-}
-
-.accounting-sidebar nav { display: grid; gap: 7px; position: sticky; top: 22px; }
-.accounting-sidebar a {
-    padding: 12px 15px;
-    border-radius: 12px;
-    color: #647087;
-    font-size: 14px;
-    font-weight: 650;
-    transition: .18s ease;
-}
-.accounting-sidebar a:hover { color: var(--acc-blue); background: #f5f7fc; }
-.accounting-sidebar a.active { color: #245df0; background: #eaf0ff; }
 
 .accounting-main { min-width: 0; height: 100vh; overflow: hidden; position: relative; }
 .page-shell { height: 100%; min-width: 0; padding: 26px 30px 84px; }
@@ -290,7 +272,7 @@ button { cursor: pointer; }
 .audit-actions span { color: var(--acc-green); font-size: 8px; font-weight: 700; }
 
 @media (max-width: 1100px) {
-    .accounting-layout { grid-template-columns: 175px minmax(0, 1fr); }
+    .accounting-layout { grid-template-columns: minmax(0, 1fr); }
     .page-shell { padding-left: 20px; padding-right: 20px; }
     .workspace-columns { grid-template-columns: minmax(270px, 37%) minmax(0, 1fr); }
     .category-list.editing { grid-template-columns: 1fr; }
