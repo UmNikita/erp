@@ -10,17 +10,10 @@ import type {
     OperationPayload,
     UserSummary,
 } from '../types';
-
-function isoDate(date: Date): string {
-    return date.toISOString().slice(0, 10);
-}
+import { monthRange } from '../utils/dateRange';
 
 function initialPeriod(): { from: string; to: string } {
-    const now = new Date();
-    return {
-        from: isoDate(new Date(now.getFullYear(), now.getMonth(), 1)),
-        to: isoDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
-    };
+    return monthRange();
 }
 
 export const useAccountingStore = defineStore('accounting', () => {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
+import PeriodPicker from '../components/PeriodPicker.vue';
 import { useAccountingStore } from '../stores/accounting';
 import type { AccountingOperation, OperationType } from '../types';
 
@@ -34,6 +35,7 @@ const filteredOperations = computed(() => store.operations.filter((operation) =>
 
 const visibleIncome = computed(() => filteredOperations.value.filter((item) => item.included && item.type === 'income').reduce((sum, item) => sum + item.amount, 0));
 const visibleExpense = computed(() => filteredOperations.value.filter((item) => item.included && item.type === 'expense').reduce((sum, item) => sum + item.amount, 0));
+const visibleUnallocated = computed(() => filteredOperations.value.reduce((sum, item) => sum + store.remaining(item), 0));
 const formatMoney = (value: number) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value) + ' ₽';
 
 function categoryId(operation: AccountingOperation): number {
@@ -44,8 +46,21 @@ function categoryName(operation: AccountingOperation): string {
     return store.categories.find((category) => category.id === categoryId(operation))?.name ?? 'Не распределено';
 }
 
-async function changePeriod(): Promise<void> {
-    await store.load(filters.from, filters.to);
+async function applyPeriod(from: string, to: string): Promise<void> {
+    filters.from = from;
+    filters.to = to;
+    await store.load(from, to);
+}
+
+function resetFilters(): void {
+    filters.type = 'all';
+    filters.categoryId = 0;
+    filters.authorId = 0;
+    filters.allocation = 'all';
+    filters.included = 'all';
+    filters.min = null;
+    filters.max = null;
+    filters.search = '';
 }
 
 async function patch(operation: AccountingOperation, field: string, value: unknown): Promise<void> {
@@ -78,27 +93,41 @@ function exportCsv(): void {
 <template>
     <section class="table-page page-shell">
         <div class="table-toolbar">
-            <button class="button outline" type="button" @click="filtersOpen = !filtersOpen">{{ filtersOpen ? 'Скрыть' : 'Показать' }}</button>
+            <PeriodPicker :from="filters.from" :to="filters.to" @apply="applyPeriod" />
             <button class="button outline" type="button" @click="exportCsv">Экспорт CSV</button>
         </div>
 
-        <div v-if="filtersOpen" class="filters-panel">
-            <label><span>С</span><input v-model="filters.from" type="date" @change="changePeriod"></label>
-            <label><span>По</span><input v-model="filters.to" type="date" @change="changePeriod"></label>
-            <label><span>Тип</span><select v-model="filters.type"><option value="all">Все</option><option value="income">Доход</option><option value="expense">Расход</option></select></label>
-            <label><span>Статья</span><select v-model.number="filters.categoryId"><option :value="0">Все</option><option v-for="category in store.categories" :key="category.id" :value="category.id">{{ category.name }}</option></select></label>
-            <label><span>Кто добавил</span><select v-model.number="filters.authorId"><option :value="0">Все</option><option v-for="user in store.users" :key="user.id" :value="user.id">{{ user.name }}</option></select></label>
-            <label><span>Распределение</span><select v-model="filters.allocation"><option value="all">Все</option><option value="allocated">Распределено</option><option value="unallocated">Не распределено</option></select></label>
-            <label><span>В итогах</span><select v-model="filters.included"><option value="all">Все</option><option value="yes">Да</option><option value="no">Нет</option></select></label>
-            <label><span>Сумма от</span><input v-model.number="filters.min" type="number" min="0"></label>
-            <label><span>Сумма до</span><input v-model.number="filters.max" type="number" min="0"></label>
-            <label class="filter-search"><span>Поиск</span><input v-model="filters.search" placeholder="Контрагент или комментарий"></label>
-        </div>
+        <section class="summary-filter-panel" :class="{ expanded: filtersOpen }">
+            <div class="summary-filter-head">
+                <strong>Фильтры</strong>
+                <button class="summary-filter-toggle" type="button" @click="filtersOpen = !filtersOpen">
+                    {{ filtersOpen ? 'Скрыть' : 'Показать' }} <span>⌄</span>
+                </button>
+            </div>
+            <div class="summary-filter-body">
+                <div class="summary-filter-body-inner">
+                    <div class="summary-filter-grid">
+                        <label class="summary-filter-control"><span>Тип операции</span><select v-model="filters.type"><option value="all">Все операции</option><option value="income">Доходы</option><option value="expense">Расходы</option></select></label>
+                        <label class="summary-filter-control"><span>Статья</span><select v-model.number="filters.categoryId"><option :value="0">Все статьи</option><option v-for="category in store.categories" :key="category.id" :value="category.id">{{ category.icon }} {{ category.name }}</option></select></label>
+                        <label class="summary-filter-control"><span>Кто добавил</span><select v-model.number="filters.authorId"><option :value="0">Все сотрудники</option><option v-for="user in store.users" :key="user.id" :value="user.id">{{ user.name }}</option></select></label>
+                        <label class="summary-filter-control"><span>Распределение</span><select v-model="filters.allocation"><option value="all">Любое</option><option value="allocated">Распределено</option><option value="unallocated">Не распределено</option></select></label>
+                        <label class="summary-filter-control"><span>Учитывать в итогах</span><select v-model="filters.included"><option value="all">Все</option><option value="yes">Да</option><option value="no">Нет</option></select></label>
+                        <label class="summary-filter-control"><span>Сумма от, ₽</span><input v-model.number="filters.min" type="number" min="0" placeholder="0"></label>
+                        <label class="summary-filter-control"><span>Сумма до, ₽</span><input v-model.number="filters.max" type="number" min="0" placeholder="Без ограничения"></label>
+                        <label class="summary-filter-control filter-search"><span>Поиск</span><input v-model="filters.search" placeholder="Контрагент или комментарий"></label>
+                    </div>
+                    <div class="summary-filter-actions">
+                        <button type="button" @click="resetFilters">Сбросить фильтры</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <div class="table-summary">
             <div><small>Доход</small><strong class="income">{{ formatMoney(visibleIncome) }}</strong></div>
             <div><small>Расход</small><strong class="expense">{{ formatMoney(visibleExpense) }}</strong></div>
             <div><small>Итого</small><strong>{{ formatMoney(visibleIncome - visibleExpense) }}</strong></div>
+            <div><small>Не распределено</small><strong class="neutral">{{ formatMoney(visibleUnallocated) }}</strong></div>
         </div>
 
         <div class="section-row"><strong>Операции</strong><span>Показано: {{ filteredOperations.length }}</span></div>

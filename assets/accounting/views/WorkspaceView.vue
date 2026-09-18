@@ -2,8 +2,10 @@
 import { computed, ref } from 'vue';
 import OperationEditor from '../components/OperationEditor.vue';
 import CategoryEditor from '../components/CategoryEditor.vue';
+import PeriodPicker from '../components/PeriodPicker.vue';
 import { useAccountingStore } from '../stores/accounting';
 import type { AccountingOperation, Category, CategoryPayload, OperationPayload, OperationType } from '../types';
+import { formatPeriodLabel } from '../utils/dateRange';
 
 const store = useAccountingStore();
 const createOpen = ref(false);
@@ -28,11 +30,14 @@ const visibleCategories = computed(() => {
 });
 const operationBeingEdited = computed(() => store.operations.find((operation) => operation.id === editingOperationId.value) ?? null);
 const categoryBeingEdited = computed(() => store.categories.find((category) => category.id === editingCategoryId.value) ?? null);
+const periodLabel = computed(() => formatPeriodLabel(from.value, to.value));
 
 const formatMoney = (value: number) => new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value) + ' ₽';
 
-async function changePeriod(): Promise<void> {
-    await store.load(from.value, to.value);
+async function applyPeriod(nextFrom: string, nextTo: string): Promise<void> {
+    from.value = nextFrom;
+    to.value = nextTo;
+    await store.load(nextFrom, nextTo);
 }
 
 async function saveOperation(payload: OperationPayload): Promise<void> {
@@ -85,10 +90,7 @@ async function removeCategory(category: Category): Promise<void> {
 <template>
     <section class="workspace-page page-shell">
         <div class="workspace-toolbar">
-            <div class="period-control">
-                <label>С <input v-model="from" type="date" @change="changePeriod"></label>
-                <label>по <input v-model="to" type="date" @change="changePeriod"></label>
-            </div>
+            <PeriodPicker :from="from" :to="to" @apply="applyPeriod" />
             <button class="button outline" type="button" @click="editingCategories = !editingCategories; selectedCategoryId = null">
                 {{ editingCategories ? 'Готово' : 'Статьи' }}
             </button>
@@ -222,7 +224,7 @@ async function removeCategory(category: Category): Promise<void> {
             <div><span class="total-icon income">↗</span><small>Доход</small><strong>{{ formatMoney(store.totalIncome) }}</strong></div>
             <div><span class="total-icon expense">↘</span><small>Расход</small><strong>{{ formatMoney(store.totalExpense) }}</strong></div>
             <div><span class="total-icon balance">=</span><small>Итого</small><strong>{{ formatMoney(store.balance) }}</strong></div>
-            <span class="totals-period">{{ from }} — {{ to }}</span>
+            <span class="totals-period">{{ periodLabel }}</span>
         </footer>
     </section>
 </template>
