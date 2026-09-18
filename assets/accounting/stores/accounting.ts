@@ -93,6 +93,10 @@ export const useAccountingStore = defineStore('accounting', () => {
         await mutate(() => api.post(`/transactions/${operation.id}/allocate`, { categoryId, amount }));
     }
 
+    async function unallocateOperation(operationId: number, categoryId: number): Promise<void> {
+        await mutate(() => api.post(`/transactions/${operationId}/unallocate`, { categoryId }));
+    }
+
     async function createCategory(payload: CategoryPayload): Promise<void> {
         await mutate(() => api.post('/categories', payload));
     }
@@ -117,7 +121,7 @@ export const useAccountingStore = defineStore('accounting', () => {
     return {
         categories, operations, audit, users, currentUser, period, loading, saving, error,
         activeCategories, archivedCategories, totalIncome, totalExpense, balance,
-        load, allocated, remaining, createOperation, updateOperation, deleteOperation, allocateOperation,
+        load, allocated, remaining, createOperation, updateOperation, deleteOperation, allocateOperation, unallocateOperation,
         createCategory, updateCategory, deleteCategory, reloadAudit, restoreAuditEntry,
     };
 });

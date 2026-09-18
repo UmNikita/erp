@@ -10,6 +10,7 @@ const actionLabels: Record<string, string> = {
     'transaction.created': 'Создана операция',
     'transaction.updated': 'Изменена операция',
     'transaction.allocated': 'Операция распределена',
+    'transaction.unallocated': 'Распределение снято',
     'transaction.deleted': 'Операция удалена',
     'transaction.restored': 'Операция восстановлена',
     'category.created': 'Создана статья',

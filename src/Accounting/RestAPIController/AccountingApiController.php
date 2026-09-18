@@ -197,6 +197,36 @@ final class AccountingApiController extends AbstractController
         return $this->json($this->transactionData($transaction));
     }
 
+    #[Route('/transactions/{id}/unallocate', methods: ['POST'])]
+    public function unallocate(
+        int $id,
+        Request $request,
+        AccountingTransactionRepository $transactions,
+        EntityManagerInterface $em,
+    ): JsonResponse {
+        $this->assertAccess();
+        $transaction = $transactions->find($id);
+        if (!$transaction || $transaction->isDeleted()) return $this->json(['error' => 'Operation not found'], Response::HTTP_NOT_FOUND);
+
+        $data = $this->requestData($request);
+        $categoryId = (int) ($data['categoryId'] ?? 0);
+        $allocation = $transaction->getAllocations()->filter(
+            static fn (AccountingAllocation $item) => $item->getCategory()->getId() === $categoryId
+        )->first();
+        if (!$allocation) return $this->json(['error' => 'Allocation not found'], Response::HTTP_NOT_FOUND);
+
+        $auditPayload = [
+            'categoryId' => $allocation->getCategory()->getId(),
+            'category' => $allocation->getCategory()->getName(),
+            'amount' => (float) $allocation->getAmount(),
+        ];
+        $transaction->removeAllocation($allocation);
+        $this->recordAudit($em, 'transaction.unallocated', 'transaction', $transaction->getId(), $auditPayload);
+        $em->flush();
+
+        return $this->json($this->transactionData($transaction));
+    }
+
     #[Route('/categories', methods: ['POST'])]
     public function createCategory(Request $request, EntityManagerInterface $em): JsonResponse
     {

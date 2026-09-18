@@ -7,6 +7,12 @@ import { useAccountingStore } from '../stores/accounting';
 import type { AccountingOperation, Category, CategoryPayload, OperationPayload, OperationType } from '../types';
 import { formatPeriodLabel } from '../utils/dateRange';
 
+interface OperationDragState {
+    operationId: number;
+    direction: 'allocate' | 'unallocate';
+    categoryId?: number;
+}
+
 const store = useAccountingStore();
 const createOpen = ref(false);
 const editingOperationId = ref<number | null>(null);
@@ -14,19 +20,21 @@ const editingCategories = ref(false);
 const createCategoryOpen = ref(false);
 const editingCategoryId = ref<number | null>(null);
 const selectedCategoryId = ref<number | null>(null);
-const draggedOperationId = ref<number | null>(null);
+const dragState = ref<OperationDragState | null>(null);
 const categoryFilter = ref<'all' | OperationType>('all');
 const from = ref(store.period.from);
 const to = ref(store.period.to);
 
 const unallocated = computed(() => store.operations.filter((operation) => store.remaining(operation) > 0.001));
-const draggedOperation = computed(() => store.operations.find((operation) => operation.id === draggedOperationId.value) ?? null);
+const draggedOperation = computed(() => store.operations.find((operation) => operation.id === dragState.value?.operationId) ?? null);
+const isAllocatingDrag = computed(() => dragState.value?.direction === 'allocate');
+const isReturningDrag = computed(() => dragState.value?.direction === 'unallocate');
 const selectedCategory = computed(() => store.categories.find((category) => category.id === selectedCategoryId.value) ?? null);
 const selectedOperations = computed(() => selectedCategory.value
     ? store.operations.filter((operation) => operation.allocations.some((allocation) => allocation.categoryId === selectedCategory.value?.id))
     : []);
 const visibleCategories = computed(() => {
-    if (draggedOperation.value) {
+    if (draggedOperation.value && isAllocatingDrag.value) {
         return store.activeCategories.filter((category) => category.type === draggedOperation.value?.type);
     }
     const list = editingCategories.value ? store.categories : store.activeCategories;
@@ -58,19 +66,42 @@ async function saveCategory(payload: CategoryPayload): Promise<void> {
     createCategoryOpen.value = false;
 }
 
-function startDrag(operation: AccountingOperation): void {
-    draggedOperationId.value = operation.id;
+function startDrag(event: DragEvent, operation: AccountingOperation, direction: OperationDragState['direction'], categoryId?: number): void {
+    dragState.value = { operationId: operation.id, direction, categoryId };
+    if (!event.dataTransfer) return;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(operation.id));
+    const source = event.currentTarget as HTMLElement | null;
+    if (!source) return;
+    const preview = source.cloneNode(true) as HTMLElement;
+    preview.classList.add('drag-preview');
+    preview.style.width = `${source.offsetWidth}px`;
+    document.body.appendChild(preview);
+    event.dataTransfer.setDragImage(preview, 24, 22);
+    window.setTimeout(() => preview.remove(), 0);
 }
 
 function stopDrag(): void {
-    draggedOperationId.value = null;
+    dragState.value = null;
 }
 
 async function dropOn(category: Category): Promise<void> {
-    const operation = store.operations.find((item) => item.id === draggedOperationId.value);
-    draggedOperationId.value = null;
-    if (!operation || operation.type !== category.type || !category.active) return;
+    const operation = draggedOperation.value;
+    const canAllocate = isAllocatingDrag.value;
+    stopDrag();
+    if (!canAllocate || !operation || operation.type !== category.type || !category.active) return;
     await store.allocateOperation(operation, category.id);
+}
+
+async function returnToUnallocated(): Promise<void> {
+    const state = dragState.value;
+    stopDrag();
+    if (!state || state.direction !== 'unallocate' || !state.categoryId) return;
+    await store.unallocateOperation(state.operationId, state.categoryId);
+}
+
+function selectedAllocationAmount(operation: AccountingOperation): number {
+    return operation.allocations.find((allocation) => allocation.categoryId === selectedCategoryId.value)?.amount ?? 0;
 }
 
 function openCategory(category: Category): void {
@@ -111,10 +142,15 @@ async function removeCategory(category: Category): Promise<void> {
         </div>
 
         <div class="workspace-columns">
-            <section class="operation-column">
+            <section
+                class="operation-column"
+                :class="{ 'return-drop-ready': isReturningDrag }"
+                @dragover.prevent
+                @drop.prevent="returnToUnallocated"
+            >
                 <div class="column-heading">
                     <div><strong>Не распределено</strong><span class="count-pill">{{ unallocated.length }}</span></div>
-                    <small>Операции, ожидающие статьи</small>
+                    <small>{{ isReturningDrag ? 'Отпустите здесь, чтобы снять распределение' : 'Операции, ожидающие статьи' }}</small>
                 </div>
                 <div class="remaining-row"><span>Осталось распределить</span><strong>{{ formatMoney(unallocated.reduce((sum, item) => sum + store.remaining(item), 0)) }}</strong></div>
 
@@ -139,8 +175,9 @@ async function removeCategory(category: Category): Promise<void> {
                         <article
                             v-else
                             class="operation-pill"
+                            :class="{ dragging: dragState?.direction === 'allocate' && dragState.operationId === operation.id }"
                             draggable="true"
-                            @dragstart="startDrag(operation)"
+                            @dragstart="startDrag($event, operation, 'allocate')"
                             @dragend="stopDrag"
                         >
                             <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
@@ -153,7 +190,7 @@ async function removeCategory(category: Category): Promise<void> {
                 </div>
             </section>
 
-            <section class="category-column" :class="{ 'drag-mode': draggedOperation }">
+            <section class="category-column" :class="{ 'drag-mode': isAllocatingDrag }">
                 <template v-if="selectedCategory">
                     <div class="category-detail-head">
                         <article class="category-pill selected" :style="{ '--category-color': selectedCategory.color }">
@@ -175,9 +212,16 @@ async function removeCategory(category: Category): Promise<void> {
                                 @cancel="editingOperationId = null"
                                 @remove="removeOperation(operation)"
                             />
-                            <article v-else class="operation-pill">
+                            <article
+                                v-else
+                                class="operation-pill"
+                                :class="{ dragging: dragState?.direction === 'unallocate' && dragState.operationId === operation.id }"
+                                draggable="true"
+                                @dragstart="startDrag($event, operation, 'unallocate', selectedCategory.id)"
+                                @dragend="stopDrag"
+                            >
                                 <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
-                                <strong :class="operation.type">{{ operation.type === 'income' ? '+' : '−' }}{{ formatMoney(operation.amount) }}</strong>
+                                <strong :class="operation.type">{{ operation.type === 'income' ? '+' : '−' }}{{ formatMoney(selectedAllocationAmount(operation)) }}</strong>
                                 <span>{{ operation.counterparty ? `от ${operation.counterparty}` : 'контрагент не указан' }}</span>
                                 <button type="button" aria-label="Редактировать" @click="editOperation(operation)">•••</button>
                             </article>
@@ -189,10 +233,10 @@ async function removeCategory(category: Category): Promise<void> {
                 <template v-else>
                     <div class="category-topline">
                         <div class="column-heading">
-                            <strong>{{ draggedOperation ? `Выберите статью ${draggedOperation.type === 'income' ? 'дохода' : 'расхода'}` : (editingCategories ? 'Редактирование статей' : 'Статьи распределения') }}</strong>
-                            <small>{{ draggedOperation ? 'Подходящие статьи готовы принять операцию' : (editingCategories ? 'Нажмите на статью, чтобы изменить её' : 'Все статьи за выбранный период') }}</small>
+                            <strong>{{ isAllocatingDrag && draggedOperation ? `Выберите статью ${draggedOperation.type === 'income' ? 'дохода' : 'расхода'}` : (editingCategories ? 'Редактирование статей' : 'Статьи распределения') }}</strong>
+                            <small>{{ isAllocatingDrag ? 'Подходящие статьи готовы принять операцию' : (editingCategories ? 'Нажмите на статью, чтобы изменить её' : 'Все статьи за выбранный период') }}</small>
                         </div>
-                        <div v-if="!editingCategories && !draggedOperation" class="segmented-filter">
+                        <div v-if="!editingCategories && !isAllocatingDrag" class="segmented-filter">
                             <button :class="{ active: categoryFilter === 'all' }" @click="categoryFilter = 'all'">Все</button>
                             <button :class="{ active: categoryFilter === 'income' }" @click="categoryFilter = 'income'">Доходы</button>
                             <button :class="{ active: categoryFilter === 'expense' }" @click="categoryFilter = 'expense'">Расходы</button>
@@ -221,7 +265,7 @@ async function removeCategory(category: Category): Promise<void> {
                             v-for="category in visibleCategories"
                             :key="category.id"
                             class="category-pill"
-                            :class="{ archived: !category.active, 'drop-ready': draggedOperation }"
+                            :class="{ archived: !category.active, 'drop-ready': isAllocatingDrag }"
                             :style="{ '--category-color': category.color }"
                             @click="openCategory(category)"
                             @dragover.prevent
