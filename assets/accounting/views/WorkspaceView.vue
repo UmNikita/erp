@@ -127,7 +127,7 @@ async function removeCategory(category: Category): Promise<void> {
                         >
                             <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
                             <strong :class="operation.type">{{ operation.type === 'income' ? '+' : '−' }}{{ formatMoney(store.remaining(operation)) }}</strong>
-                            <span>от {{ operation.counterparty }}</span>
+                            <span>{{ operation.counterparty ? `от ${operation.counterparty}` : 'контрагент не указан' }}</span>
                             <button type="button" aria-label="Редактировать" @click="editOperation(operation)">•••</button>
                         </article>
                     </template>
@@ -159,7 +159,7 @@ async function removeCategory(category: Category): Promise<void> {
                             <article v-else class="operation-pill">
                                 <span class="direction" :class="operation.type">{{ operation.type === 'income' ? '↗' : '↘' }}</span>
                                 <strong :class="operation.type">{{ operation.type === 'income' ? '+' : '−' }}{{ formatMoney(operation.amount) }}</strong>
-                                <span>от {{ operation.counterparty }}</span>
+                                <span>{{ operation.counterparty ? `от ${operation.counterparty}` : 'контрагент не указан' }}</span>
                                 <button type="button" aria-label="Редактировать" @click="editOperation(operation)">•••</button>
                             </article>
                         </template>

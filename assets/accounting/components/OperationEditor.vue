@@ -20,7 +20,7 @@ function chooseType(type: OperationType): void {
 }
 
 function submit(): void {
-    if (!form.amount || !form.date || !form.counterparty.trim()) return;
+    if (!form.amount || !form.date) return;
     emit('save', { ...form, counterparty: form.counterparty.trim(), comment: form.comment?.trim() || null });
 }
 </script>
@@ -48,7 +48,7 @@ function submit(): void {
         </label>
         <label class="editor-field">
             <span>От кого / кому</span>
-            <input v-model="form.counterparty" maxlength="180" placeholder="Имя или компания" required>
+            <input v-model="form.counterparty" maxlength="180" placeholder="Можно не указывать">
         </label>
         <label class="editor-field editor-textarea">
             <span>Комментарий</span>

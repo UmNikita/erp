@@ -59,7 +59,7 @@ final class AccountingApiController extends AbstractController
         $type = $this->transactionType($data['type'] ?? null);
         $amount = $this->amount($data['amount'] ?? null);
         $date = $this->requiredDate($data['date'] ?? null);
-        $counterparty = $this->requiredText($data['counterparty'] ?? null, 'counterparty', 180);
+        $counterparty = $this->optionalText($data['counterparty'] ?? null, 180) ?? '';
         $user = $this->currentUser();
 
         $transaction = new AccountingTransaction($type, $amount, $date, $counterparty, $user);
@@ -100,7 +100,7 @@ final class AccountingApiController extends AbstractController
         if (array_key_exists('type', $data)) $transaction->setType($this->transactionType($data['type']));
         if (array_key_exists('amount', $data)) $transaction->setAmount($this->amount($data['amount']));
         if (array_key_exists('date', $data)) $transaction->setOccurredAt($this->requiredDate($data['date']));
-        if (array_key_exists('counterparty', $data)) $transaction->setCounterparty($this->requiredText($data['counterparty'], 'counterparty', 180));
+        if (array_key_exists('counterparty', $data)) $transaction->setCounterparty($this->optionalText($data['counterparty'], 180) ?? '');
         if (array_key_exists('comment', $data)) $transaction->setComment($this->optionalText($data['comment'], 1000));
         if (array_key_exists('included', $data)) $transaction->setIncluded((bool) $data['included']);
         if (array_key_exists('createdById', $data)) {
