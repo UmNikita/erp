@@ -22,7 +22,8 @@ export default defineConfig({
         manifest: true,
         rollupOptions: {
             input: {
-                crm: resolve(__dirname, 'assets/crm/main.ts')
+                crm: resolve(__dirname, 'assets/crm/main.ts'),
+                accounting: resolve(__dirname, 'assets/accounting/main.ts')
             }
         }
     }

@@ -2,11 +2,6 @@
 
 <aside class="rail">
   <div class="logo">RH</div>
-  {% if is_granted('CRM_ACCESS') %}
-    YES
-{% else %}
-    NO
-{% endif %}
   <div class="rail-nav">
     <a class="rail-btn {{ route starts with 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}" data-tip="Главная">
       <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/><path d="M9 20v-6h6v6"/></svg>
@@ -59,6 +54,11 @@
     {% if is_granted(enum('App\\Security\\Enum\\Permission').AI_ACCESS.value) %}
       <a class="rail-btn {{ route starts with 'app_ai' ? 'active' : '' }}" href="{{ path('app_ai') }}" data-tip="AI">
         <svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M12 3v4"/><path d="M8 12h.01"/><path d="M16 12h.01"/><path d="M9 16h6"/></svg>
+      </a>
+    {% endif %}
+    {% if is_granted(enum('App\\Security\\Enum\\Permission').ACCOUNTING_ACCESS.value) %}
+      <a class="rail-btn {{ route starts with 'app_accounting' ? 'active' : '' }}" href="{{ path('app_accounting') }}" data-turbo="false" data-tip="Бухгалтерия">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 10h16M9 10v9M15 10v9"/><path d="M8 7h8"/></svg>
       </a>
     {% endif %}
   </div>

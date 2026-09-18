@@ -48,6 +48,9 @@ class RoleService
             case "ai":
                 $permissionName = Permission::AI_ACCESS->value;
                 break;
+            case "accounting":
+                $permissionName = Permission::ACCOUNTING_ACCESS->value;
+                break;
             default:
                 $permissionName = Permission::CRM_ACCESS->value;
                 break;

@@ -20,6 +20,11 @@ api:
     type: attribute
     prefix: /api/v1
 
+accounting_api:
+    resource: ../src/Accounting/RestAPIController/
+    type: attribute
+    prefix: /api/v1
+
 api_refresh_token:
     path: /api/token/refresh
 

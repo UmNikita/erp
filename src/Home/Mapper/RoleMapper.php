@@ -36,7 +36,8 @@ class RoleMapper extends AbstractMapper {
                 task: isset($permissions[Permission::TASK_ACCESS->value]),
                 call: isset($permissions[Permission::CALL_ACCESS->value]),
                 base: isset($permissions[Permission::BASE_ACCESS->value]),
-                ai: isset($permissions[Permission::AI_ACCESS->value])
+                ai: isset($permissions[Permission::AI_ACCESS->value]),
+                accounting: isset($permissions[Permission::ACCOUNTING_ACCESS->value])
             );
         });
     }

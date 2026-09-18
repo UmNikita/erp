@@ -15,4 +15,5 @@ enum Permission: string
     case CALL_ACCESS = 'CALL_ACCESS';
     case BASE_ACCESS = 'BASE_ACCESS';
     case AI_ACCESS = 'AI_ACCESS';
+    case ACCOUNTING_ACCESS = 'ACCOUNTING_ACCESS';
 }

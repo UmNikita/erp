@@ -17,6 +17,7 @@ class MatrixRoleDTO
         public bool $task,
         public bool $call,
         public bool $base,
-        public bool $ai
+        public bool $ai,
+        public bool $accounting
    ) {}
 }

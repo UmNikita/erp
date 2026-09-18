@@ -1,0 +1,9 @@
+{% extends 'layout/spa.html.twig' %}
+
+{% block title %}Бухгалтерия — REKLAM Hub{% endblock %}
+
+{% block content %}
+    <div id="accounting-app"></div>
+    {{ vite_entry_link_tags('accounting') }}
+    {{ vite_entry_script_tags('accounting') }}
+{% endblock %}

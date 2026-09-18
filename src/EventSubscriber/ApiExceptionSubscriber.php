@@ -5,6 +5,7 @@ namespace App\EventSubscriber;
 use App\CRM\Exception\InvalidRequestException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -33,6 +34,16 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
                 new JsonResponse([
                     'errors' => $exception->getErrors()
                 ], 422)
+            );
+
+            return;
+        }
+
+        if ($exception instanceof HttpExceptionInterface) {
+            $event->setResponse(
+                new JsonResponse([
+                    'error' => $exception->getMessage(),
+                ], $exception->getStatusCode(), $exception->getHeaders())
             );
 
             return;
