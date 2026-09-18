@@ -30,6 +30,13 @@ const draggedOperation = computed(() => store.operations.find((operation) => ope
 const isAllocatingDrag = computed(() => dragState.value?.direction === 'allocate');
 const isReturningDrag = computed(() => dragState.value?.direction === 'unallocate');
 const selectedCategory = computed(() => store.categories.find((category) => category.id === selectedCategoryId.value) ?? null);
+const selectedCategoryCanAccept = computed(() => Boolean(
+    selectedCategory.value
+    && draggedOperation.value
+    && isAllocatingDrag.value
+    && selectedCategory.value.active
+    && selectedCategory.value.type === draggedOperation.value.type,
+));
 const selectedOperations = computed(() => selectedCategory.value
     ? store.operations.filter((operation) => operation.allocations.some((allocation) => allocation.categoryId === selectedCategory.value?.id))
     : []);
@@ -193,7 +200,13 @@ async function removeCategory(category: Category): Promise<void> {
             <section class="category-column" :class="{ 'drag-mode': isAllocatingDrag }">
                 <template v-if="selectedCategory">
                     <div class="category-detail-head">
-                        <article class="category-pill selected" :style="{ '--category-color': selectedCategory.color }">
+                        <article
+                            class="category-pill selected"
+                            :class="{ 'drop-ready': selectedCategoryCanAccept }"
+                            :style="{ '--category-color': selectedCategory.color }"
+                            @dragover.prevent
+                            @drop.prevent="dropOn(selectedCategory)"
+                        >
                             <span class="category-icon">{{ selectedCategory.icon }}</span>
                             <strong>{{ selectedCategory.name }}</strong>
                             <small>{{ selectedCategory.type === 'income' ? 'Доход' : 'Расход' }}</small>
