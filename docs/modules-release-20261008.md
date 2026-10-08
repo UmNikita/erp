@@ -41,3 +41,25 @@ database names. Do not run it on live data.
   PostgreSQL advisory locking prevents duplicate concurrent generation.
 - Verify login, `/tasks`, `/tasks/admin`, `/accounting`, and API permission checks.
 - No attachments, CRM cross-module automation, or statutory accounting added.
+
+## Deployed
+
+- Git release: `69ad68a`, branch `codex/tasks-v1` (includes accounting commits).
+- Target: `/opt/reklam-hub`, `https://hub.reklamynet.ru`.
+- Backup: `/var/backups/hub-modules-20261008.jRzOrZ` (source + PostgreSQL dump).
+- Seven task migrations applied; all 15 versions recorded.
+- Four authenticated production API checks and seven page-rendering checks pass.
+- Public login and task JavaScript return HTTP 200; unauthenticated task pages
+  redirect to login. Existing six accounting operations retained.
+- PHP/Nginx containers started with persistent restart policies.
+- Daily duty timer: `reklam-hub-duties.timer`, 00:05 Europe/Moscow.
+- Existing server Git checkout and runtime settings preserved; release sources
+  deployed from Git archive. Main branch has not been merged automatically.
+
+## Rollback
+
+Do not blindly restore the database: new work may have been added since release.
+The backup directory contains `source.tgz`, `database.dump`, and Git status before
+deployment. Restore code first with services stopped; reverse task migrations or
+restore the database only after explicitly accepting loss of post-release data.
+Server environment/JWT/infrastructure files were not overwritten by this release.

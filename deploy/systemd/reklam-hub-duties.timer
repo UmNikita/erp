@@ -1,0 +1,10 @@
+[Unit]
+Description=Generate Reklam Hub duty tasks daily (Moscow time)
+
+[Timer]
+OnCalendar=*-*-* 00:05:00 Europe/Moscow
+Persistent=true
+Unit=reklam-hub-duties.service
+
+[Install]
+WantedBy=timers.target

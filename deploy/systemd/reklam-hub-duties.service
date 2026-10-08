@@ -1,0 +1,9 @@
+[Unit]
+Description=Generate Reklam Hub recurring duty tasks
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec reklam-hub-php-1 php bin/console app:tasks:materialize-duties
+TimeoutStartSec=300
