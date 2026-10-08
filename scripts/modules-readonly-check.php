@@ -28,6 +28,9 @@ foreach (['/tasks', '/tasks/table', '/tasks/duties', '/tasks/profile', '/tasks/r
     $request->setSession($session);
     $response = $kernel->handle($request);
     if ($response->getStatusCode() !== 200) throw new RuntimeException($path.' HTTP '.$response->getStatusCode());
+    foreach (['Репостер', 'Сайт', 'Статьи', 'Партнёрки', 'Статистика', 'Прозвон', 'Базы', 'AI'] as $placeholder) {
+        if (str_contains($response->getContent(), 'data-tip="'.$placeholder.'"')) throw new RuntimeException('Placeholder module in main menu: '.$placeholder);
+    }
     echo 'PASS PAGE '.$path."\n";
     $kernel->terminate($request, $response);
 }

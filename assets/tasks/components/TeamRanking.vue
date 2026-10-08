@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useTaskStore } from '../store';
 const store = useTaskStore();
-const ranking = computed(() => store.dashboard?.ranking ?? []);
+const ranking = computed(() => (store.dashboard?.ranking ?? []).slice(0, 3));
 </script>
 <template>
     <section class="task-ranking-card" aria-label="Рейтинг команды">

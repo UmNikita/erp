@@ -2,7 +2,7 @@
 # Deploy only the approved Git delta; do not reset the customized live checkout.
 set -euo pipefail
 target=/opt/reklam-hub
-base=8a01dc0
+base=${2:-a203c123d0b7ff61ad27cbb32f0c8b6c1b5eb399}
 release=${1:?Provide the verified release commit}
 test "$(realpath "$target")" = /opt/reklam-hub
 cd "$target"

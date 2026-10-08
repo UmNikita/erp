@@ -31,7 +31,8 @@ const date = (value: string) => new Intl.DateTimeFormat('ru-RU', { day: 'numeric
 </script>
 <template>
     <aside class="task-manager-menu" :class="{ collapsed, 'has-unread': collapsed && unread }" aria-label="Комментарии руководителя и рейтинг команды">
-        <header><strong v-if="!collapsed">Комментарии<br />руководителя</strong><button :aria-expanded="!collapsed" :aria-label="collapsed ? 'Показать комментарии' : 'Свернуть комментарии'" @click="$emit('toggle')">{{ collapsed ? '‹' : '›' }}</button></header>
+        <button class="task-manager-toggle" :aria-expanded="!collapsed" :aria-label="collapsed ? 'Показать комментарии' : 'Свернуть комментарии'" @click="$emit('toggle')">{{ collapsed ? '‹' : '›' }}</button>
+        <header v-if="!collapsed"><strong>Комментарии<br />руководителя</strong></header>
         <span v-if="collapsed && unread" class="task-manager-unread" role="status" aria-label="Новый комментарий руководителя">●</span>
         <div v-if="!collapsed" ref="scrollRoot" class="task-manager-scroll"><section aria-label="Комментарии руководителя"><p v-if="!comments.length" class="task-muted">Здесь появятся комментарии руководителя к вашей работе.</p><article v-for="item in comments" :key="item.id" :data-feedback-id="item.id" class="task-feedback-entry"><div><strong>{{ item.author?.name ?? 'Руководитель' }}</strong><time>{{ date(item.createdAt) }}</time></div><p>{{ item.body }}</p></article></section></div>
         <div v-if="!collapsed" class="task-manager-ranking"><TeamRanking /></div>

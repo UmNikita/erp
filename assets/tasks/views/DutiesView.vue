@@ -27,7 +27,7 @@ function weekdays(schedule: DutySchedule) { return schedule.days.map((day, index
 
 <template>
     <div class="task-page task-duties-page">
-        <div class="task-toolbar"><div class="task-section-title"><strong>Дежурства</strong><span>Расписание и история смен</span></div><router-link v-if="store.canAdmin" to="/tasks/duties/new" class="task-btn primary">+ Создать дежурство</router-link></div>
+        <div class="task-toolbar"><h1 class="task-page-title">Дежурства</h1><router-link v-if="store.canAdmin" to="/tasks/duties/new" class="task-btn primary">+ Создать дежурство</router-link></div>
         <div class="task-duties-scroll">
             <template v-if="store.canAdmin">
             <div class="task-section-head"><strong>Расписания</strong><span>{{ schedules.length }}</span></div>

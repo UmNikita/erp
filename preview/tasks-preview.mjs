@@ -137,7 +137,7 @@ function html() {
         '<rect x="5" y="7" width="14" height="12" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01"/>',
         '<path d="M4 5h16v14H4zM4 10h16M9 10v9M15 10v9"/>',
     ];
-    const rail = railIcons.map((icon, index) => `<span class="rail-btn${index === 7 ? ' active' : ''}"><svg viewBox="0 0 24 24">${icon}</svg></span>`).join('');
+    const rail = railIcons.flatMap((icon, index) => [0, 1, 7, 11].includes(index) ? [`<span class="rail-btn${index === 7 ? ' active' : ''}"><svg viewBox="0 0 24 24">${icon}</svg></span>`] : []).join('');
     return `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Задачи — локальный просмотр</title>${css}${preload}<style>
     *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;color:#101828}a{text-decoration:none}
     .crm-app{min-height:100vh;display:grid;margin-left:78px;width:calc(100vw - 78px)}

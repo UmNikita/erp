@@ -1,7 +1,7 @@
 #tasks-app .task-layout { grid-template-columns:250px minmax(0,1fr); }
 #tasks-app .task-layout.with-manager-menu { grid-template-columns:250px minmax(0,1fr) 270px; }
 #tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:250px minmax(0,1fr) 44px; }
-#tasks-app .task-page-title { margin:0; font-size:24px; line-height:1.3; letter-spacing:-.5px; }
+#tasks-app .task-page-title { margin:0; font-size:24px; font-weight:700; line-height:1.3; letter-spacing:-.5px; }
 #tasks-app .task-work-list { flex:1; }
 #tasks-app .task-board-panel { min-width:0; padding:17px; border:1px solid #e1e8f3; border-radius:15px; background:#fff; box-shadow:0 8px 24px #263d650a; }
 #tasks-app .task-board { margin:0; }
@@ -29,20 +29,21 @@
 #tasks-app .task-column-edit-row button { border:1px solid #dde4ef; background:#fff; border-radius:6px; padding:6px; }
 #tasks-app .task-column-actions { display:flex; gap:8px; margin-top:12px; }
 #tasks-app .task-board-notice { color:#b66719; font-size:12px; }
-#tasks-app .task-manager-menu { height:100vh; min-width:0; display:flex; flex-direction:column; background:#fff; border-left:1px solid #e0e7ef; }
+#tasks-app .task-manager-menu { position:relative; height:100dvh; min-width:0; min-height:0; display:flex; flex-direction:column; background:#fff; border-left:1px solid #e0e7ef; }
 #tasks-app .task-manager-menu header { flex:none; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:24px 18px; border-bottom:1px solid #edf0f5; font-size:14px; line-height:1.5; }
-#tasks-app .task-manager-menu header button { border:0; background:transparent; color:#8a96a8; font-size:24px; padding:0 5px; }
-#tasks-app .task-manager-menu.collapsed header { padding:24px 7px; }
-#tasks-app .task-manager-scroll { flex:1; min-height:0; overflow-y:auto; padding:16px 18px; scrollbar-width:thin; }
+#tasks-app .task-manager-toggle { position:absolute; top:24px; left:-29px; z-index:15; width:29px; height:32px; display:grid; place-items:center; padding:0; border:1px solid #e0e7ef; border-right:0; border-radius:6px 0 0 6px; background:#fff; color:#8a96a8; font-size:24px; cursor:pointer; box-shadow:-3px 2px 8px #263d650a; }
+#tasks-app .task-manager-toggle:focus-visible { outline:2px solid #3065ed; outline-offset:2px; }
+#tasks-app .task-manager-scroll { flex:1; min-height:0; overflow-y:auto; overscroll-behavior-y:contain; padding:16px 18px; scrollbar-width:thin; }
 #tasks-app .task-manager-scroll .task-muted { font-size:12px; line-height:1.6; }
 #tasks-app .task-insights { grid-template-columns:minmax(0,1fr); }
-#tasks-app .task-manager-ranking { flex:none; max-height:45%; overflow-y:auto; padding:18px; border-top:1px solid #e1e8f3; scrollbar-width:thin; }
+#tasks-app .task-manager-ranking { flex:none; padding:18px; border-top:1px solid #e1e8f3; }
 #tasks-app .task-manager-menu .task-ranking-card { margin:0; padding:0; border:0; }
 #tasks-app .task-ranking-link { display:inline-block; margin-top:12px; color:#3065ed; font-size:12px; text-decoration:none; }
 #tasks-app .task-ranking-link:hover { text-decoration:underline; }
 #tasks-app .task-manager-menu.has-unread { background:#fff4f4; border-left-color:#ee5a60; box-shadow:inset 3px 0 0 #ee5a60, -4px 0 18px #e33e4526; }
-#tasks-app .task-manager-menu.has-unread header button, #tasks-app .task-manager-unread { color:#df3642; }
-#tasks-app .task-manager-unread { text-align:center; font-size:12px; }
+#tasks-app .task-manager-menu.has-unread .task-manager-toggle, #tasks-app .task-manager-unread { color:#df3642; }
+#tasks-app .task-manager-menu.has-unread .task-manager-toggle { background:#fff4f4; border-color:#ee5a60; }
+#tasks-app .task-manager-unread { margin-top:32px; text-align:center; font-size:12px; }
 #tasks-app .task-ranking-page-scroll { flex:1; min-height:0; overflow:auto; }
 #tasks-app .task-ranking-table-wrap { overflow-x:auto; }
 #tasks-app .task-ranking-table { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
@@ -73,7 +74,7 @@
 @media(max-width:950px) {
     #tasks-app .task-layout.with-manager-menu { grid-template-columns:190px minmax(0,1fr); }
     #tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:190px minmax(0,1fr); }
-    #tasks-app .task-manager-menu { grid-column:1/-1; height:240px; }
+    #tasks-app .task-manager-menu { grid-column:1/-1; height:480px; margin-left:29px; }
     #tasks-app .task-manager-menu.collapsed { height:60px; }
     #tasks-app .task-layout.with-manager-menu { height:auto; }
     #tasks-app .task-manager-menu header { padding:10px 18px; }
