@@ -10,7 +10,7 @@ git cat-file -e "$release^{commit}"
 git merge-base --is-ancestor "$base" "$release"
 stage=$(mktemp -d /opt/hub-tasks-release.XXXXXX)
 chmod 700 "$stage"
-git diff --name-only --diff-filter=AM "$base" "$release" > "$stage/files.txt"
+git diff --no-renames --name-only --diff-filter=AM "$base" "$release" > "$stage/files.txt"
 mapfile -t files < "$stage/files.txt"
 test "${#files[@]}" -gt 0
 for path in "${files[@]}"; do
