@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\User;
+use App\Security\Enum\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -31,6 +32,11 @@ final class RootAccessVoter extends Voter
             return true;
         }
         
+        // CRM employees inherit ordinary Tasks access, not task administration.
+        // Preserve explicitly assigned legacy TASK_ACCESS roles.
+        if ($attribute === Permission::TASK_ACCESS->value) {
+            return $user->hasPermission(Permission::CRM_ACCESS->value) || $user->hasPermission(Permission::TASK_ACCESS->value);
+        }
         return $user->hasPermission($attribute);
     }
 }

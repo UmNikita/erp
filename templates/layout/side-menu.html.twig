@@ -1,6 +1,6 @@
 {% set route = app.request.attributes.get('_route') %}
 
-<aside class="rail">
+<aside class="rail" data-turbo="false">
   <div class="logo">RH</div>
   <div class="rail-nav">
     <a class="rail-btn {{ route starts with 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}" data-tip="Главная">

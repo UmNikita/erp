@@ -5,7 +5,6 @@ import { useTaskStore } from '../store';
 const store = useTaskStore();
 const daily = computed(() => store.dashboard?.daily ?? []);
 const personal = computed(() => store.dashboard?.personal);
-const ranking = computed(() => store.dashboard?.ranking ?? []);
 const maxTick = computed(() => Math.max(1, ...daily.value.flatMap((day) => [day.done, day.failed])));
 const chartHeight = computed(() => Math.min(840, Math.max(190, maxTick.value * 20 + 35)));
 const baseline = computed(() => chartHeight.value - 18);
@@ -19,7 +18,7 @@ const percentage = (value: number | null | undefined) => value == null ? '—' :
 </script>
 
 <template>
-    <section class="task-insights" aria-label="Статистика и рейтинг">
+    <section class="task-insights" aria-label="Мои результаты">
         <div class="task-insight-card task-insight-stats">
             <div class="task-insight-head"><div><strong>Мои результаты</strong><span>Последние 7 дней · по дате закрытия задачи</span></div><div class="task-chart-legend"><span class="done">Выполнено</span><span class="failed">Не выполнено</span></div></div>
             <div class="task-insight-metrics">
@@ -40,12 +39,6 @@ const percentage = (value: number | null | undefined) => value == null ? '—' :
                 </svg>
                 <div class="task-chart-days"><span v-for="day in daily" :key="day.date">{{ dayLabel(day.date) }}</span></div>
             </div>
-        </div>
-        <div class="task-insight-card task-ranking-card">
-            <div class="task-insight-head"><div><strong>Рейтинг команды</strong><span>Последние 30 дней · только общие показатели</span></div><span class="task-ranking-trophy">★</span></div>
-            <div v-if="!ranking.length" class="task-empty">Пока нет результатов</div>
-            <div v-for="person in ranking" :key="person.person.id" class="task-ranking-row" :class="{ mine: person.person.id === store.currentUser?.id }"><span class="task-ranking-position">{{ person.rank }}</span><span class="task-ranking-name">{{ person.person.name }}<small v-if="person.person.id === store.currentUser?.id">Вы</small></span><span class="task-ranking-count">{{ person.done }} задач</span><strong>{{ person.score }}</strong></div>
-            <p class="task-stat-note">Баллы: +10 за выполненную, +2 за выполнение в срок, −4 за невыполненную, −2 за перенос. Чужие задачи и комментарии здесь не показываются.</p>
         </div>
     </section>
 </template>

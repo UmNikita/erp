@@ -26,6 +26,9 @@ class TaskFeedback
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $readAt = null;
+
     public function __construct(User $recipient, ?User $author, string $body)
     {
         $this->recipient = $recipient;
@@ -39,4 +42,6 @@ class TaskFeedback
     public function getAuthor(): ?User { return $this->author; }
     public function getBody(): string { return $this->body; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getReadAt(): ?\DateTimeImmutable { return $this->readAt; }
+    public function markRead(): void { $this->readAt ??= new \DateTimeImmutable(); }
 }

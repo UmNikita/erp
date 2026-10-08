@@ -4,5 +4,10 @@ import App from './App.vue';
 import router from './router';
 import './styles.css';
 import './admin-more.css';
+import './ui-update.css';
+import { mountModule } from '../shared/mountModule';
 
-createApp(App).use(createPinia()).use(router).mount('#tasks-app');
+mountModule('tasks-app', () => {
+    void router.replace(location.pathname + location.search + location.hash);
+    return createApp(App).use(createPinia()).use(router);
+});

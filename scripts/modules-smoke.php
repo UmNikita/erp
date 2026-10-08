@@ -14,11 +14,21 @@ $role = (new Role())->setName('Validation employee');
 (new ReflectionProperty(Role::class, 'permissions'))->setValue($role, new ArrayCollection());
 $role->addPermission($em->getRepository(Permission::class)->findOneBy(['name' => 'TASK_ACCESS']));
 $em->persist($role);
+$crmRole = (new Role())->setName('Validation CRM employee');
+(new ReflectionProperty(Role::class, 'permissions'))->setValue($crmRole, new ArrayCollection());
+$crmRole->addPermission($em->getRepository(Permission::class)->findOneBy(['name' => 'CRM_ACCESS']));
+$em->persist($crmRole);
+$managerRole = (new Role())->setName('Validation task administrator');
+(new ReflectionProperty(Role::class, 'permissions'))->setValue($managerRole, new ArrayCollection());
+foreach (['CRM_ACCESS', 'TASK_ADMIN_ACCESS'] as $permission) $managerRole->addPermission($em->getRepository(Permission::class)->findOneBy(['name' => $permission]));
+$em->persist($managerRole);
 $people = [];
 $runId = bin2hex(random_bytes(4));
-foreach (['admin', 'employee', 'other', 'denied'] as $name) {
+foreach (['admin', 'employee', 'other', 'denied', 'legacy', 'manager'] as $name) {
     $person = (new User())->setName($name)->setEmail($name.'-'.$runId.'@validation.invalid')->setPassword('unused')->setIsRoot($name === 'admin');
-    if (in_array($name, ['employee', 'other'], true)) $person->setRole($role);
+    if (in_array($name, ['employee', 'other'], true)) $person->setRole($crmRole);
+    if ($name === 'legacy') $person->setRole($role);
+    if ($name === 'manager') $person->setRole($managerRole);
     $em->persist($person); $people[$name] = $person;
 }
 $em->flush();
@@ -34,8 +44,32 @@ $call = function (string $who, string $method, string $path, ?array $data, int $
 };
 $check = function (bool $condition, string $message) use (&$passed): void { if (!$condition) throw new RuntimeException($message); $passed++; };
 $call('denied', 'GET', '/tasks/bootstrap', null, 403);
+$crmBoot = $call('employee', 'GET', '/tasks/bootstrap', null, 200);
+$check(!$crmBoot['canAdmin'] && !$people['employee']->hasPermission('TASK_ACCESS'), 'CRM alone grants ordinary tasks access, not administration');
+$check($call('legacy', 'GET', '/tasks/bootstrap', null, 200)['canAdmin'] === false, 'Legacy explicit tasks access preserved');
+$check($call('manager', 'GET', '/tasks/bootstrap', null, 200)['canAdmin'] === true, 'Dedicated task administrator works without root');
+$call('denied', 'POST', '/tasks', ['title' => 'Denied task'], 403);
+$call('employee', 'POST', '/tasks/feedback', ['recipientId' => $people['other']->getId(), 'body' => 'Forbidden'], 403);
+$call('employee', 'POST', '/tasks/shifts', [], 403);
 $call('employee', 'GET', '/tasks/audit', null, 403);
 $call('employee', 'GET', '/accounting/bootstrap', null, 403);
+$columns = App\Entity\TaskBoardLayout::defaults();
+$call('employee', 'PUT', '/tasks/board-columns', ['columns' => $columns], 403);
+$columns[0]['name'] = 'Новые задачи';
+$columns[0]['color'] = '#123ABC';
+$columns = array_reverse($columns);
+$call('admin', 'PUT', '/tasks/board-columns', ['columns' => $columns], 200);
+foreach (['employee', 'other'] as $who) {
+    $sharedLayout = $call($who, 'GET', '/tasks/bootstrap', null, 200)['boardColumns'];
+    $check($sharedLayout[4]['name'] === 'Новые задачи' && $sharedLayout[4]['color'] === '#123abc', 'Shared layout is visible to every employee');
+}
+$call('admin', 'PUT', '/tasks/board-columns', ['columns' => array_slice($columns, 1)], 422);
+$badColumns = $columns; $badColumns[0] = $badColumns[1];
+$call('admin', 'PUT', '/tasks/board-columns', ['columns' => $badColumns], 422);
+$badColumns = $columns; $badColumns[0]['color'] = 'red';
+$call('admin', 'PUT', '/tasks/board-columns', ['columns' => $badColumns], 422);
+$call('admin', 'PUT', '/tasks/board-columns', ['columns' => App\Entity\TaskBoardLayout::defaults()], 200);
+$call('manager', 'PUT', '/tasks/board-columns', ['columns' => App\Entity\TaskBoardLayout::defaults()], 200);
 $ids = [$people['employee']->getId(), $people['other']->getId()];
 $task = $call('admin', 'POST', '/tasks', ['title' => 'Shared validation task', 'assigneeIds' => $ids], 201);
 $call('employee', 'POST', '/tasks/'.$task['id'].'/messages', ['body' => 'Shared discussion'], 201);
@@ -47,6 +81,8 @@ foreach (['employee', 'other'] as $who) {
 }
 $private = $call('admin', 'POST', '/tasks', ['title' => 'Private task', 'assigneeIds' => [$people['admin']->getId()]], 201);
 $call('employee', 'PATCH', '/tasks/'.$private['id'], ['title' => 'Unauthorized change'], 403);
+$privateBoot = $call('employee', 'GET', '/tasks/bootstrap', null, 200);
+$check(!in_array($private['id'], array_column($privateBoot['tasks'], 'id'), true), 'CRM access does not expose unrelated private tasks');
 $call('employee', 'POST', '/tasks/'.$private['id'].'/messages', ['body' => 'Unauthorized message'], 403);
 $call('admin', 'POST', '/tasks', ['title' => 'Invalid deadline', 'dueAt' => '2026-02-30T12:00:00Z'], 422);
 $overdue = $call('admin', 'POST', '/tasks', ['title' => 'Overdue task', 'assigneeIds' => [$ids[0]], 'dueAt' => (new DateTimeImmutable('-1 day'))->format(DATE_ATOM)], 201);
@@ -56,17 +92,45 @@ $call('employee', 'PATCH', '/tasks/'.$overdue['id'], ['status' => 'done'], 200);
 $feedback = $call('admin', 'POST', '/tasks/feedback', ['recipientId' => $ids[0], 'body' => 'Private feedback'], 201);
 $boot = $call('other', 'GET', '/tasks/bootstrap', null, 200);
 $check($boot['feedback'] === [], 'Feedback privacy');
+$call('denied', 'GET', '/tasks/feedback', null, 403);
+$ownFeedback = $call('employee', 'GET', '/tasks/feedback', null, 200);
+$check(count($ownFeedback) === 1 && $ownFeedback[0]['readAt'] === null, 'Recipient receives unread feedback');
+$call('other', 'POST', '/tasks/feedback/'.$feedback['id'].'/read', null, 403);
+$call('admin', 'POST', '/tasks/feedback/'.$feedback['id'].'/read', null, 403);
+$readFeedback = $call('employee', 'POST', '/tasks/feedback/'.$feedback['id'].'/read', null, 200);
+$readAgain = $call('employee', 'POST', '/tasks/feedback/'.$feedback['id'].'/read', null, 200);
+$check($readFeedback['readAt'] !== null && $readFeedback['readAt'] === $readAgain['readAt'], 'Feedback read is persisted and idempotent');
+$secondFeedback = $call('admin', 'POST', '/tasks/feedback', ['recipientId' => $ids[0], 'body' => 'Newest feedback'], 201);
+$ownFeedback = $call('employee', 'GET', '/tasks/feedback', null, 200);
+$check($ownFeedback[0]['id'] === $secondFeedback['id'] && $ownFeedback[1]['readAt'] !== null, 'Newest feedback first and read state retained');
+$check($call('other', 'GET', '/tasks/feedback', null, 200) === [], 'Feedback polling preserves privacy');
+$call('admin', 'DELETE', '/tasks/feedback/'.$secondFeedback['id'], null, 204);
 $call('employee', 'DELETE', '/tasks/feedback/'.$feedback['id'], null, 403);
 $call('admin', 'DELETE', '/tasks/feedback/'.$feedback['id'], null, 204);
 $days = array_fill(0, 7, ['enabled' => true, 'start' => '22:00', 'end' => '06:00', 'userIds' => $ids]);
 $call('employee', 'POST', '/tasks/schedules', [], 403);
 $schedule = $call('admin', 'POST', '/tasks/schedules', ['title' => 'Night validation duty', 'color' => '#8a63ea', 'comment' => '', 'active' => true, 'sameTime' => true, 'days' => $days, 'taskTemplates' => [['id' => 'night', 'title' => 'Night task', 'description' => '', 'priority' => 'normal']]], 201);
+$call('employee', 'PATCH', '/tasks/schedules/'.$schedule['id'], ['title' => 'Forbidden change'], 403);
+$employeeBoot = $call('employee', 'GET', '/tasks/bootstrap', null, 200);
+$check($employeeBoot['schedules'] === [], 'Administrative schedule configuration not sent to employees');
+$check(count($employeeBoot['shifts']) === 1 && $employeeBoot['shifts'][0]['assignee']['id'] === $ids[0], 'Employee still sees their own duty');
 $boot = $call('admin', 'GET', '/tasks/bootstrap', null, 200);
 $shifts = array_values(array_filter($boot['shifts'], fn ($s) => $s['scheduleId'] === $schedule['id']));
 $check(count($shifts) === 2, 'One shift per employee');
 $check(strtotime($shifts[0]['endsAt']) - strtotime($shifts[0]['startsAt']) === 8 * 3600, 'Overnight shift');
 $again = $call('admin', 'GET', '/tasks/bootstrap', null, 200);
 $check(count($again['shifts']) === count($boot['shifts']), 'Idempotent generation');
+foreach (['employee' => ['/tasks' => true, '/tasks/table' => true, '/tasks/profile' => true, '/tasks/duties' => true, '/tasks/admin' => false, '/tasks/duties/new' => false, '/tasks/duties/'.$schedule['id'] => false], 'manager' => ['/tasks/admin' => true, '/tasks/duties/new' => true], 'denied' => ['/tasks' => false]] as $who => $pages) {
+    foreach ($pages as $path => $allowed) {
+        $session = new Symfony\Component\HttpFoundation\Session\Session(new Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage());
+        $session->start();
+        $session->set('_security_main', serialize(new Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken($people[$who], 'main', $people[$who]->getRoles())));
+        $request = Request::create($path, cookies: [$session->getName() => $session->getId()]); $request->setSession($session);
+        $response = $kernel->handle($request);
+        $check($allowed ? $response->getStatusCode() === 200 : in_array($response->getStatusCode(), [302, 403], true), 'Page authorization: '.$who.' '.$path.' status '.$response->getStatusCode());
+        $kernel->terminate($request, $response);
+    }
+}
 $category = $call('admin', 'POST', '/accounting/categories', ['name' => 'Validation revenue', 'type' => 'income', 'color' => '#3d70f5', 'icon' => 'wallet'], 201);
 $operation = $call('admin', 'POST', '/accounting/transactions', ['type' => 'income', 'amount' => 1000, 'date' => date('Y-m-d')], 201);
 $call('admin', 'POST', '/accounting/transactions/'.$operation['id'].'/allocate', ['categoryId' => $category['id'], 'amount' => 600], 200);

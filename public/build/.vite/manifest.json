@@ -1,51 +1,57 @@
 {
-  "_PeriodPicker-CMOLdduv.js": {
-    "file": "assets/PeriodPicker-CMOLdduv.js",
-    "name": "PeriodPicker",
-    "imports": [
-      "_axios-C2Tl5wqT.js"
-    ]
+  "__plugin-vue_export-helper-BDNMzG2s.js": {
+    "file": "assets/_plugin-vue_export-helper-BDNMzG2s.js",
+    "name": "_plugin-vue_export-helper"
   },
   "_axios-C2Tl5wqT.js": {
     "file": "assets/axios-C2Tl5wqT.js",
     "name": "axios"
   },
+  "_mountModule-nk68CzFs.js": {
+    "file": "assets/mountModule-nk68CzFs.js",
+    "name": "mountModule",
+    "imports": [
+      "_axios-C2Tl5wqT.js"
+    ]
+  },
   "assets/accounting/main.ts": {
-    "file": "assets/accounting-Bge4__zl.js",
+    "file": "assets/accounting-CN0Ii5NQ.js",
     "name": "accounting",
     "src": "assets/accounting/main.ts",
     "isEntry": true,
     "imports": [
       "_axios-C2Tl5wqT.js",
-      "_PeriodPicker-CMOLdduv.js"
+      "_mountModule-nk68CzFs.js"
     ],
     "css": [
       "assets/accounting-BAU0z-qN.css"
     ]
   },
   "assets/crm/main.ts": {
-    "file": "assets/crm-uEGf-OCN.js",
+    "file": "assets/crm-Bac1PPSY.js",
     "name": "crm",
     "src": "assets/crm/main.ts",
     "isEntry": true,
     "imports": [
-      "_axios-C2Tl5wqT.js"
+      "_axios-C2Tl5wqT.js",
+      "__plugin-vue_export-helper-BDNMzG2s.js"
     ],
     "css": [
       "assets/crm-dCksLpnZ.css"
     ]
   },
   "assets/tasks/main.ts": {
-    "file": "assets/tasks-Btp9xuw5.js",
+    "file": "assets/tasks-C0Jam7Pc.js",
     "name": "tasks",
     "src": "assets/tasks/main.ts",
     "isEntry": true,
     "imports": [
       "_axios-C2Tl5wqT.js",
-      "_PeriodPicker-CMOLdduv.js"
+      "__plugin-vue_export-helper-BDNMzG2s.js",
+      "_mountModule-nk68CzFs.js"
     ],
     "css": [
-      "assets/tasks-A9AJDKve.css"
+      "assets/tasks-DhT0dj9R.css"
     ]
   }
 }

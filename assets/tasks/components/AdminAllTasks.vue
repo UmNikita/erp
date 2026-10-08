@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTaskStore } from '../store';
-import { formatDate, STATUS_LABELS, taskAssignees, taskDisplayColor, type TaskStatus } from '../types';
+import { formatDate, taskAssignees, taskDisplayColor, type TaskStatus } from '../types';
 import TaskDetails from './TaskDetails.vue';
 import TaskEditor from './TaskEditor.vue';
 
 const store = useTaskStore();
+const STATUS_LABELS = computed(() => store.statusLabels);
 const search = ref('');
 const status = ref<TaskStatus | 'all'>('all');
 const personId = ref(0);

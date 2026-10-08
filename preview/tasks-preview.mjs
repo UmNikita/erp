@@ -149,14 +149,28 @@ function html() {
 async function api(req, res, url) {
     const name = url.pathname;
     if (req.method === 'GET' && name === '/api/v1/tasks/bootstrap') { materializeToday(); return json(res, 200, { currentUser: users[0], canAdmin: true, users, ...db, dashboard: dashboard() }); }
+    if (req.method === 'PUT' && name === '/api/v1/tasks/board-columns') {
+        const data = await payload(req);
+        const statuses = ['open', 'in_progress', 'review', 'done', 'not_done'];
+        if (!Array.isArray(data.columns) || data.columns.length !== 5 || new Set(data.columns.map(c => c.status)).size !== 5 || data.columns.some(c => !statuses.includes(c.status) || !c.name?.trim() || c.name.length > 60 || !/^#[a-f0-9]{6}$/i.test(c.color))) return json(res, 422, { error: 'Проверьте названия, цвета и все пять статусов' });
+        db.boardColumns = data.columns; persist(); return json(res, 200, { columns: db.boardColumns });
+    }
     if (req.method === 'GET' && name === '/api/v1/tasks/audit') {
         const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
         return json(res, 200, { items: db.audit.slice(offset, offset + 100), total: db.audit.length });
     }
+    if (req.method === 'GET' && name === '/api/v1/tasks/feedback') return json(res, 200, db.feedback.filter(item => item.recipient.id === users[0].id).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id - a.id).map(item => ({ ...item, readAt: item.readAt ?? null })));
+    const readFeedbackMatch = name.match(/^\/api\/v1\/tasks\/feedback\/(\d+)\/read$/);
+    if (req.method === 'POST' && readFeedbackMatch) {
+        const item = db.feedback.find(item => item.id === Number(readFeedbackMatch[1]));
+        if (!item) return json(res, 404, { error: 'Комментарий не найден' });
+        if (item.recipient.id !== users[0].id) return json(res, 403, { error: 'Нет доступа' });
+        item.readAt ??= new Date().toISOString(); persist(); return json(res, 200, item);
+    }
     if (req.method === 'POST' && name === '/api/v1/tasks/feedback') {
         const data = await payload(req);
         if (!users.some((user) => user.id === Number(data.recipientId)) || !data.body?.trim() || data.body.length > 2000) return json(res, 422, { error: 'Выберите сотрудника и напишите комментарий' });
-        const item = { id: Math.max(0, ...db.feedback.map((entry) => entry.id)) + 1, recipient: person(data.recipientId), author: users[0], body: data.body.trim(), createdAt: new Date().toISOString() };
+        const item = { id: Math.max(0, ...db.feedback.map((entry) => entry.id)) + 1, recipient: person(data.recipientId), author: users[0], body: data.body.trim(), createdAt: new Date().toISOString(), readAt: null };
         db.feedback.unshift(item); persist(); return json(res, 201, item);
     }
     const feedbackMatch = name.match(/^\/api\/v1\/tasks\/feedback\/(\d+)$/);

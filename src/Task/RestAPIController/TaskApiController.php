@@ -5,6 +5,7 @@ namespace App\Task\RestAPIController;
 use App\Entity\DutyShift;
 use App\Entity\DutySchedule;
 use App\Entity\TaskItem;
+use App\Entity\TaskBoardLayout;
 use App\Entity\TaskAudit;
 use App\Entity\TaskFeedback;
 use App\Entity\TaskMessage;
@@ -44,23 +45,49 @@ final class TaskApiController extends AbstractController
         $allReports = $em->getRepository(TaskOverdueReport::class)->findBy([], ['createdAt' => 'DESC']);
         $reports = array_values(array_filter($allReports, fn (TaskOverdueReport $report) => $admin || $report->getAuthor()?->getId() === $user->getId() || in_array($report->getTask()->getId(), $ids, true)));
         $people = $users->findBy(['is_active' => true], ['name' => 'ASC']);
-        $feedback = $em->getRepository(TaskFeedback::class)->findBy([], ['createdAt' => 'DESC']);
+        $feedback = $em->getRepository(TaskFeedback::class)->findBy([], ['createdAt' => 'DESC', 'id' => 'DESC']);
         $feedback = array_values(array_filter($feedback, fn (TaskFeedback $item) => $admin || $item->getRecipient()->getId() === $user->getId()));
         $shifts = $em->getRepository(DutyShift::class)->findBy([], ['startsAt' => 'ASC']);
         $shifts = array_values(array_filter($shifts, fn (DutyShift $shift) => $admin || $shift->getAssignee()->getId() === $user->getId()));
 
         return $this->json([
             'currentUser' => $this->userData($user),
+            'boardColumns' => $em->find(TaskBoardLayout::class, 1)?->getColumns() ?: TaskBoardLayout::defaults(),
             'canAdmin' => $admin,
             'users' => array_map($this->userData(...), $people),
             'tasks' => array_map($this->taskData(...), $tasks),
             'shifts' => array_map($this->shiftData(...), $shifts),
-            'schedules' => array_map($this->scheduleData(...), $em->getRepository(DutySchedule::class)->findBy([], ['id' => 'DESC'])),
+            'schedules' => $admin ? array_map($this->scheduleData(...), $em->getRepository(DutySchedule::class)->findBy([], ['id' => 'DESC'])) : [],
             'messages' => array_map($this->messageData(...), $messages),
             'overdueReports' => array_map($this->overdueReportData(...), $reports),
             'dashboard' => $dashboard->build($allTasks, $people, $allReports, $user),
             'feedback' => array_map($this->feedbackData(...), $feedback),
         ]);
+    }
+
+    #[Route('/board-columns', methods: ['PUT'])]
+    public function updateBoardColumns(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $this->assertAdmin();
+        $columns = $this->data($request)['columns'] ?? null;
+        if (!is_array($columns) || !array_is_list($columns) || count($columns) !== count(self::STATUSES)) {
+            throw new UnprocessableEntityHttpException('Сохраните все пять рабочих статусов');
+        }
+        $normalized = []; $seen = [];
+        foreach ($columns as $column) {
+            if (!is_array($column) || !in_array($column['status'] ?? null, self::STATUSES, true) || in_array($column['status'], $seen, true)) {
+                throw new UnprocessableEntityHttpException('Некорректные колонки');
+            }
+            $color = $column['color'] ?? null;
+            if (!is_string($color) || !preg_match('/^#[a-fA-F0-9]{6}$/', $color)) throw new UnprocessableEntityHttpException('Некорректный цвет');
+            $seen[] = $column['status'];
+            $normalized[] = ['status' => $column['status'], 'name' => $this->text($column['name'] ?? null, 60), 'color' => strtolower($color)];
+        }
+        $layout = $em->find(TaskBoardLayout::class, 1);
+        if (!$layout) throw new \RuntimeException('Сначала примените миграцию воронки');
+        $layout->setColumns($normalized);
+        $em->flush();
+        return $this->json(['columns' => $normalized]);
     }
 
     #[Route('/audit', methods: ['GET'])]
@@ -71,6 +98,26 @@ final class TaskApiController extends AbstractController
         $repository = $em->getRepository(TaskAudit::class);
         $entries = $repository->findBy([], ['createdAt' => 'DESC', 'id' => 'DESC'], 100, $offset);
         return $this->json(['items' => array_map($this->auditData(...), $entries), 'total' => $repository->count([])]);
+    }
+
+    #[Route('/feedback', methods: ['GET'])]
+    public function myFeedback(EntityManagerInterface $em): JsonResponse
+    {
+        $this->assertAccess();
+        $items = $em->getRepository(TaskFeedback::class)->findBy(['recipient' => $this->currentUser()], ['createdAt' => 'DESC', 'id' => 'DESC']);
+        return $this->json(array_map($this->feedbackData(...), $items));
+    }
+
+    #[Route('/feedback/{id}/read', requirements: ['id' => '\\d+'], methods: ['POST'])]
+    public function readFeedback(int $id, EntityManagerInterface $em): JsonResponse
+    {
+        $this->assertAccess();
+        $item = $em->find(TaskFeedback::class, $id);
+        if (!$item) return $this->json(['error' => 'Комментарий не найден'], Response::HTTP_NOT_FOUND);
+        if ($item->getRecipient()->getId() !== $this->currentUser()->getId()) throw $this->createAccessDeniedException();
+        $item->markRead();
+        $em->flush();
+        return $this->json($this->feedbackData($item));
     }
 
     #[Route('/feedback', methods: ['POST'])]
@@ -486,6 +533,7 @@ final class TaskApiController extends AbstractController
             'id' => $item->getId(), 'recipient' => $this->userData($item->getRecipient()),
             'author' => $this->userData($item->getAuthor()), 'body' => $item->getBody(),
             'createdAt' => $item->getCreatedAt()->format(DATE_ATOM),
+            'readAt' => $item->getReadAt()?->format(DATE_ATOM),
         ];
     }
 }

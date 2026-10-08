@@ -7,11 +7,12 @@
       ],
       "dynamic": [],
       "js": [
-        "/build/assets/crm-uEGf-OCN.js"
+        "/build/assets/crm-Bac1PPSY.js"
       ],
       "legacy": false,
       "preload": [
-        "/build/assets/axios-C2Tl5wqT.js"
+        "/build/assets/axios-C2Tl5wqT.js",
+        "/build/assets/_plugin-vue_export-helper-BDNMzG2s.js"
       ]
     },
     "accounting": {
@@ -20,26 +21,27 @@
       ],
       "dynamic": [],
       "js": [
-        "/build/assets/accounting-Bge4__zl.js"
+        "/build/assets/accounting-CN0Ii5NQ.js"
       ],
       "legacy": false,
       "preload": [
         "/build/assets/axios-C2Tl5wqT.js",
-        "/build/assets/PeriodPicker-CMOLdduv.js"
+        "/build/assets/mountModule-nk68CzFs.js"
       ]
     },
     "tasks": {
       "css": [
-        "/build/assets/tasks-A9AJDKve.css"
+        "/build/assets/tasks-DhT0dj9R.css"
       ],
       "dynamic": [],
       "js": [
-        "/build/assets/tasks-Btp9xuw5.js"
+        "/build/assets/tasks-C0Jam7Pc.js"
       ],
       "legacy": false,
       "preload": [
         "/build/assets/axios-C2Tl5wqT.js",
-        "/build/assets/PeriodPicker-CMOLdduv.js"
+        "/build/assets/_plugin-vue_export-helper-BDNMzG2s.js",
+        "/build/assets/mountModule-nk68CzFs.js"
       ]
     }
   },

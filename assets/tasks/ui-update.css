@@ -1,0 +1,90 @@
+#tasks-app .task-layout { grid-template-columns:250px minmax(0,1fr); }
+#tasks-app .task-layout.with-manager-menu { grid-template-columns:250px minmax(0,1fr) 270px; }
+#tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:250px minmax(0,1fr) 44px; }
+#tasks-app .task-page-title { margin:0; font-size:24px; line-height:1.3; letter-spacing:-.5px; }
+#tasks-app .task-work-list { flex:1; }
+#tasks-app .task-board-panel { min-width:0; padding:17px; border:1px solid #e1e8f3; border-radius:15px; background:#fff; box-shadow:0 8px 24px #263d650a; }
+#tasks-app .task-board { margin:0; }
+#tasks-app .task-board-scope { display:inline-flex; margin:0 0 12px; }
+#tasks-app .task-board-toolbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; font-size:12px; color:#7b88a0; }
+#tasks-app .task-kanban { display:grid; grid-template-columns:repeat(5,minmax(210px,1fr)); grid-template-rows:minmax(0,1fr); gap:12px; overflow-x:auto; overflow-y:hidden; padding-bottom:12px; height:clamp(300px,48dvh,440px); scrollbar-width:thin; }
+#tasks-app .task-kanban-lane { display:flex; flex-direction:column; overflow:hidden; min-height:0; background:#f7f9fd; border:1px solid #e0e7f1; border-radius:12px; min-width:0; transition:background .15s; }
+#tasks-app .task-kanban-lane.drag-over { background:#dde9ff; border-color:#7098ef; }
+#tasks-app .task-kanban-lane > header { flex:none; display:flex; align-items:center; gap:10px; border-top:3px solid var(--column-color); padding:15px 12px; border-radius:12px 12px 0 0; font-size:13px; }
+#tasks-app .task-kanban-lane > header span { margin-left:auto; border-radius:6px; background:#fff; padding:3px 7px; color:#8490a3; }
+#tasks-app .task-kanban-body { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior-y:contain; padding:0 9px 14px; scrollbar-width:thin; scrollbar-color:#cbd5e4 transparent; }
+#tasks-app .task-kanban-body:focus-visible { outline:2px solid #7098ef; outline-offset:-2px; }
+#tasks-app .task-kanban-item { margin-bottom:10px; border-radius:10px; background:#fff; box-shadow:0 3px 10px #263e6409; }
+#tasks-app .task-kanban-item[draggable=true] { cursor:grab; }
+#tasks-app .task-kanban-item.dragging { opacity:.4; }
+#tasks-app .task-kanban-item .task-card { width:100%; min-height:120px; border-radius:10px; box-shadow:none; }
+#tasks-app .task-kanban-item .task-card:hover { transform:none; }
+#tasks-app .task-kanban-empty { padding:50px 10px; text-align:center; color:#93a0b4; font-size:12px; }
+#tasks-app .task-column-editor { border:1px solid #c7d7f5; border-radius:12px; background:white; padding:14px; margin-bottom:16px; }
+#tasks-app .task-column-editor p { font-size:12px; color:#7b88a0; margin:0 0 12px; }
+#tasks-app .task-column-edit-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+#tasks-app .task-column-edit-row input:not([type=color]) { flex:1; min-width:0; padding:9px; border:1px solid #dde4ef; border-radius:8px; }
+#tasks-app .task-column-edit-row input[type=color] { width:32px; height:32px; padding:0; border:0; background:transparent; }
+#tasks-app .task-column-edit-row small { width:90px; color:#8a96a8; }
+#tasks-app .task-column-edit-row button { border:1px solid #dde4ef; background:#fff; border-radius:6px; padding:6px; }
+#tasks-app .task-column-actions { display:flex; gap:8px; margin-top:12px; }
+#tasks-app .task-board-notice { color:#b66719; font-size:12px; }
+#tasks-app .task-manager-menu { height:100vh; min-width:0; display:flex; flex-direction:column; background:#fff; border-left:1px solid #e0e7ef; }
+#tasks-app .task-manager-menu header { flex:none; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:24px 18px; border-bottom:1px solid #edf0f5; font-size:14px; line-height:1.5; }
+#tasks-app .task-manager-menu header button { border:0; background:transparent; color:#8a96a8; font-size:24px; padding:0 5px; }
+#tasks-app .task-manager-menu.collapsed header { padding:24px 7px; }
+#tasks-app .task-manager-scroll { flex:1; min-height:0; overflow-y:auto; padding:16px 18px; scrollbar-width:thin; }
+#tasks-app .task-manager-scroll .task-muted { font-size:12px; line-height:1.6; }
+#tasks-app .task-insights { grid-template-columns:minmax(0,1fr); }
+#tasks-app .task-manager-ranking { flex:none; max-height:45%; overflow-y:auto; padding:18px; border-top:1px solid #e1e8f3; scrollbar-width:thin; }
+#tasks-app .task-manager-menu .task-ranking-card { margin:0; padding:0; border:0; }
+#tasks-app .task-ranking-link { display:inline-block; margin-top:12px; color:#3065ed; font-size:12px; text-decoration:none; }
+#tasks-app .task-ranking-link:hover { text-decoration:underline; }
+#tasks-app .task-manager-menu.has-unread { background:#fff4f4; border-left-color:#ee5a60; box-shadow:inset 3px 0 0 #ee5a60, -4px 0 18px #e33e4526; }
+#tasks-app .task-manager-menu.has-unread header button, #tasks-app .task-manager-unread { color:#df3642; }
+#tasks-app .task-manager-unread { text-align:center; font-size:12px; }
+#tasks-app .task-ranking-page-scroll { flex:1; min-height:0; overflow:auto; }
+#tasks-app .task-ranking-table-wrap { overflow-x:auto; }
+#tasks-app .task-ranking-table { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
+#tasks-app .task-ranking-table th, #tasks-app .task-ranking-table td { padding:16px 12px; border-bottom:1px solid #edf0f5; text-align:left; }
+#tasks-app .task-ranking-table th { color:#7b88a0; font-weight:500; }
+#tasks-app .task-ranking-table .mine { background:#f0f5ff; }
+#tasks-app .task-ranking-rules { margin-top:18px; font-size:13px; color:#7b88a0; line-height:1.7; }
+#tasks-app .task-ranking-rules h2 { font-size:16px; color:#26354b; }
+#tasks-app .task-manager-menu .task-ranking-row { grid-template-columns:18px minmax(0,1fr) 28px; gap:6px; min-height:48px; }
+#tasks-app .task-manager-menu .task-ranking-name { white-space:normal; overflow-wrap:anywhere; }
+#tasks-app .task-manager-menu .task-ranking-count { display:block; margin-top:4px; font-weight:400; }
+#tasks-app .task-feedback-entry time { font-size:10px; }
+#tasks-app .task-filter-expanded { flex-wrap:wrap; margin:0 0 18px; }
+#tasks-app .task-user-filter { position:relative; }
+#tasks-app .task-user-popover { position:absolute; top:calc(100% + 8px); left:0; z-index:20; width:280px; max-width:calc(100vw - 100px); border:1px solid #dce4f0; border-radius:12px; padding:16px; background:white; box-shadow:0 12px 40px #223a6424; font-size:12px; }
+#tasks-app .task-user-popover > input { width:100%; margin:8px 0; }
+#tasks-app .task-user-shortcuts { display:flex; gap:12px; margin-top:12px; }
+#tasks-app .task-user-shortcuts button { padding:0; border:0; background:none; color:#3065ed; font-size:12px; }
+#tasks-app .task-user-options { max-height:240px; overflow:auto; }
+#tasks-app .task-user-options label { display:flex; align-items:center; gap:9px; padding:10px 0; }
+#tasks-app .task-user-options input { accent-color:#376bf3; }
+@media(max-width:1250px) {
+    #tasks-app .task-layout { grid-template-columns:210px minmax(0,1fr); }
+    #tasks-app .task-layout.with-manager-menu { grid-template-columns:210px minmax(0,1fr) 220px; }
+    #tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:210px minmax(0,1fr) 44px; }
+    #tasks-app .task-page { padding:22px 18px; }
+}
+@media(max-width:950px) {
+    #tasks-app .task-layout.with-manager-menu { grid-template-columns:190px minmax(0,1fr); }
+    #tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:190px minmax(0,1fr); }
+    #tasks-app .task-manager-menu { grid-column:1/-1; height:240px; }
+    #tasks-app .task-manager-menu.collapsed { height:60px; }
+    #tasks-app .task-layout.with-manager-menu { height:auto; }
+    #tasks-app .task-manager-menu header { padding:10px 18px; }
+}
+@media(max-width:760px) {
+    #tasks-app .task-layout, #tasks-app .task-layout.with-manager-menu, #tasks-app .task-layout.with-manager-menu.manager-collapsed { grid-template-columns:minmax(0,1fr); height:auto; }
+    #tasks-app .task-main { height:calc(100dvh - 70px); min-height:400px; }
+    #tasks-app .task-page-title { font-size:20px; }
+    #tasks-app .task-toolbar { flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    #tasks-app .task-column-edit-row small { display:none; }
+    #tasks-app .task-board-toolbar { flex-wrap:wrap; }
+    #tasks-app .task-kanban { grid-template-columns:repeat(5,230px); }
+    #tasks-app .task-user-popover { left:auto; right:0; }
+}

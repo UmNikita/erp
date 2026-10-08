@@ -3,11 +3,12 @@ import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useTaskStore } from '../store';
 import DeadlinePicker from './DeadlinePicker.vue';
 import TaskAssigneesSelect from './TaskAssigneesSelect.vue';
-import { formatDate, fromLocalInput, STATUS_LABELS, taskAssignees, taskDisplayColor, toLocalInput, type TaskItem, type TaskStatus } from '../types';
+import { formatDate, fromLocalInput, taskAssignees, taskDisplayColor, toLocalInput, type TaskItem, type TaskStatus } from '../types';
 
 const props = defineProps<{ task: TaskItem }>();
 const emit = defineEmits<{ close: [] }>();
 const store = useTaskStore();
+const STATUS_LABELS = computed(() => store.statusLabels);
 type EditableField = 'title' | 'description' | 'result';
 const editingField = ref<EditableField | null>(null);
 const draft = ref('');

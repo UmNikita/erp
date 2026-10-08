@@ -5,6 +5,7 @@ import DutiesView from './views/DutiesView.vue';
 import DutyDetailView from './views/DutyDetailView.vue';
 import ProfileView from './views/ProfileView.vue';
 import AdminView from './views/AdminView.vue';
+import RankingView from './views/RankingView.vue';
 
 export default createRouter({
     history: createWebHistory(),
@@ -15,6 +16,7 @@ export default createRouter({
         { path: '/tasks/duties/new', component: DutyDetailView },
         { path: '/tasks/duties/:id', component: DutyDetailView },
         { path: '/tasks/profile', component: ProfileView },
+        { path: '/tasks/ranking', component: RankingView },
         { path: '/tasks/admin', component: AdminView },
         { path: '/tasks/:pathMatch(.*)*', redirect: '/tasks' },
     ],

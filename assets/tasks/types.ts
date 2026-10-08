@@ -1,6 +1,14 @@
 export interface Person { id: number; name: string }
 export type TaskStatus = 'open' | 'in_progress' | 'review' | 'done' | 'not_done';
 export type TaskPriority = 'low' | 'normal' | 'high';
+export interface BoardColumn { status: TaskStatus; name: string; color: string }
+export const DEFAULT_BOARD_COLUMNS: BoardColumn[] = [
+    { status: 'open', name: 'К работе', color: '#718096' },
+    { status: 'in_progress', name: 'В работе', color: '#3d70f5' },
+    { status: 'review', name: 'На проверке', color: '#ed9a32' },
+    { status: 'done', name: 'Выполнено', color: '#1faf79' },
+    { status: 'not_done', name: 'Не выполнено', color: '#8993a4' },
+];
 export interface TaskItem {
     id: number;
     title: string;
@@ -88,8 +96,9 @@ export interface RankingRow {
     dueDated: number; moved: number; completionRate: number | null; score: number;
 }
 export interface TaskDashboard { daily: DashboardDay[]; personal: DashboardPersonal; ranking: RankingRow[] }
-export interface TaskFeedback { id: number; recipient: Person; author: Person | null; body: string; createdAt: string }
+export interface TaskFeedback { id: number; recipient: Person; author: Person | null; body: string; createdAt: string; readAt: string | null }
 export interface Bootstrap {
+    boardColumns: BoardColumn[];
     currentUser: Person;
     canAdmin: boolean;
     users: Person[];
