@@ -152,6 +152,7 @@
         <th>Партнёрки</th>
         <th>Статистика</th>
         <th>Задачи</th>
+        <th>Администрирование задач</th>
         <th>Прозвон</th>
         <th>Базы</th>
         <th>AI</th>
@@ -296,6 +297,11 @@
                   title="Включить">
                 </button>
               </td>
+            {% endif %}
+            {% if role.taskAdmin %}
+              <td class="task_admin"><button type="button" class="toggle on" data-value="true" title="Отключить"></button></td>
+            {% else %}
+              <td class="task_admin"><button type="button" class="toggle" data-value="false" title="Включить"></button></td>
             {% endif %}
             {% if role.call %}
               <td class="call">

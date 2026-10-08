@@ -12,6 +12,7 @@ enum Permission: string
     case PARTNER_ACCESS = 'PARTNER_ACCESS';
     case STATISTIC_ACCESS = 'STATISTIC_ACCESS';
     case TASK_ACCESS = 'TASK_ACCESS';
+    case TASK_ADMIN_ACCESS = 'TASK_ADMIN_ACCESS';
     case CALL_ACCESS = 'CALL_ACCESS';
     case BASE_ACCESS = 'BASE_ACCESS';
     case AI_ACCESS = 'AI_ACCESS';

@@ -49,7 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, LeadMessage>
      */
-    #[ORM\OneToMany(mappedBy: 'lead', targetEntity: LeadMessage::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LeadMessage::class)]
     private Collection $lead_messages;
 
     /**
@@ -73,7 +73,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, EmailLog>
      */
-    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'ManyToOne')]
+    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'user')]
     private Collection $email_logs;
 
     public function __construct()

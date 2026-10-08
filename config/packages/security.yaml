@@ -42,6 +42,7 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
+            access_denied_handler: App\Security\ApiAccessDeniedHandler
 
         public_api:
             pattern: ^/public-api

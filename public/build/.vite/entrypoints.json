@@ -2,8 +2,44 @@
   "base": "/build/",
   "entryPoints": {
     "crm": {
+      "css": [
+        "/build/assets/crm-dCksLpnZ.css"
+      ],
+      "dynamic": [],
       "js": [
-        "http://localhost:5173/build/assets/crm/main.ts"
+        "/build/assets/crm-uEGf-OCN.js"
+      ],
+      "legacy": false,
+      "preload": [
+        "/build/assets/axios-C2Tl5wqT.js"
+      ]
+    },
+    "accounting": {
+      "css": [
+        "/build/assets/accounting-BAU0z-qN.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/build/assets/accounting-Bge4__zl.js"
+      ],
+      "legacy": false,
+      "preload": [
+        "/build/assets/axios-C2Tl5wqT.js",
+        "/build/assets/PeriodPicker-CMOLdduv.js"
+      ]
+    },
+    "tasks": {
+      "css": [
+        "/build/assets/tasks-A9AJDKve.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/build/assets/tasks-Btp9xuw5.js"
+      ],
+      "legacy": false,
+      "preload": [
+        "/build/assets/axios-C2Tl5wqT.js",
+        "/build/assets/PeriodPicker-CMOLdduv.js"
       ]
     }
   },
@@ -15,5 +51,5 @@
     2,
     4
   ],
-  "viteServer": "http://localhost:5173"
+  "viteServer": null
 }

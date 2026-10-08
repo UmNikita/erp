@@ -1,0 +1,51 @@
+{
+  "_PeriodPicker-CMOLdduv.js": {
+    "file": "assets/PeriodPicker-CMOLdduv.js",
+    "name": "PeriodPicker",
+    "imports": [
+      "_axios-C2Tl5wqT.js"
+    ]
+  },
+  "_axios-C2Tl5wqT.js": {
+    "file": "assets/axios-C2Tl5wqT.js",
+    "name": "axios"
+  },
+  "assets/accounting/main.ts": {
+    "file": "assets/accounting-Bge4__zl.js",
+    "name": "accounting",
+    "src": "assets/accounting/main.ts",
+    "isEntry": true,
+    "imports": [
+      "_axios-C2Tl5wqT.js",
+      "_PeriodPicker-CMOLdduv.js"
+    ],
+    "css": [
+      "assets/accounting-BAU0z-qN.css"
+    ]
+  },
+  "assets/crm/main.ts": {
+    "file": "assets/crm-uEGf-OCN.js",
+    "name": "crm",
+    "src": "assets/crm/main.ts",
+    "isEntry": true,
+    "imports": [
+      "_axios-C2Tl5wqT.js"
+    ],
+    "css": [
+      "assets/crm-dCksLpnZ.css"
+    ]
+  },
+  "assets/tasks/main.ts": {
+    "file": "assets/tasks-Btp9xuw5.js",
+    "name": "tasks",
+    "src": "assets/tasks/main.ts",
+    "isEntry": true,
+    "imports": [
+      "_axios-C2Tl5wqT.js",
+      "_PeriodPicker-CMOLdduv.js"
+    ],
+    "css": [
+      "assets/tasks-A9AJDKve.css"
+    ]
+  }
+}

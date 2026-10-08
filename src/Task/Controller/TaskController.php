@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class TaskController extends AbstractController
 {
     #[Route('/tasks', name: 'app_task')]
+    #[Route('/tasks/{vueRoute}', name: 'app_task_route', requirements: ['vueRoute' => '.*'])]
     public function index(): Response
     {
         $this->denyAccessUnlessGranted(Permission::TASK_ACCESS->value);

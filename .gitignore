@@ -25,3 +25,5 @@
 ###< lexik/jwt-authentication-bundle ###
 
 /node_modules/
+/preview/tasks-build/
+/preview/tasks-preview-data.json

@@ -1,11 +1,9 @@
-{% extends 'layout/index.html.twig' %}
+{% extends 'layout/spa.html.twig' %}
+
+{% block title %}Задачи — REKLAM Hub{% endblock %}
 
 {% block content %}
-<div class="top">
-  <div class="title">
-    <h1>Задачи</h1>
-    <p>Задачи, дедлайны и команда</p>
-  </div>
-</div>
-{% include 'in_develop.html.twig' %}
+    <div id="tasks-app"></div>
+    {{ vite_entry_link_tags('tasks') }}
+    {{ vite_entry_script_tags('tasks') }}
 {% endblock %}

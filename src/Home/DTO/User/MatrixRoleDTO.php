@@ -15,6 +15,7 @@ class MatrixRoleDTO
         public bool $partner,
         public bool $statistic,
         public bool $task,
+        public bool $taskAdmin,
         public bool $call,
         public bool $base,
         public bool $ai,

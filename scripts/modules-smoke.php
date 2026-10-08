@@ -1,0 +1,80 @@
+<?php
+// Disposable database only. This script must never run on production data.
+require dirname(__DIR__).'/vendor/autoload.php';
+use App\Entity\{User, Role, Permission};
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpFoundation\Request;
+(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+if (!str_contains($_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?: '', 'hub_validation')) throw new RuntimeException('Use hub_validation database');
+$kernel = new App\Kernel('dev', true);
+$kernel->boot();
+$em = $kernel->getContainer()->get('doctrine')->getManager();
+$role = (new Role())->setName('Validation employee');
+(new ReflectionProperty(Role::class, 'permissions'))->setValue($role, new ArrayCollection());
+$role->addPermission($em->getRepository(Permission::class)->findOneBy(['name' => 'TASK_ACCESS']));
+$em->persist($role);
+$people = [];
+$runId = bin2hex(random_bytes(4));
+foreach (['admin', 'employee', 'other', 'denied'] as $name) {
+    $person = (new User())->setName($name)->setEmail($name.'-'.$runId.'@validation.invalid')->setPassword('unused')->setIsRoot($name === 'admin');
+    if (in_array($name, ['employee', 'other'], true)) $person->setRole($role);
+    $em->persist($person); $people[$name] = $person;
+}
+$em->flush();
+$tokens = [];
+foreach ($people as $name => $person) $tokens[$name] = $kernel->getContainer()->get('lexik_jwt_authentication.jwt_manager')->create($person);
+$passed = 0;
+$call = function (string $who, string $method, string $path, ?array $data, int $expected) use ($kernel, $tokens, &$passed): array {
+    $request = Request::create('/api/v1'.$path, $method, server: ['HTTP_AUTHORIZATION' => 'Bearer '.$tokens[$who], 'CONTENT_TYPE' => 'application/json'], content: $data === null ? null : json_encode($data));
+    $response = $kernel->handle($request);
+    if ($response->getStatusCode() !== $expected) throw new RuntimeException($method.' '.$path.' expected '.$expected.', got '.$response->getStatusCode().': '.$response->getContent());
+    $kernel->terminate($request, $response); $passed++;
+    return json_decode($response->getContent(), true) ?? [];
+};
+$check = function (bool $condition, string $message) use (&$passed): void { if (!$condition) throw new RuntimeException($message); $passed++; };
+$call('denied', 'GET', '/tasks/bootstrap', null, 403);
+$call('employee', 'GET', '/tasks/audit', null, 403);
+$call('employee', 'GET', '/accounting/bootstrap', null, 403);
+$ids = [$people['employee']->getId(), $people['other']->getId()];
+$task = $call('admin', 'POST', '/tasks', ['title' => 'Shared validation task', 'assigneeIds' => $ids], 201);
+$call('employee', 'POST', '/tasks/'.$task['id'].'/messages', ['body' => 'Shared discussion'], 201);
+$call('other', 'PATCH', '/tasks/'.$task['id'], ['status' => 'done'], 200);
+foreach (['employee', 'other'] as $who) {
+    $boot = $call($who, 'GET', '/tasks/bootstrap', null, 200);
+    $shared = array_values(array_filter($boot['tasks'], fn ($t) => $t['id'] === $task['id']))[0];
+    $check($shared['completedForIds'] === $ids && $boot['dashboard']['personal']['done'] === 1, 'Completion for each assignee');
+}
+$private = $call('admin', 'POST', '/tasks', ['title' => 'Private task', 'assigneeIds' => [$people['admin']->getId()]], 201);
+$call('employee', 'PATCH', '/tasks/'.$private['id'], ['title' => 'Unauthorized change'], 403);
+$call('employee', 'POST', '/tasks/'.$private['id'].'/messages', ['body' => 'Unauthorized message'], 403);
+$call('admin', 'POST', '/tasks', ['title' => 'Invalid deadline', 'dueAt' => '2026-02-30T12:00:00Z'], 422);
+$overdue = $call('admin', 'POST', '/tasks', ['title' => 'Overdue task', 'assigneeIds' => [$ids[0]], 'dueAt' => (new DateTimeImmutable('-1 day'))->format(DATE_ATOM)], 201);
+$call('employee', 'PATCH', '/tasks/'.$overdue['id'], ['status' => 'done'], 422);
+$call('employee', 'POST', '/tasks/'.$overdue['id'].'/report-overdue', ['reason' => 'Waiting for materials', 'newDueAt' => (new DateTimeImmutable('+1 day'))->format(DATE_ATOM)], 201);
+$call('employee', 'PATCH', '/tasks/'.$overdue['id'], ['status' => 'done'], 200);
+$feedback = $call('admin', 'POST', '/tasks/feedback', ['recipientId' => $ids[0], 'body' => 'Private feedback'], 201);
+$boot = $call('other', 'GET', '/tasks/bootstrap', null, 200);
+$check($boot['feedback'] === [], 'Feedback privacy');
+$call('employee', 'DELETE', '/tasks/feedback/'.$feedback['id'], null, 403);
+$call('admin', 'DELETE', '/tasks/feedback/'.$feedback['id'], null, 204);
+$days = array_fill(0, 7, ['enabled' => true, 'start' => '22:00', 'end' => '06:00', 'userIds' => $ids]);
+$call('employee', 'POST', '/tasks/schedules', [], 403);
+$schedule = $call('admin', 'POST', '/tasks/schedules', ['title' => 'Night validation duty', 'color' => '#8a63ea', 'comment' => '', 'active' => true, 'sameTime' => true, 'days' => $days, 'taskTemplates' => [['id' => 'night', 'title' => 'Night task', 'description' => '', 'priority' => 'normal']]], 201);
+$boot = $call('admin', 'GET', '/tasks/bootstrap', null, 200);
+$shifts = array_values(array_filter($boot['shifts'], fn ($s) => $s['scheduleId'] === $schedule['id']));
+$check(count($shifts) === 2, 'One shift per employee');
+$check(strtotime($shifts[0]['endsAt']) - strtotime($shifts[0]['startsAt']) === 8 * 3600, 'Overnight shift');
+$again = $call('admin', 'GET', '/tasks/bootstrap', null, 200);
+$check(count($again['shifts']) === count($boot['shifts']), 'Idempotent generation');
+$category = $call('admin', 'POST', '/accounting/categories', ['name' => 'Validation revenue', 'type' => 'income', 'color' => '#3d70f5', 'icon' => 'wallet'], 201);
+$operation = $call('admin', 'POST', '/accounting/transactions', ['type' => 'income', 'amount' => 1000, 'date' => date('Y-m-d')], 201);
+$call('admin', 'POST', '/accounting/transactions/'.$operation['id'].'/allocate', ['categoryId' => $category['id'], 'amount' => 600], 200);
+$call('admin', 'POST', '/accounting/transactions/'.$operation['id'].'/allocate', ['categoryId' => $category['id'], 'amount' => 500], 422);
+$call('admin', 'POST', '/accounting/transactions/'.$operation['id'].'/unallocate', ['categoryId' => $category['id']], 200);
+$call('admin', 'DELETE', '/accounting/transactions/'.$operation['id'], null, 204);
+$audit = $call('admin', 'GET', '/accounting/audit', null, 200);
+$deleted = array_values(array_filter($audit, fn ($a) => $a['action'] === 'transaction.deleted' && $a['entityId'] === $operation['id']))[0];
+$call('admin', 'POST', '/accounting/audit/'.$deleted['id'].'/restore', [], 200);
+$call('admin', 'POST', '/accounting/audit/'.$deleted['id'].'/restore', [], 409);
+echo "PASS: $passed module integration assertions\n";

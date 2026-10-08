@@ -25,6 +25,11 @@ accounting_api:
     type: attribute
     prefix: /api/v1
 
+task_api:
+    resource: ../src/Task/RestAPIController/
+    type: attribute
+    prefix: /api/v1
+
 api_refresh_token:
     path: /api/token/refresh
 

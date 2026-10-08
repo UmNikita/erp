@@ -39,6 +39,9 @@ class RoleService
             case "task":
                 $permissionName = Permission::TASK_ACCESS->value;
                 break;
+            case "task_admin":
+                $permissionName = Permission::TASK_ADMIN_ACCESS->value;
+                break;
             case "call":
                 $permissionName = Permission::CALL_ACCESS->value;
                 break;
